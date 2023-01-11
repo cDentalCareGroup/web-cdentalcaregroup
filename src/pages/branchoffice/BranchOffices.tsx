@@ -10,11 +10,15 @@ import LayoutCard from "../layouts/LayoutCard";
 import {
     RiPhoneLine,
 } from "react-icons/ri";
+import Constants from "../../utils/Constants";
+import useSessionStorage from "../../core/sessionStorage";
 const BranchOffices = () => {
     const [getBranchOffices, { isLoading }] = useGetBranchOfficesMutation();
     const [data, setData] = useState<BranchOffice[]>([]);
-    const navigation = useNavigate();
-
+    const [branchId, setBranchId] = useSessionStorage(
+        Constants.BRANCH_ID,
+        0
+    );
     useEffect(() => {
         handleGetBranchOffices();
     }, []);
@@ -28,7 +32,6 @@ const BranchOffices = () => {
             handleErrorNotification(error);
         }
     }
-
     return (
         <LayoutCard
             isLoading={isLoading}
@@ -37,7 +40,9 @@ const BranchOffices = () => {
                     <Row>
                         {data.map((value, index) =>
                             <Card key={index} title={value.name} className="m-2 cursor-pointer" actions={[
-                                <Link to={'/admin/branchoffice/appointment'}>
+                                <Link onClick={() => {
+                                    setBranchId(value.id);
+                                }} to={'/admin/branchoffice/appointment'}>
                                     Ver citas
                                 </Link>
                             ]}>

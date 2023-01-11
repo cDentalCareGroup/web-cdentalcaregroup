@@ -42,4 +42,86 @@ export enum UserRoles {
     ADMIN, RECEPTIONIST, UNDEFINED
   }
 
-export { getInitRoute,getUserRol }
+
+  const dayName = (d: Date): string => {
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[d.getDay()];
+  
+    let spanishDay = 'Lunes';
+    switch (day) {
+      case 'Monday':
+        spanishDay = 'Lunes'
+        break;
+      case 'Tuesday':
+        spanishDay = 'Martes'
+        break;
+      case 'Wednesday':
+        spanishDay = 'Miercoles'
+        break;
+      case 'Thursday':
+        spanishDay = 'Jueves'
+        break;
+      case 'Friday':
+        spanishDay = 'Viernes'
+        break;
+      case 'Saturday':
+        spanishDay = 'Sabado'
+        break;
+      case 'Sunday':
+        spanishDay = 'Domingo'
+        break;
+    }
+    return spanishDay;
+  }
+  
+  const monthName = (d: Date): string => {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+  
+    const month = monthNames[d.getMonth()];
+  
+  
+    let monthName = 'Enero';
+    switch (month) {
+      case 'January':
+        monthName = 'Enero'
+        break;
+      case 'February':
+        monthName = 'Febrero'
+        break;
+      case 'March':
+        monthName = 'Marzo'
+        break;
+      case 'April':
+        monthName = 'Abril'
+        break;
+      case 'May':
+        monthName = 'Mayo'
+        break;
+      case 'June':
+        monthName = 'Junio'
+        break;
+      case 'July':
+        monthName = 'Julio'
+        break;
+      case 'August':
+        monthName = 'Agosto'
+        break;
+      case 'September':
+        monthName = 'Septiembre'
+        break;
+      case 'October':
+        monthName = 'Octubre'
+        break;
+      case 'November':
+        monthName = 'Noviembre'
+        break;
+      case 'December':
+        monthName = 'Diciembre'
+        break;
+    }
+    return monthName;
+  }
+
+export { getInitRoute,getUserRol,dayName, monthName }

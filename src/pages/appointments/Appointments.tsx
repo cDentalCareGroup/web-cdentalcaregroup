@@ -1,4 +1,4 @@
-import { Layout } from "antd";
+import { Button, Layout, Row, Tooltip } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
 import { DEFAULT_APPOINTMENTS_FILTERS } from "../../data/filter/filters";
@@ -12,74 +12,97 @@ import Card from "antd/es/card/Card";
 import { getDentist, getPatientEmail, getPatientName, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
 import SectionElement from "../components/SectionElement";
 import AppointmentCard from "./AppointmentCard";
+import Constants from "../../utils/Constants";
+import useSessionStorage from "../../core/sessionStorage";
+import { RiArrowLeftSLine } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
+import Strings from "../../utils/Strings";
 
 const Appointments = () => {
-    const [getAppointmentsByBranchOffice,{isLoading}] = useGetAppointmentsByBranchOfficeMutation();
+    const [getAppointmentsByBranchOffice] = useGetAppointmentsByBranchOfficeMutation();
+    const [isLoading, setIsLoading] = useState(false);
     const [defaultFilter, setDefaultFilter] = useState(DEFAULT_APPOINTMENTS_FILTERS[0]);
     const [appointments, setAppointments] = useState<AppointmentDetail[] | undefined>([]);
     const [data, setData] = useState<AppointmentDetail[] | undefined>([]);
+    const [branchId, setBranchId] = useSessionStorage(
+        Constants.BRANCH_ID,
+        0
+    );
+    const navigate = useNavigate();
 
     useEffect(() => {
-        handleGetAppointmentsByBranchOffice();
+        handleGetAppointmentsByBranchOffice('activa');
     }, []);
 
-    const handleGetAppointmentsByBranchOffice = async () => {
+    const handleGetAppointmentsByBranchOffice = async (status: string) => {
         try {
-            const response = await getAppointmentsByBranchOffice({ id: 10 }).unwrap();
+            setIsLoading(true);
+            const response = await getAppointmentsByBranchOffice({ id: Number(branchId) }).unwrap();
             setData(response);
-            setAppointments(response);
-            //handleFilterAppointments('activa');
+            handleFilterAppointments(response, status);
         } catch (error) {
             handleErrorNotification(error);
         }
     }
-    const handleFilterAppointments = (query: string) => {
-        setAppointments(data?.filter((value,_) => value.appointment.status == query));
+    const handleFilterAppointments = (response: AppointmentDetail[], query: string) => {
+        setAppointments(response?.filter((value, _) => value.appointment.status == query));
+        setIsLoading(false);
     }
 
     const handleOnSearch = (query: string) => {
-        // setIsFiltering(true);
-        // if (query == '' || query == null) {
-        //     handleOnFilterChange(defaultFilter);
-        // } else {
-        //     const result = allAppointments?.filter((value) =>
-        //         buildPatientName(value)
-        //             .toLowerCase()
-        //             .replace(/\s+/g, '')
-        //             .includes(query.toLowerCase().replace(/\s+/g, ''))
-        //     )
-        //     setAppointments(result);
-        //     setIsFiltering(false);
-        // }
+        if (query == '' || query == null) {
+            handleOnFilterChange(defaultFilter);
+        } else {
+            const result = data?.filter((value) =>
+                getPatientName(value)
+                    .toLowerCase()
+                    .replace(/\s+/g, '')
+                    .includes(query.toLowerCase().replace(/\s+/g, ''))
+            )
+            setAppointments(result);
+        }
     }
     const handleOnFilterChange = async (value: SelectItemOption) => {
-        // setIsFiltering(true);
-        // setAppointments([]);
-        // await refetch();
-        // if (value.id == 1) {
-        //     setAppointments(allAppointments?.filter((value, _) => value.appointment.status == 'activa'));
-        // }
-        // if (value.id == 2) {
-        //     setAppointments(allAppointments?.filter((value, _) => value.appointment.status == 'proceso'));
-        // }
-        // if (value.id == 3) {
-        //     setAppointments(allAppointments?.filter((value, _) => value.appointment.status == 'finalizada'));
-        // }
-        // if (value.id == 4) {
-        //     setAppointments(allAppointments?.filter((value, _) => value.appointment.status == 'noatendida'));
-        // }
-        // setIsFiltering(false);
-
-        // setDefaultFilter(value);
+        setDefaultFilter(value);
+        setData([]);
+        setAppointments([]);
+        if (value.id == 1) {
+            handleGetAppointmentsByBranchOffice('activa');
+        }
+        if (value.id == 2) {
+            handleGetAppointmentsByBranchOffice('proceso');
+        }
+        if (value.id == 3) {
+            handleGetAppointmentsByBranchOffice('finalizada');
+        }
+        if (value.id == 4) {
+            handleGetAppointmentsByBranchOffice('noatendida');
+        }
     }
+    const onStatusChange = (value: string) => {
+        if (value == 'proceso') {
+            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[1]);
+        } else {
+            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[2]);
+        }
+        handleGetAppointmentsByBranchOffice(value);
+    }
+
     return (
         <LayoutCard isLoading={isLoading} content={
+
             <div className="flex flex-col">
-                <Search size="large" placeholder="Buscar citas por nombre de paciente" onSearch={handleOnSearch} enterButton />
+                <div onClick={() => navigate(-1)} className="flex flex-row items-center align-baseline gap-2 m-2 text-blue-800 cursor-pointer mb-4">
+                    <RiArrowLeftSLine size={24} />
+                    <span className="text text-sm">{Strings.return}</span>
+                </div>
+                <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={handleOnSearch} enterButton />
                 <SingleFilters data={DEFAULT_APPOINTMENTS_FILTERS} onFilterChange={handleOnFilterChange} defaultOption={defaultFilter} />
 
-                {appointments?.map((value,index) => <AppointmentCard appointment={value} key={index} />
-                )}
+                <Row>
+                    {appointments?.map((value, index) => <AppointmentCard appointment={value} key={index} onStatusChange={onStatusChange} />
+                    )}
+                </Row>
             </div>
         } />);
 }

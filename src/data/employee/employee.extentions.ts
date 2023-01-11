@@ -5,7 +5,7 @@ const employeesToSelectItemOptions = (data: Employee[], showDescription: Boolean
   
     return data.map((value, index) => {
       const description = showDescription ? `${value.typeName}` : ``;
-      return new SelectItemOption(value.id, `${value.name} ${value.lastname}`, index, description)
+      return new SelectItemOption(value.id, `${value.name} ${value.lastname} - ${value.typeName}`, value.id, description)
     });
   }
 

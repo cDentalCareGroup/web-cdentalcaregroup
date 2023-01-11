@@ -9,24 +9,44 @@ export const handleErrorNotification = (value: any) => {
     if (value.hasOwnProperty('data') && value.data.hasOwnProperty('message')) {
         notification.open({
             message: 'Ups!',
-            description: getMessage(value.data.message),
+            description: getErrorMessage(value.data.message),
             type: 'error'
         });
     }
 }
 
-export const handleSucccessNotification = (value: any) => {
-    console.log(value);
-    if (value.hasOwnProperty('data') && value.data.hasOwnProperty('message')) {
-        notification.open({
-            message: 'Ups!',
-            description: getMessage(value.data.message),
-            type: 'success'
-        });
-    }
+export const handleSucccessNotification = (value: NotificationSuccess) => {
+    notification.open({
+        message: 'Exito!',
+        description: getSuccessMessage(value),
+        type: 'success'
+    });
 }
 
-const getMessage = (message: string): string => {
+export enum NotificationSuccess {
+    REGISTER, UPDATE, REGISTER_APPOINTMENT, RESCHEDULE_APPOINTMENT
+}
+
+const getSuccessMessage = (type: NotificationSuccess): string => {
+    if (type == NotificationSuccess.REGISTER) {
+        return 'Se registro correctamente';
+    }
+
+    if (type == NotificationSuccess.UPDATE) {
+        return 'Se actualizo correctamente';
+    }
+
+    if (type == NotificationSuccess.REGISTER_APPOINTMENT) {
+        return 'Cita registrada correctamente';
+    }
+    if (type == NotificationSuccess.RESCHEDULE_APPOINTMENT) {
+        return 'Cita reagendada correctamente';
+    }
+    
+    return 'Se realizó correctamente';
+}
+
+const getErrorMessage = (message: string): string => {
     if (message == 'NO_ERROR_REGISTER') {
         return 'Ocurrio un error, intenta mas tarde';
     }

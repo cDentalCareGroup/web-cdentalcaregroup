@@ -1,27 +1,29 @@
 import { AppointmentDetail } from "../data/appointment/appointment.detail";
+import { GetAppointmentDetail } from "../data/appointment/appointment.request";
+import { AvailableTime } from "../data/appointment/available.time";
 import { apiSlice } from "./apiSlice";
 
 
 export const appointmentService = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    // getAppointmentsAvailability: builder.mutation<AvilableTime[], any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.GET_APPOINTMENT_AVAILABILITY_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: AvilableTime[] }, meta, arg) => response.data,
-    //   invalidatesTags: ['AvilableTime']
-    // }),
-    // registerAppointment: builder.mutation<string, any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.REGISTER_APPOINTMENT_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: string }, meta, arg) => response.data,
-    //   invalidatesTags: ['AvilableTime']
-    // }),
+    getAppointmentAvailability: builder.mutation<AvailableTime[], any>({
+      query: (data) => ({
+        url: '/appointment/day/availability',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: AvailableTime[] }, meta, arg) => response.data,
+      invalidatesTags: ['AvailableTime']
+    }),
+    registerAppointment: builder.mutation<string, any>({
+      query: (data) => ({
+        url: '/appointment/register',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: string }, meta, arg) => response.data,
+      invalidatesTags: ['AvailableTime']
+    }),
     // getAppointmentDetail: builder.query<GetAppointmentDetail, any>({
     //   query: (data) => ({
     //     url: ApiEndpointsConstants.GET_APPOINTMENT_DETAIL_API,
@@ -30,14 +32,14 @@ export const appointmentService = apiSlice.injectEndpoints({
     //   }),
     //   transformResponse: (response: { data: GetAppointmentDetail }, meta, arg) => response.data,
     // }),
-    // getAppointmentDetailPatient: builder.query<AppointmentDetail, any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.GET_APPOINTMENT_DETAIL_PATIENT_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
-    // }),
+    getAppointmentDetailPatient: builder.mutation<AppointmentDetail, any>({
+      query: (data) => ({
+        url: '/appointment/detail/patient',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
+    }),
     getAppointmentsByBranchOffice: builder.mutation<AppointmentDetail[], any>({
       query: (data) => ({
         url: '/appointment/branchoffice',
@@ -63,48 +65,48 @@ export const appointmentService = apiSlice.injectEndpoints({
       transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
       invalidatesTags: ['AppointmentDetail']
     }),
-    // updateAppointmentStatus: builder.mutation<AppointmentDetail, any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.UPDATE_APPOINTMENT_STATUS_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
-    //   invalidatesTags: ['AppointmentDetail']
-    // }),
-    // rescheduleAppointment: builder.mutation<AppointmentDetail, any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.RESCHEDULE_APPOINTMENT_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
-    //   invalidatesTags: ['AppointmentDetail']
-    // }),
-    // cancelAppointment: builder.mutation<any, any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.CANCEL_APPOINTMENT_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: any }, meta, arg) => response.data,
-    // }),
-    // getSchedulesByDentist: builder.mutation<AvilableTime[], any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.GET_SCHEDULES_BY_DENTIST_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: AvilableTime[] }, meta, arg) => response.data,
-    // }),
-    // registerNextAppointment: builder.mutation<GetAppointmentDetail, any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.REGISTER_NEXT_APPOINTMENT_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: GetAppointmentDetail }, meta, arg) => response.data,
-    // }),
+    updateAppointmentStatus: builder.mutation<AppointmentDetail, any>({
+      query: (data) => ({
+        url: '/appointment/update/status',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
+      invalidatesTags: ['AppointmentDetail']
+    }),
+    rescheduleAppointment: builder.mutation<AppointmentDetail, any>({
+      query: (data) => ({
+        url: '/appointment/reschedule',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
+      invalidatesTags: ['AppointmentDetail']
+    }),
+    cancelAppointment: builder.mutation<any, any>({
+      query: (data) => ({
+        url: '/appointment/cancel',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: any }, meta, arg) => response.data,
+    }),
+    getDentistAvailability: builder.mutation<AvailableTime[], any>({
+      query: (data) => ({
+        url: '/appointment/day/availability/dentist',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: AvailableTime[] }, meta, arg) => response.data,
+    }),
+    registerNextAppointment: builder.mutation<GetAppointmentDetail, any>({
+      query: (data) => ({
+        url: '/appointment/resgiter/nextappointment',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: GetAppointmentDetail }, meta, arg) => response.data,
+    }),
     // updateHasLabsAppointment: builder.mutation<any, any>({
     //   query: (data) => ({
     //     url: ApiEndpointsConstants.UPDATE_HASLABS_APPOINTMENT_API,
@@ -118,5 +120,13 @@ export const appointmentService = apiSlice.injectEndpoints({
 
 export const {
   useGetAppointmentsByBranchOfficeMutation,
-  useRegisterDentistToAppointmentMutation
+  useRegisterDentistToAppointmentMutation,
+  useUpdateAppointmentStatusMutation,
+  useGetAppointmentAvailabilityMutation,
+  useRescheduleAppointmentMutation,
+  useGetDentistAvailabilityMutation,
+  useRegisterNextAppointmentMutation,
+  useRegisterAppointmentMutation,
+  useGetAppointmentDetailPatientMutation,
+  useCancelAppointmentMutation
 } = appointmentService;

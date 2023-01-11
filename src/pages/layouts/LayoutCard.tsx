@@ -5,12 +5,16 @@ import Spinner from '../components/Spinner';
 interface LayoutCardProps {
     content: JSX.Element;
     isLoading: boolean;
+    center?: boolean;
 }
 
-const LayoutCard = ({ isLoading, content }: LayoutCardProps) => {
+const LayoutCard = ({ isLoading, content, center }: LayoutCardProps) => {
     return (
         <>
-            {isLoading && <Spinner />}
+            {isLoading && <>
+                {center == true && <div className="flex w-full h-screen justify-center items-center"><Spinner /></div>}
+                {center == undefined && <Spinner />}
+            </>}
             {!isLoading && <Layout className="layout-content">
                 {content}
             </Layout>}

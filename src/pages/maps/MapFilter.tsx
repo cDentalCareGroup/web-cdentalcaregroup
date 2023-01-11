@@ -7,7 +7,7 @@ import CustomMarker from "../../data/maps/custom.marker";
 import { branchOfficesToCustomMarkers, branchOfficeToCustomMarker, patientListToCustomMarkerList } from "../../data/maps/custom.marker.extensions";
 import { Patient } from "../../data/patient/patient";
 import SelectItemOption from "../../data/select/select.item.option";
-import { branchOfficesToSelectOptionItem } from "../../data/select/select.item.option.extensions";
+import {  branchOfficesToSelectOptionItemEmptyDescription } from "../../data/select/select.item.option.extensions";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
 import { handleErrorNotification } from "../../utils/Notifications";
@@ -49,7 +49,7 @@ const MapFilter = () => {
             const response = await getBranchOffices({}).unwrap();
             setMarkers(branchOfficesToCustomMarkers(response));
             setData(response);
-            const options = branchOfficesToSelectOptionItem(response);
+            const options = branchOfficesToSelectOptionItemEmptyDescription(response);
             const filters = options.concat(DEFAULT_FILTERS);
             setFilters(filters);
         } catch (error) {
