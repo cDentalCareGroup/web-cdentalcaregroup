@@ -146,3 +146,12 @@ export class CancelAppointmentRequest {
   }
 
 }
+
+export class UpdateHasLabsAppointmentRequest {
+  id: number;
+  hasLabs: boolean;
+  constructor(id: number, hasLabs: boolean) {
+      this.id = id;
+      this.hasLabs = hasLabs;
+  }
+}

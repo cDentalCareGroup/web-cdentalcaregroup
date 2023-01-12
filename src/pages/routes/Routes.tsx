@@ -18,6 +18,7 @@ import Logout from "../auth/Logout";
 import MapFilter from "../maps/MapFilter";
 import BranchOffices from "../branchoffice/BranchOffices";
 import Appointments from "../appointments/Appointments";
+import AppointmentInfo from "../appointments/AppointmentInfo";
 
 export class Route {
     label: string;
@@ -41,9 +42,11 @@ export class Route {
 const adminMap = new Route('Maps', 'maps', '/admin/maps', <MapFilter />, <RiMap2Line />);
 const adminBranchOfficesAppointments = new Route('Citas', 'branchoffices', '/admin/branchoffices', <BranchOffices />, <RiCalendar2Line />);
 const adminBranchOfficesSchedules = new Route('Horarios sucursales', 'branchoffices/schedules', '/admin/branchoffices/schedules', <div>branchoffices/schedules</div>, <RiCalendarCheckLine />);
-const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLogoutBoxLine />);
+const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/branchoffice/appointment', <Appointments />, <RiCalendar2Line />);
+const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/branchoffice/appointment/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
 
-const adminAppointments = new Route('Citas', 'appointments', '/admin/branchoffice/appointment', <Appointments />, <RiCalendar2Line />);
+
+const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLogoutBoxLine />);
 
 const receptionistAppointments = new Route('Citas', 'citas', '/receptionist/appointments', <div>receptionist </div>, <RiCalendar2Line />);
 
@@ -52,6 +55,7 @@ const adminRoutes: Route[] = [
     adminBranchOfficesAppointments,
     adminBranchOfficesSchedules,
     adminAppointments,
+    adminAppointmentDetails,
     logout
 ];
 
@@ -86,7 +90,7 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             null,
             [
                 getItem(adminBranchOfficesAppointments.label, adminBranchOfficesAppointments.fullPath, adminBranchOfficesAppointments.icon),
-                getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon)
+                // getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon)
             ],
             'group'),
         getItem(

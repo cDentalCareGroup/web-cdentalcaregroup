@@ -19,7 +19,7 @@ import Calendar from "../components/Calendar";
 import SelectSearch from "../components/SelectSearch";
 import TopBarHeader from "../components/TopBarHeader";
 import LayoutCard from "../layouts/LayoutCard";
-import ScheduleAppointmentInfoCard from "./ScheduleAppointmentInfoCard";
+import ScheduleAppointmentInfoCard from "./components/ScheduleAppointmentInfoCard";
 
 const ScheduleAppointment = () => {
 

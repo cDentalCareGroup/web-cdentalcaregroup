@@ -14,7 +14,7 @@ import SectionElement from "../components/SectionElement";
 import TopBarHeader from "../components/TopBarHeader";
 import LayoutCard from "../layouts/LayoutCard";
 
-const ScheduledAppointmentDetail = () => {
+const SummaryAppointment = () => {
 
     const [getAppointmentDetail, { isLoading }] = useGetAppointmentDetailPatientMutation();
     const { folio } = useParams();
@@ -90,4 +90,4 @@ const ScheduledAppointmentDetail = () => {
     );
 }
 
-export default ScheduledAppointmentDetail;
+export default SummaryAppointment;

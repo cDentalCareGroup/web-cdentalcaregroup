@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
  import { RiMap2Line,RiMentalHealthLine, RiLogoutBoxLine, RiCalendarCheckLine, RiMenu3Fill} from "react-icons/ri";
 
 import {
@@ -15,6 +15,9 @@ import { adminRoutes, adminRoutesToMenuOptions, getUserSidebar } from '../routes
 import useSessionStorage from '../../core/sessionStorage';
 import Constants from '../../utils/Constants';
 import User from '../../data/user/user';
+import { FirebaseOpenLinkType, getBrowserToken, handleOnMessage } from '../../services/firebase';
+import { useSaveTokenMutation } from '../../services/authService';
+import { SaveTokenRequest } from '../../data/user/user.request';
 
 const { Header, Sider, Content } = Layout;
 
@@ -25,6 +28,7 @@ const BaseLayout: React.FC = () => {
         token: { colorBgContainer },
     } = theme.useToken();
     const [session, setSession] = useSessionStorage(Constants.SESSION_AUTH, null);
+    const [saveTokenMutation] = useSaveTokenMutation();
 
 
     if (session == null) {
@@ -35,6 +39,47 @@ const BaseLayout: React.FC = () => {
         const user = session as User;
         return `${user.name} ${user.lastname}`;
     }
+
+
+
+  useEffect(() => {
+    requestPermission();
+  }, []);
+
+  const requestPermission = async () => {
+    const permission = await Notification.requestPermission();
+    if (permission == 'granted' && session != null) {
+      const token = await getBrowserToken();
+      handleSaveToken(token);
+    } else if(permission == 'denied'){
+      alert('Los permisos son requeridos');
+    }
+  }
+
+  handleOnMessage((value) => { 
+    if (value.type == FirebaseOpenLinkType.APPOINTMENT) {
+      handleNavigateToAppointmentDetail(value.data);
+    }
+  });
+
+  const handleNavigateToAppointmentDetail = (folio: String) => {
+    //navigation(`/admin/appointment/detail/${folio }`);
+    // const role = getRole(user);
+    // if (role == UserRoles.ADMIN) {
+    //   window.open(`https://cdentalcaregroup-fcdc9.web.app/admin/appointment/detail/${folio}`);
+    // } else {
+    //   window.open(`https://cdentalcaregroup-fcdc9.web.app/receptionist/appointment/detail/${folio}`);
+    // }
+  }
+
+  const handleSaveToken = async(token: string) => {
+    try { 
+      const user = session as User;
+      await saveTokenMutation(new SaveTokenRequest(user.username, token)).unwrap();
+    } catch (error) {
+      console.log(`Error saving token ${error}`);
+    }
+  }
 
     return (
         <Layout className='flex w-full h-screen'>

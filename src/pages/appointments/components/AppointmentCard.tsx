@@ -1,35 +1,37 @@
 import Card from "antd/es/card/Card";
-import SectionElement from "../components/SectionElement";
+import SectionElement from "../../components/SectionElement";
 import { RiCalendar2Line, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiPhoneLine, RiUser3Line } from "react-icons/ri";
-import {  getDentist, getPatientEmail, getPatientName, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
-import { AppointmentDetail } from "../../data/appointment/appointment.detail";
-import { Button, Row, Tag } from "antd";
-import { useGetEmployeesByTypeMutation } from "../../services/employeeService";
-import { GetEmployeeByTypeRequest } from "../../data/employee/employee.request";
+import { getDentist, getPatientEmail, getPatientName, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
+import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
+import { Button, Radio, Row, Tag } from "antd";
+import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
+import { GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
 import { useRef, useState } from "react";
-import SelectItemOption from "../../data/select/select.item.option";
-import { employeesToSelectItemOptions } from "../../data/employee/employee.extentions";
+import SelectItemOption from "../../../data/select/select.item.option";
+import { employeesToSelectItemOptions } from "../../../data/employee/employee.extentions";
 import Modal from "antd/es/modal/Modal";
-import SelectSearch from "../components/SelectSearch";
-import { useGetPatientsMutation } from "../../services/patientService";
-import { FilterEmployeesRequest } from "../../data/filter/filters.request";
-import { DEFAULT_PATIENTS_ACTIVE } from "../../data/filter/filters";
-import { appointmentToBranchOfficeSelectItemOption, appointmentToDentistSelectItemOption, branchOfficesToSelectOptionItem, patientsToSelectItemOption } from "../../data/select/select.item.option.extensions";
-import { useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation } from "../../services/appointmentService";
-import { AppointmentAvailbilityByDentistRequest, GetAppointmentAvailabilityRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest } from "../../data/appointment/appointment.request";
-import { useAppSelector } from "../../core/store";
-import { selectCurrentUser } from "../../core/authReducer";
-import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
-import { dayName } from "../../utils/Extensions";
-import Calendar from "../components/Calendar";
-import { AvailableTime } from "../../data/appointment/available.time";
-import { availableTimesToTimes } from "../../data/appointment/available.times.extensions";
-import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
+import SelectSearch from "../../components/SelectSearch";
+import { useGetPatientsMutation } from "../../../services/patientService";
+import { FilterEmployeesRequest } from "../../../data/filter/filters.request";
+import { DEFAULT_PATIENTS_ACTIVE } from "../../../data/filter/filters";
+import { appointmentToBranchOfficeSelectItemOption, appointmentToDentistSelectItemOption, branchOfficesToSelectOptionItem, patientsToSelectItemOption } from "../../../data/select/select.item.option.extensions";
+import { useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
+import { AppointmentAvailbilityByDentistRequest, GetAppointmentAvailabilityRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
+import { useAppSelector } from "../../../core/store";
+import { selectCurrentUser } from "../../../core/authReducer";
+import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../../utils/Notifications";
+import { dayName } from "../../../utils/Extensions";
+import Calendar from "../../components/Calendar";
+import { AvailableTime } from "../../../data/appointment/available.time";
+import { availableTimesToTimes } from "../../../data/appointment/available.times.extensions";
+import { useGetBranchOfficesMutation } from "../../../services/branchOfficeService";
 import ScheduleAppointmentInfoCard from "./ScheduleAppointmentInfoCard";
 import { format } from "date-fns";
 import Checkbox from "antd/es/checkbox/Checkbox";
-import useSessionStorage from "../../core/sessionStorage";
-import Constants from "../../utils/Constants";
+import useSessionStorage from "../../../core/sessionStorage";
+import Constants from "../../../utils/Constants";
+import { useNavigate } from "react-router-dom";
+import Strings from "../../../utils/Strings";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -48,7 +50,7 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
     const [rescheduleAppointment] = useRescheduleAppointmentMutation();
     const [getDentistAvailability] = useGetDentistAvailabilityMutation();
     const [registerNextAppointment] = useRegisterNextAppointmentMutation();
-
+    const [updateHasLabsAppointment] = useUpdateHasLabsAppointmentMutation();
 
     const [dentistList, setDentistList] = useState<SelectItemOption[]>([]);
     const [dentist, setDentist] = useState<SelectItemOption | undefined>();
@@ -72,6 +74,8 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
     const [hasLabs, setHasLabs] = useState(false);
 
     const user = useAppSelector(selectCurrentUser);
+    const navigate = useNavigate();
+
 
     const getStautsTag = (): JSX.Element => {
         if (data.appointment.status == 'activa') {
@@ -363,15 +367,41 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
         setModalNextAppointment(false);
     }
 
+    const handleOnHasLabs = async(value: any) => {
+        const hasLab = value == 1
+        setHasLabs(hasLab);
+        try {
+            await updateHasLabsAppointment(
+                new UpdateHasLabsAppointmentRequest(
+                    data.appointment.id,
+                    hasLabs
+                )
+            ).unwrap();
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }   
+
     return (
         <div className="m-2">
-            <Card title={getPatientName(data)} actions={[<span>Detalles</span>]}>
+            <Card title={getPatientName(data)} actions={[<span onClick={() => navigate(`/admin/branchoffice/appointment/detail/${data?.appointment.folio}`)}>Detalles</span>]}>
                 <SectionElement label="Fecha y hora" value={`${data.appointment.appointment} ${data.appointment.time}`} icon={<RiCalendar2Line />} />
                 <SectionElement label="Sucursal" value={data.branchOffice.name} icon={<RiMentalHealthLine />} />
                 <SectionElement label="Correo electrónico" value={getPatientEmail(data)} icon={<RiMailLine />} />
                 <SectionElement label="Teléfono" value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
                 <SectionElement label="Dentista" value={getDentist(data)} icon={<RiMentalHealthLine />} />
                 {getStautsTag()}
+                {appointment.dentist?.typeName == 'Especialista' &&
+                    <div className="ml-2 flex flex-row items-baseline gap-2">
+                      
+                        <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
+                        <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={hasLabs ? 1 : 0}>
+                            <Radio value={1}>Si</Radio>
+                            <Radio value={0}>No</Radio>
+                        </Radio.Group>
+                        
+                    </div>}
 
                 <Row className="mt-2 gap-2">
                     {!data.dentist && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
@@ -380,7 +410,7 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
                     {canFinish() && <Button loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('finalizada')} >Finalizar cita</Button>}
                     {data.appointment.status == 'finalizada' && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
                 </Row>
-                
+
             </Card>
 
             <Modal title={'Asignar dentista'} okText={'Guardar'} confirmLoading={isActionLoading} open={modalDentist} onOk={() => handleOnSaveDentist()} onCancel={() => {

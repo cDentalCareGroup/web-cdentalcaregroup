@@ -7,6 +7,7 @@ class Strings {
     static cDentalCare = "CDentalCare";
     static group = "Group";
 
+    static hasLabs = "Tiene laboratorios?";
 
     static patientInformation = "Informacion del paciente";
     static branchOfficeInformacion = "Informacion de la clinica"

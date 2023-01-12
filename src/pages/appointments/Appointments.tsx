@@ -11,12 +11,13 @@ import { AppointmentDetail } from "../../data/appointment/appointment.detail";
 import Card from "antd/es/card/Card";
 import { getDentist, getPatientEmail, getPatientName, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
 import SectionElement from "../components/SectionElement";
-import AppointmentCard from "./AppointmentCard";
+import AppointmentCard from "./components/AppointmentCard";
 import Constants from "../../utils/Constants";
 import useSessionStorage from "../../core/sessionStorage";
 import { RiArrowLeftSLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import Strings from "../../utils/Strings";
+import BackArrow from "../components/BackArrow";
 
 const Appointments = () => {
     const [getAppointmentsByBranchOffice] = useGetAppointmentsByBranchOfficeMutation();
@@ -92,10 +93,7 @@ const Appointments = () => {
         <LayoutCard isLoading={isLoading} content={
 
             <div className="flex flex-col">
-                <div onClick={() => navigate(-1)} className="flex flex-row items-center align-baseline gap-2 m-2 text-blue-800 cursor-pointer mb-4">
-                    <RiArrowLeftSLine size={24} />
-                    <span className="text text-sm">{Strings.return}</span>
-                </div>
+                <BackArrow />
                 <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={handleOnSearch} enterButton />
                 <SingleFilters data={DEFAULT_APPOINTMENTS_FILTERS} onFilterChange={handleOnFilterChange} defaultOption={defaultFilter} />
 

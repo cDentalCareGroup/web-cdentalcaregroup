@@ -1,5 +1,5 @@
-import { dayName, monthName } from "../../utils/Extensions";
-import SectionElement from "../components/SectionElement";
+import { dayName, monthName } from "../../../utils/Extensions";
+import SectionElement from "../../components/SectionElement";
 import { RiCalendar2Line, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiPhoneLine } from "react-icons/ri";
 
 interface ScheduleAppointmentInfoCardProps {

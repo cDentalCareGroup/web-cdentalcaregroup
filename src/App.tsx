@@ -12,41 +12,10 @@ import { Navigate, NavLink, Route, Routes, useNavigate } from "react-router-dom"
 import RequireAuth from './pages/routes/RequireAuth';
 import { adminRoutes, receptionistRoutes } from './pages/routes/Routes';
 import ScheduleAppointment from './pages/appointments/ScheduleAppointment';
-import ScheduledAppointmentDetail from './pages/appointments/ScheduledAppointmentDetail';
 import CancelAppointment from './pages/appointments/CancelAppointment';
 import RescheduleAppointment from './pages/appointments/RescheduleAppointment';
+import SummaryAppointment from './pages/appointments/SummaryAppointment';
 const App = () => {
-
-
-
-  // const adminRouter = createBrowserRouter(
-  //   [
-  //     {
-  //       path: '/',
-  //       element: <Login />
-  //     },
-  //     {
-  //       path: '/admin',
-  //       element: <BaseLayout />,
-  //       children: [
-  //         {
-  //           path: 'maps',
-  //           element: <MapFilter />
-  //         },
-  //         {
-  //           path: 'appointments',
-  //           element: <div>appointments</div>
-  //         },
-  //       ],
-  //       errorElement: <div>Page not found</div>,
-  //     },
-  //     {
-  //       path: 'logout',
-  //       element: <div>logout</div>
-  //     }
-  //   ]
-  // );
-
   return (
     <ConfigProvider
       theme={{
@@ -66,13 +35,10 @@ const App = () => {
 
         <Route path="appointment">
           <Route path="" element={<ScheduleAppointment />} />
-          <Route path="detail/:folio" element={<ScheduledAppointmentDetail />} />
+          <Route path="detail/:folio" element={<SummaryAppointment />} />
           <Route path="cancel/:folio" element={<CancelAppointment />} />
           <Route path="reschedule/:folio" element={<RescheduleAppointment />} />
-          {/* <Route path="reschedule/:folio" element={<RescheduleAppointment />} />
-          <Route path="print" element={<AppointmentPDF />} /> */}
         </Route>
-
       </Routes>
     </ConfigProvider>
   )

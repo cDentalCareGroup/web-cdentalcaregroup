@@ -24,14 +24,14 @@ export const appointmentService = apiSlice.injectEndpoints({
       transformResponse: (response: { data: string }, meta, arg) => response.data,
       invalidatesTags: ['AvailableTime']
     }),
-    // getAppointmentDetail: builder.query<GetAppointmentDetail, any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.GET_APPOINTMENT_DETAIL_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: GetAppointmentDetail }, meta, arg) => response.data,
-    // }),
+    getAppointmentInfo: builder.mutation<GetAppointmentDetail, any>({
+      query: (data) => ({
+        url: '/appointment/detail',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: GetAppointmentDetail }, meta, arg) => response.data,
+    }),
     getAppointmentDetailPatient: builder.mutation<AppointmentDetail, any>({
       query: (data) => ({
         url: '/appointment/detail/patient',
@@ -107,14 +107,14 @@ export const appointmentService = apiSlice.injectEndpoints({
       }),
       transformResponse: (response: { data: GetAppointmentDetail }, meta, arg) => response.data,
     }),
-    // updateHasLabsAppointment: builder.mutation<any, any>({
-    //   query: (data) => ({
-    //     url: ApiEndpointsConstants.UPDATE_HASLABS_APPOINTMENT_API,
-    //     method: "POST",
-    //     body: { ...data },
-    //   }),
-    //   transformResponse: (response: { data: any }, meta, arg) => response.data,
-    // }),
+    updateHasLabsAppointment: builder.mutation<any, any>({
+      query: (data) => ({
+        url: '/appointment/update/haslabs',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: any }, meta, arg) => response.data,
+    }),
   })
 });
 
@@ -128,5 +128,7 @@ export const {
   useRegisterNextAppointmentMutation,
   useRegisterAppointmentMutation,
   useGetAppointmentDetailPatientMutation,
-  useCancelAppointmentMutation
+  useCancelAppointmentMutation,
+  useUpdateHasLabsAppointmentMutation,
+  useGetAppointmentInfoMutation
 } = appointmentService;
