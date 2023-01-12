@@ -12,6 +12,12 @@ export const handleErrorNotification = (value: any) => {
             description: getErrorMessage(value.data.message),
             type: 'error'
         });
+    } else {
+        notification.open({
+            message: 'Ups!',
+            description: getErrorMessage(value),
+            type: 'error'
+        });
     }
 }
 
@@ -52,6 +58,9 @@ const getErrorMessage = (message: string): string => {
     }
     if (message == 'INCORRECT_PASSWORD') {
         return 'Usuario y/o contraseña incorrectos';
+    }
+    if (message == 'NOT_FOUND_CP') {
+        return 'No se encontró el código postal';
     }
     return 'Ocurrio un error, intenta mas tarde';
 }

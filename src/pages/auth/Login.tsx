@@ -8,7 +8,7 @@ import useSessionStorage from "../../core/sessionStorage";
 import Constants from "../../utils/Constants";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {getInitRoute} from '../../utils/Extensions';
+import { getInitRoute, getUserRol, UserRoles } from '../../utils/Extensions';
 import User from "../../data/user/user";
 import { useAppDispatch } from "../../core/store";
 import { setCredentials } from "../../core/authReducer";
@@ -20,22 +20,30 @@ const Login = () => {
         Constants.SESSION_AUTH,
         null
     );
+    const [branchId, setBranchId] = useSessionStorage(
+        Constants.BRANCH_ID,
+        0
+    );
     const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (session != null) {
             const data = session as User;
-            dispatch(setCredentials({...data}));
+            dispatch(setCredentials({ ...data }));
             navigate(getInitRoute(data));
         }
-    },[]);
+    }, []);
 
     const onFinish = async (values: any) => {
         try {
             const data = await login(new LoginRequest(values.username, values.password)).unwrap();
-            console.log(data);
+            
+            const role = getUserRol(data);
+            if (role == UserRoles.RECEPTIONIST) {
+                setBranchId(data.branchId);
+            }
             setSession(data);
-            dispatch(setCredentials({...data}));
+            dispatch(setCredentials({ ...data }));
             navigate(getInitRoute(data));
         } catch (error) {
             handleErrorNotification(error);

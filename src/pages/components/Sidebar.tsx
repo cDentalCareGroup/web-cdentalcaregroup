@@ -42,7 +42,7 @@ const Sidebar = ({ items, collapsed }: SidebarProps) => {
     }
 
     return (
-        <Sider trigger={null} collapsible collapsed={collapsed}>
+        <Sider breakpoint="lg"  trigger={null} collapsible collapsed={collapsed}>
             <div className="flex w-full items-center justify-center flex-col mb-6 mt-4 flex-wrap" >
                 <img
                     className={`object-cover ${collapsed ? ' w-8' : ' w-20'} transition-all`}

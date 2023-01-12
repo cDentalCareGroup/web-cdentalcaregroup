@@ -20,7 +20,7 @@ import { AppointmentAvailbilityByDentistRequest, GetAppointmentAvailabilityReque
 import { useAppSelector } from "../../../core/store";
 import { selectCurrentUser } from "../../../core/authReducer";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../../utils/Notifications";
-import { dayName } from "../../../utils/Extensions";
+import { dayName, isAdmin } from "../../../utils/Extensions";
 import Calendar from "../../components/Calendar";
 import { AvailableTime } from "../../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../../data/appointment/available.times.extensions";
@@ -32,14 +32,18 @@ import useSessionStorage from "../../../core/sessionStorage";
 import Constants from "../../../utils/Constants";
 import { useNavigate } from "react-router-dom";
 import Strings from "../../../utils/Strings";
+import { getAppointmentStatus } from "../../../data/appointment/appointment.extensions";
+import { Employee } from "../../../data/employee/employee";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
     onStatusChange: (status: string) => void;
+    onAppointmentChange?: (appointment: AppointmentDetail) => void;
+    hideContent: boolean;
 }
 
 
-const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointmentChange }: AppointmentCardProps) => {
     const [data, setData] = useState(appointment);
     const [getEmployeesByType] = useGetEmployeesByTypeMutation();
     const [getPatients] = useGetPatientsMutation();
@@ -75,17 +79,20 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
 
     const user = useAppSelector(selectCurrentUser);
     const navigate = useNavigate();
-
+    const [branchId, setBranchId] = useSessionStorage(
+        Constants.BRANCH_ID,
+        0
+    );
 
     const getStautsTag = (): JSX.Element => {
         if (data.appointment.status == 'activa') {
-            return <Tag color="success">{data.appointment.status}</Tag>
+            return <Tag color="success">{getAppointmentStatus(data)}</Tag>
         }
         if (data.appointment.status == 'proceso') {
-            return <Tag color="blue">{data.appointment.status}</Tag>
+            return <Tag color="blue">{getAppointmentStatus(data)}</Tag>
         }
         if (data.appointment.status == 'finalizada') {
-            return <Tag color="default">{data.appointment.status}</Tag>
+            return <Tag color="default">{getAppointmentStatus(data)}</Tag>
         }
         return <></>;
     }
@@ -114,6 +121,7 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
             setData(response);
             resetSetDentistParams();
             handleSucccessNotification(NotificationSuccess.UPDATE);
+            onAppointmentChange?.(response);
         } catch (error) {
             resetSetDentistParams();
             handleErrorNotification(error);
@@ -131,16 +139,22 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
             const response = await getEmployeesByType(
                 new GetEmployeeByTypeRequest('Medico/Especialista')
             ).unwrap();
-            setDentistList(employeesToSelectItemOptions(response, true));
+            if (isAdmin(user)) {
+                setDentistList(employeesToSelectItemOptions(response, true));
+            } else {
+                setDentistList(filterDentist(response));
+            }
+
         } catch (error) {
             console.log(error);
         }
     }
 
-    const [branchId, setBranchId] = useSessionStorage(
-        Constants.BRANCH_ID,
-        0
-    );
+    const filterDentist = (data: Employee[]): SelectItemOption[] => {
+        const specialist = data.filter((value, _) => value.typeName == Constants.EMPLOYEE_SPECIALIST);
+        const dentist = data.filter((value, _) => value.typeName == Constants.EMPLOYEE_MEDICAL && value.branchOfficeId == Number(branchId));
+        return employeesToSelectItemOptions(specialist.concat(dentist), true);
+    }
 
     const handleGetPatients = async () => {
         try {
@@ -175,6 +189,7 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
             onStatusChange(status);
             setIsActionLoading(false);
             handleSucccessNotification(NotificationSuccess.UPDATE);
+            onAppointmentChange?.(response);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -202,7 +217,11 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
     const handleOnReschedueAppointment = async () => {
         const branchOfficeOption = appointmentToBranchOfficeSelectItemOption(data);
         setBranchOffice(branchOfficeOption);
-        await handleGetBranchOffices();
+        if (isAdmin(user)) {
+            await handleGetBranchOffices();
+        } else {
+            if (branchOfficeOption != null) setBranchOfficeList([branchOfficeOption]);
+        }
         await handleGetAppointmentAvailability(date, branchOfficeOption?.label ?? '');
         setModalReschedule(true);
     }
@@ -252,6 +271,7 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
             setModalReschedule(false);
             resetRescheduleAppointmentParams();
             handleSucccessNotification(NotificationSuccess.UPDATE);
+            onAppointmentChange?.(response);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -263,7 +283,11 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
         setBranchOffice(branchOfficeOption);
         const dentist = appointmentToDentistSelectItemOption(data);
         setDentist(dentist);
-        await handleGetBranchOffices();
+        if (isAdmin(user)) {
+            await handleGetBranchOffices();
+        } else {
+            if (branchOfficeOption != null) setBranchOfficeList([branchOfficeOption]);
+        }
         await handleGetDentist();
         handleGetDentistAvailability(
             dentist.id,
@@ -307,7 +331,7 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
             )
         } else {
             setDentist(event);
-            if (event.description == 'Especialista') {
+            if (event.description == Constants.EMPLOYEE_SPECIALIST) {
                 handleGetAppointmentAvailability(date, branchOffice?.label ?? '');
             } else {
                 handleGetDentistAvailability(
@@ -322,7 +346,8 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
 
     const handleOnCalendarDentistChange = (newDate: Date) => {
         setTime(null);
-        if (dentist?.description == 'Especialista') {
+        setDate(newDate);
+        if (dentist?.description == Constants.EMPLOYEE_SPECIALIST) {
             handleGetAppointmentAvailability(newDate, branchOffice?.label ?? '');
         } else {
             handleGetDentistAvailability(
@@ -367,7 +392,7 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
         setModalNextAppointment(false);
     }
 
-    const handleOnHasLabs = async(value: any) => {
+    const handleOnHasLabs = async (value: any) => {
         const hasLab = value == 1
         setHasLabs(hasLab);
         try {
@@ -381,29 +406,44 @@ const AppointmentCard = ({ appointment, onStatusChange }: AppointmentCardProps) 
         } catch (error) {
             handleErrorNotification(error);
         }
-    }   
+    }
+
+
+    const CardContent = (): JSX.Element => {
+        return <>
+            <SectionElement label={Strings.dateAndTime} value={`${data.appointment.appointment} ${data.appointment.time}`} icon={<RiCalendar2Line />} />
+            <SectionElement label={Strings.branchOffice} value={data.branchOffice.name} icon={<RiMentalHealthLine />} />
+            <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />
+            <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
+            <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
+
+            {appointment.dentist?.typeName == Constants.EMPLOYEE_SPECIALIST &&
+                <div className="ml-2 flex flex-row items-baseline gap-2 mb-2">
+                    <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
+                    <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={hasLabs ? 1 : 0}>
+                        <Radio value={1}>Si</Radio>
+                        <Radio value={0}>No</Radio>
+                    </Radio.Group>
+
+                </div>}
+            {getStautsTag()}
+        </>
+    }
 
     return (
         <div className="m-2">
-            <Card title={getPatientName(data)} actions={[<span onClick={() => navigate(`/admin/branchoffice/appointment/detail/${data?.appointment.folio}`)}>Detalles</span>]}>
-                <SectionElement label="Fecha y hora" value={`${data.appointment.appointment} ${data.appointment.time}`} icon={<RiCalendar2Line />} />
-                <SectionElement label="Sucursal" value={data.branchOffice.name} icon={<RiMentalHealthLine />} />
-                <SectionElement label="Correo electrónico" value={getPatientEmail(data)} icon={<RiMailLine />} />
-                <SectionElement label="Teléfono" value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
-                <SectionElement label="Dentista" value={getDentist(data)} icon={<RiMentalHealthLine />} />
-                {getStautsTag()}
-                {appointment.dentist?.typeName == 'Especialista' &&
-                    <div className="ml-2 flex flex-row items-baseline gap-2">
-                      
-                        <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
-                        <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={hasLabs ? 1 : 0}>
-                            <Radio value={1}>Si</Radio>
-                            <Radio value={0}>No</Radio>
-                        </Radio.Group>
-                        
-                    </div>}
-
-                <Row className="mt-2 gap-2">
+            <Card title={!hideContent ? getPatientName(data) : ''} bordered={!hideContent} actions={
+                hideContent ? [] : [
+                    <span onClick={() => {
+                        if (isAdmin(user)) {
+                            navigate(`/admin/branchoffice/appointments/detail/${data?.appointment.folio}`)
+                        } else {
+                            navigate(`/receptionist/appointments/detail/${data?.appointment.folio}`)
+                        }
+                    }}>Detalles</span>
+                ]}>
+                {!hideContent && CardContent()}
+                <Row className="mt-4 gap-2">
                     {!data.dentist && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
                     {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >Iniciar cita</Button>}
                     {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >Reagendar</Button>}

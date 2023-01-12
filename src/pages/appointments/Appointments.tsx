@@ -18,8 +18,14 @@ import { RiArrowLeftSLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import Strings from "../../utils/Strings";
 import BackArrow from "../components/BackArrow";
+import NoData from "../components/NoData";
+import { UserRoles } from "../../utils/Extensions";
 
-const Appointments = () => {
+interface AppointmentsProps {
+    rol: UserRoles
+}
+
+const Appointments = (props: AppointmentsProps) => {
     const [getAppointmentsByBranchOffice] = useGetAppointmentsByBranchOfficeMutation();
     const [isLoading, setIsLoading] = useState(false);
     const [defaultFilter, setDefaultFilter] = useState(DEFAULT_APPOINTMENTS_FILTERS[0]);
@@ -93,14 +99,15 @@ const Appointments = () => {
         <LayoutCard isLoading={isLoading} content={
 
             <div className="flex flex-col">
-                <BackArrow />
+                {props.rol == UserRoles.ADMIN && <BackArrow />}
                 <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={handleOnSearch} enterButton />
                 <SingleFilters data={DEFAULT_APPOINTMENTS_FILTERS} onFilterChange={handleOnFilterChange} defaultOption={defaultFilter} />
 
                 <Row>
-                    {appointments?.map((value, index) => <AppointmentCard appointment={value} key={index} onStatusChange={onStatusChange} />
+                    {appointments?.map((value, index) => <AppointmentCard hideContent={false} appointment={value} key={index} onStatusChange={onStatusChange} />
                     )}
                 </Row>
+                {!isLoading && appointments?.length == 0 && <NoData />}
             </div>
         } />);
 }

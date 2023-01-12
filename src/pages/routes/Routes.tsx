@@ -19,6 +19,7 @@ import MapFilter from "../maps/MapFilter";
 import BranchOffices from "../branchoffice/BranchOffices";
 import Appointments from "../appointments/Appointments";
 import AppointmentInfo from "../appointments/AppointmentInfo";
+import Patients from "../patients/Patients";
 
 export class Route {
     label: string;
@@ -42,13 +43,17 @@ export class Route {
 const adminMap = new Route('Maps', 'maps', '/admin/maps', <MapFilter />, <RiMap2Line />);
 const adminBranchOfficesAppointments = new Route('Citas', 'branchoffices', '/admin/branchoffices', <BranchOffices />, <RiCalendar2Line />);
 const adminBranchOfficesSchedules = new Route('Horarios sucursales', 'branchoffices/schedules', '/admin/branchoffices/schedules', <div>branchoffices/schedules</div>, <RiCalendarCheckLine />);
-const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/branchoffice/appointment', <Appointments />, <RiCalendar2Line />);
-const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/branchoffice/appointment/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
+const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/branchoffice/appointments', <Appointments rol={UserRoles.ADMIN} />, <RiCalendar2Line />);
+const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/branchoffice/appointments/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
 
 
 const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLogoutBoxLine />);
 
-const receptionistAppointments = new Route('Citas', 'citas', '/receptionist/appointments', <div>receptionist </div>, <RiCalendar2Line />);
+const receptionistAppointments = new Route('Citas', 'citasreceptionis', '/receptionist/appointments', <Appointments rol={UserRoles.RECEPTIONIST} />, <RiCalendar2Line />);
+const receptionistDetails = new Route('Citas', 'appointmentinforeceptionis', '/receptionist/appointments/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
+
+const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/patients', <Patients />, <RiUser3Line />);
+
 
 const adminRoutes: Route[] = [
     adminMap,
@@ -61,6 +66,8 @@ const adminRoutes: Route[] = [
 
 const receptionistRoutes: Route[] = [
     receptionistAppointments,
+    receptionistDetails,
+    receptionistPatients,
     logout
 ];
 
@@ -113,6 +120,7 @@ const receptionistRoutesToMenuOptions = (): ItemType[] => {
             null,
             [
                 getItem(receptionistAppointments.label, receptionistAppointments.fullPath, receptionistAppointments.icon),
+                getItem(receptionistPatients.label, receptionistPatients.fullPath, receptionistPatients.icon),
             ],
             'group'),
         getItem(

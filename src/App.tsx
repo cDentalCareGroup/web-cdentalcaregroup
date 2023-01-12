@@ -15,6 +15,8 @@ import ScheduleAppointment from './pages/appointments/ScheduleAppointment';
 import CancelAppointment from './pages/appointments/CancelAppointment';
 import RescheduleAppointment from './pages/appointments/RescheduleAppointment';
 import SummaryAppointment from './pages/appointments/SummaryAppointment';
+import UnAuthorized from './pages/errors/UnAuthorized';
+import NotFound from './pages/errors/NotFound';
 const App = () => {
   return (
     <ConfigProvider
@@ -39,6 +41,9 @@ const App = () => {
           <Route path="cancel/:folio" element={<CancelAppointment />} />
           <Route path="reschedule/:folio" element={<RescheduleAppointment />} />
         </Route>
+
+        <Route index path='/unauthorized' element={<UnAuthorized />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </ConfigProvider>
   )

@@ -42,7 +42,7 @@ const BranchOffices = () => {
                             <Card key={index} title={value.name} className="m-2 cursor-pointer" actions={[
                                 <Link onClick={() => {
                                     setBranchId(value.id);
-                                }} to={'/admin/branchoffice/appointment'}>
+                                }} to={'/admin/branchoffice/appointments'}>
                                     Ver citas
                                 </Link>
                             ]}>

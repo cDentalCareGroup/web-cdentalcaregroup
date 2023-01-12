@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu, MenuProps, theme } from 'antd';
 import Sidebar, { getItem } from '../components/Sidebar';
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { adminRoutes, adminRoutesToMenuOptions, getUserSidebar } from '../routes/Routes';
 import useSessionStorage from '../../core/sessionStorage';
 import Constants from '../../utils/Constants';
@@ -18,6 +18,8 @@ import User from '../../data/user/user';
 import { FirebaseOpenLinkType, getBrowserToken, handleOnMessage } from '../../services/firebase';
 import { useSaveTokenMutation } from '../../services/authService';
 import { SaveTokenRequest } from '../../data/user/user.request';
+import Spinner from '../components/Spinner';
+import { getUserRol, UserRoles } from '../../utils/Extensions';
 
 const { Header, Sider, Content } = Layout;
 
@@ -29,10 +31,10 @@ const BaseLayout: React.FC = () => {
     } = theme.useToken();
     const [session, setSession] = useSessionStorage(Constants.SESSION_AUTH, null);
     const [saveTokenMutation] = useSaveTokenMutation();
-
-
+    const location = useLocation();
+    const navigate = useNavigate();
     if (session == null) {
-        return <div>loading</div>
+        return <Spinner  />
     }
 
     const formatName = (): string => {
@@ -40,11 +42,23 @@ const BaseLayout: React.FC = () => {
         return `${user.name} ${user.lastname}`;
     }
 
-
-
   useEffect(() => {
+    validateRoute();
     requestPermission();
   }, []);
+
+
+  const validateRoute = () => {
+    const isAdminRoute = location.pathname.toLowerCase()
+        .replace(/\s+/g, '')
+        .includes('admin'.toLowerCase().replace(/\s+/g, ''));
+    const user = session as User;
+    const rol = getUserRol(user);
+
+    if (isAdminRoute && rol == UserRoles.RECEPTIONIST) {
+        navigate('/unauthorized',{replace: true});
+    }  
+  }
 
   const requestPermission = async () => {
     const permission = await Notification.requestPermission();
@@ -63,13 +77,16 @@ const BaseLayout: React.FC = () => {
   });
 
   const handleNavigateToAppointmentDetail = (folio: String) => {
+    console.log(folio);
     //navigation(`/admin/appointment/detail/${folio }`);
-    // const role = getRole(user);
-    // if (role == UserRoles.ADMIN) {
-    //   window.open(`https://cdentalcaregroup-fcdc9.web.app/admin/appointment/detail/${folio}`);
-    // } else {
-    //   window.open(`https://cdentalcaregroup-fcdc9.web.app/receptionist/appointment/detail/${folio}`);
-    // }
+    const user = session as User;
+     const role = getUserRol(user);
+    if (role == UserRoles.ADMIN) {
+      window.open(`http://localhost:5173/admin/branchoffice/appointment/detail/${folio}`);
+      //window.open(`https://cdentalcaregroup-fcdc9.web.app/admin/appointment/detail/${folio}`);
+    } else {
+     // window.open(`https://cdentalcaregroup-fcdc9.web.app/receptionist/appointment/detail/${folio}`);
+    }
   }
 
   const handleSaveToken = async(token: string) => {
