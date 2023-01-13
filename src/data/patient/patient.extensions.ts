@@ -14,16 +14,39 @@ const buildPatientAddress = (patient: Patient | undefined): string => {
   return `${patient?.street} ${patient?.number} ${patient?.colony} ${patient?.cp}`
 }
 const buildPatientPhone = (patient: Patient | undefined): string => {
-  return `${patient?.primaryContact ?? ''}  ${patient?.secondaryContact ?? ''}`
+  return `${patient?.primaryContact ?? DEFAULT_FIELD_VALUE}  ${patient?.secondaryContact ?? ''}`
 }
 const buildPatientEmail = (patient: Patient | undefined): string => {
-  return `${patient?.email ?? ''}`
+  if (patient?.email != null && patient.email != "") {
+    return patient.email;
+  } else {
+    return DEFAULT_FIELD_VALUE;
+  }
 }
 const buildPatientBirthday = (patient: Patient | undefined): string => {
   return `${patient?.birthDay?.toString()}`
 }
 const buildPatientPad = (patient: Patient | undefined): string => {
   return `${patient?.padAcquisitionBranch ?? ''}  ${patient?.padType ?? ''}  ${patient?.padAcquisitionDate?.toString() ?? 'Sin pad'}`
+}
+
+const buildPatientStartedAt = (patient: Patient | undefined): string => {
+  return `${patient?.startDate ?? DEFAULT_FIELD_VALUE}`;
+}
+
+const buildPatientGender = (patient: Patient | undefined): string => {
+  if (patient != null) {
+    if(patient.gender == 'male') {
+      return 'Masculino';
+    }
+    if(patient.gender == 'male') {
+      return 'Femenino';
+    }
+    if(patient.gender == 'other') {
+      return 'Otro';
+    }
+  }
+  return DEFAULT_FIELD_VALUE;
 }
 
 const getPatientName = (appointment: AppointmentDetail | undefined) => {
@@ -35,7 +58,7 @@ const getPatientEmail = (appointment: AppointmentDetail | undefined): string => 
   if (appointment?.prospect != null && appointment.prospect.email != "") {
     return appointment.prospect.email;
   }
-  if(appointment?.patient != null && appointment.patient.email != ""){
+  if (appointment?.patient != null && appointment.patient.email != "") {
     return appointment.patient.email;
   }
   return DEFAULT_FIELD_VALUE;
@@ -142,4 +165,6 @@ export {
   getPatientPad,
   getPatientPrimaryContact,
   getStartFinishedDate,
+  buildPatientGender,
+  buildPatientStartedAt
 }

@@ -6,7 +6,7 @@ class Strings {
     static username = "Usuario";
     static cDentalCare = "CDentalCare";
     static group = "Group";
-
+    static street = "Calle"
     static hasLabs = "Tiene laboratorios?";
     static colony = "Colonia"
     static city = "Ciudad"
@@ -28,6 +28,7 @@ class Strings {
     static email = "Correo electroico";
     static birthday = "Fecha de nacimiento";
     static pad = "Pad";
+    static patientSince = "Paciente desde"
     static dateAndTime = "Fecha y Hora";
     static branchOffice = "Sucursal"
     static gender = "Genero";
@@ -41,12 +42,18 @@ class Strings {
     //button actions
     static accept = 'Aceptar';
     static return = "Regresar"
+    static save = "Guardar"
     static scheduleAppointment = "Agendar cita"
     static rescheduleAppointment = "Reagendar cita"
     static cancelAppointment = "Cancelar cita"
     static appointmentSummary = "Resumen de la cita"
+    static seeInfo = "Ver info"
+    static delete = "Eliminar"
+    static registerPatient = "Registrar paciente"
 
     static searchAppointmentsByPatientName = "Buscar citas por nombre de paciente";
+    static searchPatient= "Buscar paciente";
+
     static selectBranchOffice = "Selecciona una clinica"
     static selectColony = "Selecciona una colonia"
     static civilState = "Estado civil"
@@ -54,6 +61,8 @@ class Strings {
     static single = "Soltero"
     static married = "Casado"
     static ocupation = "Ocupacion"
+    static streetNumber = "Numero"
+    static patients = "Pacientes"
     //errors
     static requiredUsername = "Por favor ingresa tu usuario!"
     static requiredPassword = "Por favor ingresa tu contraseña!"

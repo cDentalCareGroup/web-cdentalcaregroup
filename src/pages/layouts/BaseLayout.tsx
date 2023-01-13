@@ -108,7 +108,7 @@ const BaseLayout: React.FC = () => {
                         className: 'trigger flex p-4',
                         onClick: () => setCollapsed(!collapsed),
                     })}
-                    <span className='mr-8'>{formatName()}</span>
+                    <span className='mr-8 sm:invisible'>{formatName()}</span>
                    </div>
                 </Header>
                 <Content

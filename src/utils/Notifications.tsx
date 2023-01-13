@@ -62,5 +62,8 @@ const getErrorMessage = (message: string): string => {
     if (message == 'NOT_FOUND_CP') {
         return 'No se encontró el código postal';
     }
+    if (message == 'PATIENT_EXISTS') {
+        return "El paciente ya esta registrado"
+    }
     return 'Ocurrio un error, intenta mas tarde';
 }

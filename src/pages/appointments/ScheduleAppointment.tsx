@@ -83,9 +83,7 @@ const ScheduleAppointment = () => {
             handleSucccessNotification(NotificationSuccess.REGISTER_APPOINTMENT);
             setIsLoadingAction(false);
             navigate(`/appointment/detail/${response}`, {
-                replace: true, state: {
-                    showMessage: true
-                }
+                replace: true
             });
         } catch (error) {
             setIsLoadingAction(false);

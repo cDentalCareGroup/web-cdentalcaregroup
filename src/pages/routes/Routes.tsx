@@ -19,7 +19,9 @@ import MapFilter from "../maps/MapFilter";
 import BranchOffices from "../branchoffice/BranchOffices";
 import Appointments from "../appointments/Appointments";
 import AppointmentInfo from "../appointments/AppointmentInfo";
+import RegisterPatientCard from "../patients/RegisterPatientCard";
 import Patients from "../patients/Patients";
+import PatientInfo from "../patients/PatientInfo";
 
 export class Route {
     label: string;
@@ -52,7 +54,9 @@ const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLo
 const receptionistAppointments = new Route('Citas', 'citasreceptionis', '/receptionist/appointments', <Appointments rol={UserRoles.RECEPTIONIST} />, <RiCalendar2Line />);
 const receptionistDetails = new Route('Citas', 'appointmentinforeceptionis', '/receptionist/appointments/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
 
+const receptionistRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/receptionist/patients/register', <RegisterPatientCard />, <RiUser3Line />);
 const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/patients', <Patients />, <RiUser3Line />);
+const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/receptionist/patients/detail/:id', <PatientInfo />, <RiUser3Line />);
 
 
 const adminRoutes: Route[] = [
@@ -68,6 +72,8 @@ const receptionistRoutes: Route[] = [
     receptionistAppointments,
     receptionistDetails,
     receptionistPatients,
+    receptionistRegisterPatients,
+    receptionistPatientsInfo,
     logout
 ];
 
