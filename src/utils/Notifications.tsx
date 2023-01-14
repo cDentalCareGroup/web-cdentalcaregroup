@@ -30,7 +30,7 @@ export const handleSucccessNotification = (value: NotificationSuccess) => {
 }
 
 export enum NotificationSuccess {
-    REGISTER, UPDATE, REGISTER_APPOINTMENT, RESCHEDULE_APPOINTMENT
+    REGISTER, UPDATE, REGISTER_APPOINTMENT, RESCHEDULE_APPOINTMENT, SUCCESS_DELETE
 }
 
 const getSuccessMessage = (type: NotificationSuccess): string => {
@@ -47,6 +47,9 @@ const getSuccessMessage = (type: NotificationSuccess): string => {
     }
     if (type == NotificationSuccess.RESCHEDULE_APPOINTMENT) {
         return 'Cita reagendada correctamente';
+    }
+    if (type == NotificationSuccess.SUCCESS_DELETE) {
+        return 'Se elimino correctamente';
     }
     
     return 'Se realizó correctamente';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Select } from 'antd';
 import SelectItemOption from '../../data/select/select.item.option';
 
@@ -19,7 +18,6 @@ const SelectSearch = ({ placeholder, onChange, items, icon, defaultValue }: Sele
   const handleOnChange = (option: number) => {
     const item = items.find((value, _) => value.id == option);
     if (item != null) {
-      console.log(item);
       onChange(item);
     }
   }

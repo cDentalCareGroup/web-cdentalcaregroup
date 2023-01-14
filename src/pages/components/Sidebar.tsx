@@ -1,8 +1,7 @@
 import { Menu, MenuProps } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { adminRoutesToMenuOptions, Route } from "../routes/Routes";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export type MenuItem = Required<MenuProps>['items'][number];
 

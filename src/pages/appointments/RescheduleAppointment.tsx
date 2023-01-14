@@ -1,4 +1,4 @@
-import { Button, Divider, Form, InputNumber } from "antd";
+import { Button, Divider } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppointmentDetail } from "../../data/appointment/appointment.detail";

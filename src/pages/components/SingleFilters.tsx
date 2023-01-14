@@ -1,5 +1,4 @@
 import { Button } from "antd";
-import React from "react";
 import { useEffect, useState } from "react";
 import SelectItemOption from '../../data/select/select.item.option';
 import { sortSelectItemOptions } from '../../data/select/select.item.option.extensions';

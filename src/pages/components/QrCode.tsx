@@ -1,4 +1,3 @@
-import React from 'react';
 import { QRCode, Button } from 'antd';
 
 const downloadQRCode = () => {

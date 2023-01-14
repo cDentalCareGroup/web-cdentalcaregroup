@@ -1,8 +1,8 @@
-import { Button, Card, Popover, Radio, Row, Space, Tag } from "antd";
+import { Button, Card, Radio, Row, Space, Tag } from "antd";
 import Search from "antd/es/input/Search";
 import Modal from "antd/es/modal/Modal";
 import { useEffect, useState } from "react";
-import { RiInformationLine, RiMailLine, RiPhoneLine, RiUserLine } from "react-icons/ri";
+import {  RiMailLine, RiPhoneLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
 import { Patient } from "../../data/patient/patient";

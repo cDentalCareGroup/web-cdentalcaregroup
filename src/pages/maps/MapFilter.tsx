@@ -1,4 +1,4 @@
-import { Layout, Modal, QRCode } from "antd";
+import {  Modal, QRCode } from "antd";
 import { useEffect, useState } from "react";
 import { BranchOffice } from "../../data/branchoffice/branchoffice";
 import { DEFAULT_FILTERS } from "../../data/filter/filters";

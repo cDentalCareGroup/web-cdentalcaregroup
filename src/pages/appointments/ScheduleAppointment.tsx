@@ -1,9 +1,8 @@
 import { Button, Divider, Form, InputNumber } from "antd";
 import Checkbox from "antd/es/checkbox/Checkbox";
 import Input from "antd/es/input/Input";
-import { Header } from "antd/es/layout/layout";
 import { useEffect, useRef, useState } from "react";
-import { RiHospitalLine, RiMailLine, RiPhoneLine, RiUser3Line } from "react-icons/ri";
+import {  RiMailLine, RiPhoneLine, RiUser3Line } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 import { GetAppointmentAvailabilityRequest, RegisterAppointmentRequest } from "../../data/appointment/appointment.request";
 import { AvailableTime } from "../../data/appointment/available.time";

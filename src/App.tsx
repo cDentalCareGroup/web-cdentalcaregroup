@@ -1,14 +1,7 @@
 import { ConfigProvider } from 'antd'
-import Base from 'antd/es/typography/Base';
-import { useEffect, useState } from 'react'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom";
 import Login from './pages/auth/Login'
 import BaseLayout from './pages/layouts/BaseLayout'
-import MapFilter from './pages/maps/MapFilter';
-import { Navigate, NavLink, Route, Routes, useNavigate } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import RequireAuth from './pages/routes/RequireAuth';
 import { adminRoutes, receptionistRoutes } from './pages/routes/Routes';
 import ScheduleAppointment from './pages/appointments/ScheduleAppointment';

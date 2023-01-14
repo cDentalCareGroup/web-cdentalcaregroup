@@ -28,7 +28,7 @@ class Strings {
     static lastName = "Apellido paterno";
     static secondLastName = "Apellido materno";
 
-    static email = "Correo electróico";
+    static email = "Correo electrónico";
     static birthday = "Fecha de nacimiento";
     static pad = "Pad";
     static patientSince = "Paciente desde"
@@ -62,6 +62,7 @@ class Strings {
     static selectColony = "Selecciona una colonia"
     static civilState = "Estado civil"
     static selectOption = "Selecciona una opción"
+    static selectDentist = "Selecciona un dentista";
     static single = "Soltero"
     static married = "Casado"
     static ocupation = "Ocupación"
@@ -72,14 +73,35 @@ class Strings {
     static requiredPassword = "Por favor ingresa tu contraseña!"
     static requiredName = "Por favor ingresa un nombre!"
     static requiredPhoneNumber = "Por favor ingresa un teléfono!"
-    static invalidEmail= "Por favor ingresa un correo electronico valido!"
-    static invalidPhoneNumber = 'Ingresa un telefono valido';
-    static requiredTermsConditions = 'Debes aceptar los terminos y condiciones'
+    static invalidEmail= "Por favor ingresa un correo electrónico válido!"
+    static invalidPhoneNumber = 'Ingresa un teléfono válido';
+    static requiredTermsConditions = 'Debes aceptar los términos y condiciones'
     static requiredField = "Campo requerido"
 
     static genderMale = "Masculino"
     static genderFemale = "Femenino"
     static default = "No especificado"
+
+
+    static day = "Día"
+    static selectDay = "Selecciona un día";
+
+    static monday = "Lunes";
+    static tuesday = "Martes";
+    static wednesday = "Miercoles";
+    static thursday = "Jueves";
+    static friday = "Viernes";
+    static saturday = "Sabado"
+    static schedule = "Horario"
+
+    static seats = "Asientos"
+    static emptyDentist = "Sin dentistas asignados";
+    static schedulesBranchOffice = "Horarios clínica"
+    static seeSchedules = "Ver horarios"
+    static scheduleOpen = "Horario de apertura"
+    static scheduleClose = "Horario de cierre"
+    static dentists = "Dentistas"
+    static actions = "Acciones"
 
     static appVersion = 'v.1.0.0';
 }

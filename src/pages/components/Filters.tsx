@@ -1,5 +1,4 @@
 import { Button, Layout } from "antd";
-import Tag from "antd/es/tag";
 import { useState } from "react";
 import SelectItemOption from "../../data/select/select.item.option";
 import { sortSelectItemOptions, resetSelectItemOptions, resetSingleSelectItemOptions } from '../../data/select/select.item.option.extensions';

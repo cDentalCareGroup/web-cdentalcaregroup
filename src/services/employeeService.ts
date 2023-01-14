@@ -19,27 +19,35 @@ export const employeeService = apiSlice.injectEndpoints({
         }),
         transformResponse: (response: { data: Employee[] }, _, __) => response.data,
       }),
-    //   registerEmployeesSchedules: builder.mutation<any, any>({
-    //     query: (data) => ({
-    //       url: ApiEndpointsConstants.REGISTER_EMPLOYEES_SCHEDULE_API,
-    //       method: "POST",
-    //       body:{
-    //         "data":data
-    //       }
-    //     }),
-    //     transformResponse: (response: { data: any }, _, __) => response.data,
-    //   }),
+      getEmployeesByBranchOffice: builder.mutation<Employee[], any>({
+        query: (data) => ({
+          url: '/employee/branchoffice',
+          method: "POST",
+          body:{...data}
+        }),
+        transformResponse: (response: { data: Employee[] }, _, __) => response.data,
+      }),
+      registerEmployeeSchedule: builder.mutation<any, any>({
+        query: (data) => ({
+          url: '/employee/schedules',
+          method: "POST",
+          body:{
+            "data":data
+          }
+        }),
+        transformResponse: (response: { data: any }, _, __) => response.data,
+      }),
   
-    //   deleteEmployeesSchedule: builder.mutation<any, any>({
-    //     query: (data) => ({
-    //       url: ApiEndpointsConstants.DELETE_EMPLOYEES_SCHEDULE_API,
-    //       method: "POST",
-    //       body:{
-    //         ...data
-    //       }
-    //     }),
-    //     transformResponse: (response: { data: any }, _, __) => response.data,
-    //   }),
+      deleteEmployeeSchedule: builder.mutation<any, any>({
+        query: (data) => ({
+          url: '/employee/delete/schedule',
+          method: "POST",
+          body:{
+            ...data
+          }
+        }),
+        transformResponse: (response: { data: any }, _, __) => response.data,
+      }),
     //   getEmployeesBySchedule: builder.mutation<string[], any>({
     //     query: (data) => ({
     //       url: ApiEndpointsConstants.GET_EMPLOYEE_SCHEDULES_BY_ID,
@@ -54,5 +62,8 @@ export const employeeService = apiSlice.injectEndpoints({
   });
   
   export const { 
-    useGetEmployeesByTypeMutation
+    useGetEmployeesByTypeMutation,
+    useGetEmployeesByBranchOfficeMutation,
+    useRegisterEmployeeScheduleMutation,
+    useDeleteEmployeeScheduleMutation,
    } = employeeService;

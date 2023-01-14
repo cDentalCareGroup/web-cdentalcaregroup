@@ -1,9 +1,6 @@
-import { Button, DatePicker, Form, Input, Modal, Radio, Row, Select } from "antd";
-import Search from "antd/es/input/Search";
-import { Option } from "antd/es/mentions";
-import { format } from "date-fns";
+import { Button, DatePicker, Form, Input, Row, Select } from "antd";
 import { useEffect, useState } from "react";
-import { RiHashtag, RiLuggageDepositLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiMapPinRangeLine, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
+import { RiHashtag, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { Colonies, Colony } from "../../data/address/colonies";
 import { Latitudes } from "../../data/maps/latitudes";
@@ -15,7 +12,6 @@ import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
-import BackArrow from "../components/BackArrow";
 import LayoutCard from "../layouts/LayoutCard";
 
 interface FormPatientProps {
@@ -41,7 +37,6 @@ const FormPatient = (props: FormPatientProps) => {
         Constants.BRANCH_ID,
         0
     );
-    const [defaultDate, setDefaultDate] = useState(new Date());
     useEffect(() => {
         if (props.type == FormPatientType.UPDATE) {
             handleSetupValues();
@@ -66,10 +61,8 @@ const FormPatient = (props: FormPatientProps) => {
         form.setFieldValue('origin', props.patient?.sourceClient);
         form.setFieldValue('civilState', props.patient?.maritalStatus);
         form.setFieldValue('occupation', props.patient?.job);
-        form.setFieldValue('birthday', '2022-12-12');
 
         setLatitudes(new Latitudes(Number(props.patient?.lat), Number(props.patient?.lng)));
-        console.log(props.patient)
     }
 
     const handleGetPatientOrigins = async () => {

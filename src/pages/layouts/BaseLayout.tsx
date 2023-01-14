@@ -3,14 +3,14 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, MenuProps, theme } from 'antd';
-import Sidebar, { getItem } from '../components/Sidebar';
+import { Layout, theme } from 'antd';
+import Sidebar from '../components/Sidebar';
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { adminRoutes, adminRoutesToMenuOptions, getUserSidebar } from '../routes/Routes';
+import {  getUserSidebar } from '../routes/Routes';
 import useSessionStorage from '../../core/sessionStorage';
 import Constants from '../../utils/Constants';
 import User from '../../data/user/user';
-import { FirebaseOpenLinkType, getBrowserToken, getFirebaseValue, handleOnMessage } from '../../services/firebase';
+import { FirebaseOpenLinkType, getBrowserToken, handleOnMessage } from '../../services/firebase';
 import { useSaveTokenMutation } from '../../services/authService';
 import { SaveTokenRequest } from '../../data/user/user.request';
 import Spinner from '../components/Spinner';

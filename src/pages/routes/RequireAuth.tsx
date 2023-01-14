@@ -1,4 +1,4 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import useSessionStorage from "../../core/sessionStorage";

@@ -16,13 +16,14 @@ import User from "../../data/user/user";
 import { getUserRol, UserRoles } from "../../utils/Extensions";
 import Logout from "../auth/Logout";
 import MapFilter from "../maps/MapFilter";
-import BranchOffices from "../branchoffice/BranchOffices";
+import BranchOffices, { BranchOfficeType } from "../branchoffice/BranchOffices";
 import Appointments from "../appointments/Appointments";
 import AppointmentInfo from "../appointments/AppointmentInfo";
 import RegisterPatientCard, { FormPatientType } from "../patients/FormPatient";
 import Patients from "../patients/Patients";
 import PatientInfo from "../patients/PatientInfo";
 import FormPatient from "../patients/FormPatient";
+import SchedulesBranchOffice from "../branchoffice/schedules/SchedulesBranchOffice";
 
 export class Route {
     label: string;
@@ -44,8 +45,10 @@ export class Route {
 }
 
 const adminMap = new Route('Maps', 'maps', '/admin/maps', <MapFilter />, <RiMap2Line />);
-const adminBranchOfficesAppointments = new Route('Citas', 'branchoffices', '/admin/branchoffices', <BranchOffices />, <RiCalendar2Line />);
-const adminBranchOfficesSchedules = new Route('Horarios sucursales', 'branchoffices/schedules', '/admin/branchoffices/schedules', <div>branchoffices/schedules</div>, <RiCalendarCheckLine />);
+const adminBranchOfficesAppointments = new Route('Citas', 'branchoffices', '/admin/branchoffices/appointments', <BranchOffices type={BranchOfficeType.APPOINTMENTS} />, <RiCalendar2Line />);
+const adminBranchOfficesSchedules = new Route('Horarios', 'branchoffices/schedules', '/admin/branchoffices/schedules',  <BranchOffices type={BranchOfficeType.SCHEDULES} />, <RiCalendarCheckLine />);
+const adminBranchOfficeSchedules = new Route('HorariosSucursal', 'branchoffices/schedules/detail', '/admin/branchoffices/schedules/detail/:id',  <SchedulesBranchOffice />, <RiCalendarCheckLine />);
+
 const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/branchoffice/appointments', <Appointments rol={UserRoles.ADMIN} />, <RiCalendar2Line />);
 const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/branchoffice/appointments/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
 
@@ -64,6 +67,7 @@ const adminRoutes: Route[] = [
     adminMap,
     adminBranchOfficesAppointments,
     adminBranchOfficesSchedules,
+    adminBranchOfficeSchedules,
     adminAppointments,
     adminAppointmentDetails,
     logout
@@ -104,7 +108,7 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             null,
             [
                 getItem(adminBranchOfficesAppointments.label, adminBranchOfficesAppointments.fullPath, adminBranchOfficesAppointments.icon),
-                // getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon)
+                 getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon)
             ],
             'group'),
         getItem(

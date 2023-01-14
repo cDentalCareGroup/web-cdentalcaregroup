@@ -1,5 +1,4 @@
-import { Button, Divider, Row } from "antd";
-import { Footer, Header } from "antd/es/layout/layout";
+import { Button, Divider } from "antd";
 import { useEffect, useState } from "react";
 import { RiCalendar2Line, RiFunctionLine, RiMailLine, RiMentalHealthLine, RiPhoneLine, RiUser3Line } from "react-icons/ri";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -16,7 +15,7 @@ import LayoutCard from "../layouts/LayoutCard";
 
 const SummaryAppointment = () => {
 
-    const [getAppointmentDetail, { isLoading }] = useGetAppointmentDetailPatientMutation();
+    const [getAppointmentDetail, { isLoading, isError }] = useGetAppointmentDetailPatientMutation();
     const { folio } = useParams();
     const [data, setData] = useState<AppointmentDetail | undefined>();
     const navigation = useNavigate();
@@ -36,7 +35,7 @@ const SummaryAppointment = () => {
     }
 
     return (
-        <LayoutCard isLoading={isLoading} center={true} content={
+        <LayoutCard isError={isError} isLoading={isLoading} center={true} content={
             <div className="flex flex-col w-full h-full">
                 <TopBarHeader title= {Strings.appointmentSummary} />
                 <Divider />

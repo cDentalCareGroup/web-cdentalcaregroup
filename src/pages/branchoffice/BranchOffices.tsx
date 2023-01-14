@@ -1,24 +1,36 @@
-import { Card, Row, Tag } from "antd";
-import Layout from "antd/es/layout/layout";
+import { Button, Card, Divider, Form, Row, Select, Table, Tag, TimePicker } from "antd";
 import { useEffect, useState } from "react";
 import { BranchOffice } from "../../data/branchoffice/branchoffice";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { handleErrorNotification } from "../../utils/Notifications";
 import SectionElement from "../components/SectionElement";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LayoutCard from "../layouts/LayoutCard";
 import {
+
     RiPhoneLine,
 } from "react-icons/ri";
 import Constants from "../../utils/Constants";
 import useSessionStorage from "../../core/sessionStorage";
-const BranchOffices = () => {
+import Strings from "../../utils/Strings";
+
+
+interface BranchOfficesProps {
+    type: BranchOfficeType;
+}
+
+export enum BranchOfficeType {
+    APPOINTMENTS, SCHEDULES
+}
+
+const BranchOffices = (props: BranchOfficesProps) => {
     const [getBranchOffices, { isLoading }] = useGetBranchOfficesMutation();
     const [data, setData] = useState<BranchOffice[]>([]);
     const [branchId, setBranchId] = useSessionStorage(
         Constants.BRANCH_ID,
         0
     );
+    const navigate = useNavigate();
     useEffect(() => {
         handleGetBranchOffices();
     }, []);
@@ -32,27 +44,56 @@ const BranchOffices = () => {
             handleErrorNotification(error);
         }
     }
+
+    const buildBranchOfficesTitle = () => {
+        if (props.type == BranchOfficeType.APPOINTMENTS) {
+            return Strings.appointments
+        } else {
+            return Strings.schedulesBranchOffice
+        }
+    }
+
+
+    const buildActions = (value: BranchOffice) => {
+        if (props.type == BranchOfficeType.APPOINTMENTS) {
+            return [
+                <Link onClick={() => {
+                    setBranchId(value.id);
+                }} to={'/admin/branchoffice/appointments'}>
+                    Ver citas
+                </Link>
+            ]
+        } else {
+            return [
+
+            ]
+        }
+    }
+
+
     return (
         <LayoutCard
+            title={buildBranchOfficesTitle()}
             isLoading={isLoading}
             content={
-                <div className="flex max-w-full">
+                <div className="flex flex-col max-w-full">
                     <Row>
                         {data.map((value, index) =>
-                            <Card key={index} title={value.name} className="m-2 cursor-pointer" actions={[
-                                <Link onClick={() => {
-                                    setBranchId(value.id);
-                                }} to={'/admin/branchoffice/appointments'}>
-                                    Ver citas
-                                </Link>
-                            ]}>
-                                <SectionElement label="Numero telefonico" value={value.primaryContact} icon={<RiPhoneLine />} />
-                                <div className="flex">
+                            <Card key={index} title={value.name} className="m-2 cursor-pointer" actions={buildActions(value)}>
+                                <SectionElement label={Strings.phoneNumber} value={value.primaryContact} icon={<RiPhoneLine />} />
+                                {props.type == BranchOfficeType.APPOINTMENTS && <div className="flex">
                                     <Tag color="processing">Citas {value.appointmens}</Tag>
-                                </div>
+                                </div>}
+
+                                {props.type == BranchOfficeType.SCHEDULES && <div className="flex gap-2 mt-4">
+                                    <Button onClick={() => {
+                                        navigate(`/admin/branchoffices/schedules/detail/${value.id}`)
+                                    }}>{Strings.seeSchedules}</Button>
+                                </div>}
                             </Card>
                         )}
                     </Row>
+
                 </div>
             }
         />

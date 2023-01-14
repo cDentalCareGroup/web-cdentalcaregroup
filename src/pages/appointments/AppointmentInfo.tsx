@@ -1,8 +1,7 @@
-import { Button, Divider, Tag } from "antd";
+import {  Divider, Tag } from "antd";
 import { RiCalendar2Line, RiFunctionLine, RiMailLine, RiMentalHealthLine, RiPhoneLine, RiSearch2Line, RiStethoscopeLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import Strings from "../../utils/Strings";
-import BackArrow from "../components/BackArrow";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import {

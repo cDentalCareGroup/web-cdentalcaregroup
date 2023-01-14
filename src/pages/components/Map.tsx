@@ -3,7 +3,7 @@ import {
     Marker,
     useLoadScript,
 } from "@react-google-maps/api";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import CustomMarker from "../../data/maps/custom.marker";
 
 

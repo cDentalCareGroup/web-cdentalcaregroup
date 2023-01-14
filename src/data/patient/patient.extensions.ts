@@ -14,7 +14,7 @@ const buildPatientAddress = (patient: Patient | undefined): string => {
   return `${patient?.street} ${patient?.number} ${patient?.colony} ${patient?.cp}`
 }
 const buildPatientPhone = (patient: Patient | undefined): string => {
-  return `${patient?.primaryContact ?? DEFAULT_FIELD_VALUE}  ${patient?.secondaryContact ?? ''}`
+  return `${patient?.primaryContact ?? DEFAULT_FIELD_VALUE}`
 }
 const buildPatientEmail = (patient: Patient | undefined): string => {
   if (patient?.email != null && patient.email != "") {
@@ -71,8 +71,6 @@ const getPatientPrimaryContact = (appointment: AppointmentDetail | undefined): s
   if (appointment?.patient != null) {
     if (appointment.patient.primaryContact != "") {
       return appointment.patient.primaryContact;
-    } else if (appointment.patient.secondaryContact != "") {
-      return appointment.patient.secondaryContact;
     } else {
       return DEFAULT_FIELD_VALUE;
     }

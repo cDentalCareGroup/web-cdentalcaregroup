@@ -10,28 +10,13 @@ import {
   isSameMonth,
   isToday,
   parse,
-  parseISO,
   startOfToday,
 } from "date-fns";
 import { useState } from "react";
 import { dayName, monthName } from "../../utils/Extensions";
 import Spinner from "./Spinner";
 
-const availableHours22 = [
 
-  "08:00 AM",
-  "09:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "13:00 PM",
-  "14:00 PM",
-  "16:00 PM",
-  "17:00 PM",
-  "18:00 PM",
-  "19:00 PM",
-  "20:00 PM",
-];
 
 const classNames = (...classes: any[]) => {
   return classes.filter(Boolean).join(" ");

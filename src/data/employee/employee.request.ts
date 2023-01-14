@@ -5,3 +5,10 @@ export class GetEmployeeByTypeRequest {
         this.type = type;
     }
 }
+
+export class GetEmployeeByBranchOfficeRequest {
+    id: string;
+    constructor(id: string) {
+        this.id = id;
+    }
+}
