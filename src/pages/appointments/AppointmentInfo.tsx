@@ -35,14 +35,9 @@ const AppointmentInfo = () => {
     }
 
     return (
-        <LayoutCard isLoading={isLoading} content={
+        <LayoutCard showBack={true} title={`${Strings.appointment} - ${getPatientName(data)} - ${getAppointmentDate(data)}`} isLoading={isLoading} content={
             <div className="flex flex-col">
-                <BackArrow />
-                <h2 className="text-2xl font-bold text-[#00152A]  mb-2 w-full ml-4">
-                    {Strings.appointment} - {getPatientName(data)} - {getAppointmentDate(data)}
-                </h2>
-                <Divider />
-                <div className="flex w-full flex-wrap items-baseline">
+                               <div className="flex w-full flex-wrap items-baseline">
                     <div className="p-4">
                         <span className="text-2xl text-gray-500 font-semibold mb-4 flex">{Strings.patientInformation}</span>
                         <SectionElement label={Strings.patientName} value={getPatientName(data)} icon={<RiUser3Line />} />

@@ -31,6 +31,15 @@ export const patientService = apiSlice.injectEndpoints({
         transformResponse: (response: { data: any }, meta, arg) => response.data,
         invalidatesTags: ['Patient']
       }),
+      updatePatient: builder.mutation<any, any>({
+        query: (data) => ({
+          url: '/patient/update',
+          method: "POST",
+          body: {...data}
+        }),
+        transformResponse: (response: { data: any }, meta, arg) => response.data,
+        invalidatesTags: ['Patient']
+      }),
       getPatientOrigins: builder.mutation<PatientOrigin[], any>({
         query: (_) => ({
           url: '/patient/origins',
@@ -63,5 +72,6 @@ export const patientService = apiSlice.injectEndpoints({
     useRegisterPatientMutation,
     useGetPatientOriginsMutation,
     useUpdatePatientStatusMutation,
-    useGetPatientMutation
+    useGetPatientMutation,
+    useUpdatePatientMutation
   } = patientService;

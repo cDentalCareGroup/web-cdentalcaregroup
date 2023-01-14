@@ -1,14 +1,16 @@
 import { Button, DatePicker, Form, Input, Modal, Radio, Row, Select } from "antd";
 import Search from "antd/es/input/Search";
 import { Option } from "antd/es/mentions";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiHashtag, RiLuggageDepositLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiMapPinRangeLine, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { Colonies, Colony } from "../../data/address/colonies";
 import { Latitudes } from "../../data/maps/latitudes";
+import { Patient } from "../../data/patient/patient";
 import { PatientOrigin } from "../../data/patient/patient.origin";
-import { RegisterPatientRequest } from "../../data/patient/patient.request";
-import { useGetPatientOriginsMutation, useRegisterPatientMutation } from "../../services/patientService";
+import { RegisterPatientRequest, UpdatePatientRequest } from "../../data/patient/patient.request";
+import { useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
@@ -16,23 +18,59 @@ import Strings from "../../utils/Strings";
 import BackArrow from "../components/BackArrow";
 import LayoutCard from "../layouts/LayoutCard";
 
-const RegisterPatientCard = () => {
+interface FormPatientProps {
+    type: FormPatientType;
+    patient?: Patient;
+}
+export enum FormPatientType {
+    REGISTER, UPDATE
+}
 
-    const [registerPatient, { isLoading }] = useRegisterPatientMutation();
+const FormPatient = (props: FormPatientProps) => {
+
+    const [registerPatient] = useRegisterPatientMutation();
+    const [updatePatient,] = useUpdatePatientMutation();
+    const [isLoading, setIsLoading] = useState(false);
     const [getPatientOrigins] = useGetPatientOriginsMutation();
     const [colonies, setColonies] = useState<Colony[]>([]);
     const [colony, setColony] = useState<Colony>();
     const [form] = Form.useForm();
     const [latitudes, setLatitudes] = useState<Latitudes>();
-    const [origins, setOrigins] = useState<PatientOrigin[]|undefined>([]);
+    const [origins, setOrigins] = useState<PatientOrigin[] | undefined>([]);
     const [branchId, setBranchId] = useSessionStorage(
         Constants.BRANCH_ID,
         0
     );
-
+    const [defaultDate, setDefaultDate] = useState(new Date());
     useEffect(() => {
+        if (props.type == FormPatientType.UPDATE) {
+            handleSetupValues();
+        }
         handleGetPatientOrigins();
-    },[]);
+    }, []);
+
+
+    const handleSetupValues = () => {
+        form.setFieldValue('name', props.patient?.name);
+        form.setFieldValue('lastname', props.patient?.lastname);
+        form.setFieldValue('secondLastname', props.patient?.secondLastname);
+        form.setFieldValue('gender', props.patient?.gender);
+        form.setFieldValue('phone', props.patient?.primaryContact);
+        form.setFieldValue('email', props.patient?.email);
+        form.setFieldValue('street', props.patient?.street);
+        form.setFieldValue('streetNumber', props.patient?.number);
+        form.setFieldValue('zipCode', props.patient?.cp);
+        form.setFieldValue('colony', props.patient?.colony);
+        form.setFieldValue('city', props.patient?.city);
+        form.setFieldValue('state', props.patient?.state);
+        form.setFieldValue('origin', props.patient?.sourceClient);
+        form.setFieldValue('civilState', props.patient?.maritalStatus);
+        form.setFieldValue('occupation', props.patient?.job);
+        form.setFieldValue('birthday', '2022-12-12');
+
+        setLatitudes(new Latitudes(Number(props.patient?.lat), Number(props.patient?.lng)));
+        console.log(props.patient)
+    }
 
     const handleGetPatientOrigins = async () => {
         try {
@@ -81,41 +119,25 @@ const RegisterPatientCard = () => {
                 const lng = address.geometry.location.lng;
                 setLatitudes(new Latitudes(lat, lng));
             }
-            if(response.status == 'ZERO_RESULTS') {
+            if (response.status == 'ZERO_RESULTS') {
                 setLatitudes(new Latitudes(0, 0));
             }
-           // return [];
+            // return [];
         } catch (error) {
             console.error(`Failed to get addrress from ${colony}, ${error}`);
-          //  return [];
-        }
-    };
-    const googleApiFetchStreets = async (lat: number, lng: number) => {
-        try {
-            const response = await fetch(
-                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&sensor=true&key=AIzaSyDB5WyzdGWnx3JspWuwTmdKN0TURq8QIBA`,
-                {
-                    method: "GET"
-                }
-            ).then((response) => response.json().catch((error) => error));
-
-            if (response.status === "OK" && response.results.length > 0) {
-                return response.results.map((value: any, _: any) => value.formatted_address);
-            }
-            return [];
-        } catch (error) {
-            console.error(`Failed to get addrress from ${lat} ${lng}, ${error}`);
-            return [];
+            //  return [];
         }
     };
 
     const handleOnColonyChange = async (value: any) => {
         const colony = colonies?.find((_, index) => Number(value) == index);
+        console.log(colony);
         if (colony != null) {
-            form.setFieldValue('city', capitalizeFirstLetter(colony.county?.toLowerCase())
-            );
             if (colony.stateCities != null && colony.stateCities.length > 0) {
-                form.setFieldValue('state', capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase()));
+                if (colony.stateCities[0].cities != null) {
+                    form.setFieldValue('city', capitalizeFirstLetter(colony.stateCities[0].cities[0]));
+                }
+                form.setFieldValue('state', capitalizeFirstLetter(colony.stateCities[0].state));
             }
             setColony(colony);
             googleApiFetchColony(colony.colony ?? '');
@@ -123,25 +145,68 @@ const RegisterPatientCard = () => {
     }
 
     const handleRegisterPatient = async (values: any) => {
-       // console.log(`Colony: ${colony} - LatLng: ${latitudes}`);
         if (colony == undefined && latitudes == undefined) {
             return;
         }
+        setIsLoading(true);
         try {
-             await registerPatient(new RegisterPatientRequest(values, colony!, latitudes!, branchId)).unwrap();
-             form.resetFields();
-             handleSucccessNotification(NotificationSuccess.REGISTER);
+            await registerPatient(new RegisterPatientRequest(values, colony!, latitudes!, branchId)).unwrap();
+            form.resetFields();
+            setIsLoading(false);
+            handleSucccessNotification(NotificationSuccess.REGISTER);
         } catch (error) {
             handleErrorNotification(error);
         }
     }
 
+    const handleUpdatePatient = async (values: any) => {
+        let col = '';
+        let city = '';
+        let state = '';
+        if (colony != null && colony != undefined) {
+            col = capitalizeFirstLetter(colony.colony);
+            city = capitalizeFirstLetter(colony.county?.toLowerCase());
+            if (colony.stateCities) {
+                state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
+            }
+        } else {
+            col = values.colony;
+            city = values.city;
+            state = values.state;
+        }
+        setIsLoading(true);
+        try {
+            await updatePatient(new UpdatePatientRequest(
+                values, props.patient?.originBranchOfficeId,
+                col, city, state, latitudes!, props.patient?.id ?? 0, props.patient?.birthDay.toString() ?? ''
+            )).unwrap();
+            setIsLoading(false);
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
 
-    return (<LayoutCard showBack={true} title="Registro de pacientes" isLoading={false} content={
+    const shouldShowBack = (): boolean => {
+        return props.type == FormPatientType.REGISTER;
+    }
+
+    const buildCardTitle = (): string => {
+        return props.type == FormPatientType.REGISTER ? "Registro de pacientes" : ''
+    }
+
+    const handleCheckForm = (values: any) => {
+        if (props.type == FormPatientType.REGISTER) {
+            handleRegisterPatient(values);
+        } else {
+            handleUpdatePatient(values);
+        }
+    }
+
+    return (<LayoutCard showBack={shouldShowBack()} title={buildCardTitle()} isLoading={false} content={
         <div className="flex flex-col">
-            <Form form={form} name="horizontal_login" layout="vertical" onFinish={handleRegisterPatient}>
+            <Form form={form} name="horizontal_login" layout="vertical" onFinish={handleCheckForm}>
                 <Row>
-
                     <Form.Item
                         name="name"
                         label={Strings.patientName}
@@ -178,13 +243,14 @@ const RegisterPatientCard = () => {
                         </Select>
                     </Form.Item>
 
-                    <Form.Item
+                    {props.type == FormPatientType.REGISTER && <Form.Item
                         name="birthday"
                         label={Strings.birthday}
                         style={{ minWidth: 200, padding: 10 }}
                         rules={[{ required: true, message: Strings.requiredField }]}>
-                        <DatePicker size="large" style={{ minWidth: 200 }} />
-                    </Form.Item>
+                        <DatePicker
+                            size="large" style={{ minWidth: 200 }} />
+                    </Form.Item>}
                     <Form.Item
                         name="phone"
                         label={Strings.phoneNumber}
@@ -289,7 +355,7 @@ const RegisterPatientCard = () => {
                         style={{ minWidth: 200, padding: 10 }}
                         rules={[{ required: true, message: Strings.requiredField }]}
                     >
-                        <Select  size="large" placeholder='Origen' >
+                        <Select size="large" placeholder='Origen' >
                             {origins?.map((value, _) => <Select.Option key={value.id} value={value.id}>{value.name}</Select.Option>)}
                         </Select>
                     </Form.Item>
@@ -317,7 +383,7 @@ const RegisterPatientCard = () => {
                 </Row>
                 <Form.Item>
                     <Button loading={isLoading} type="primary" htmlType="submit">
-                        Guardar
+                        {props.type == FormPatientType.REGISTER ? 'Guardar' : 'Actualizar'}
                     </Button>
                 </Form.Item>
             </Form>
@@ -325,4 +391,4 @@ const RegisterPatientCard = () => {
     } />);
 }
 
-export default RegisterPatientCard;
+export default FormPatient;

@@ -12,7 +12,6 @@ export class Patient {
     colony: string;
     cp: string;
     primaryContact: string;
-    secondaryContact: string;
     email: string;
     folio: string;
     historicalFolio: string;
@@ -37,7 +36,8 @@ export class Patient {
     padPrice: number;
     createdAt: Date;
     updatedAt: Date;
-    nextDateAppointment: Date; 
+    nextDateAppointment: Date;
+    city: string;
   
   
     constructor(  id: number,
@@ -53,7 +53,6 @@ export class Patient {
       colony: string,
       cp: string,
       primaryContact: string,
-      secondaryContact: string,
       email: string,
       folio: string,
       historicalFolio: string,
@@ -78,7 +77,7 @@ export class Patient {
       padPrice: number,
       createdAt: Date,
       updatedAt: Date,
-      nextDateAppointment: Date) {
+      nextDateAppointment: Date, city: string) {
       
   
           this.id = id;
@@ -94,7 +93,6 @@ export class Patient {
           this.colony = colony;
           this.cp = cp;
           this.primaryContact = primaryContact;
-          this.secondaryContact = secondaryContact;
           this.email = email;
           this.folio = folio;
           this.historicalFolio = historicalFolio;
@@ -120,5 +118,6 @@ export class Patient {
           this.createdAt = createdAt;
           this.updatedAt = updatedAt;
           this.nextDateAppointment = nextDateAppointment;
+          this.city = city;
       }
   }

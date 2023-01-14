@@ -96,7 +96,7 @@ const Appointments = (props: AppointmentsProps) => {
     }
 
     return (
-        <LayoutCard isLoading={isLoading} content={
+        <LayoutCard title={Strings.appointments} isLoading={isLoading} content={
 
             <div className="flex flex-col">
                 {props.rol == UserRoles.ADMIN && <BackArrow />}

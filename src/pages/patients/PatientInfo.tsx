@@ -7,14 +7,14 @@ import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPati
 import { useGetPatientMutation } from "../../services/patientService";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
-import LayoutTitle from "../components/LayoutTitle";
 import NoData from "../components/NoData";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
+import FormPatient, { FormPatientType } from "./FormPatient";
 
 const PatientInfo = () => {
     const { id } = useParams();
-    const [getPatient,{isLoading}] = useGetPatientMutation();
+    const [getPatient, { isLoading }] = useGetPatientMutation();
     const [data, setData] = useState<Patient>();
 
     useEffect(() => {
@@ -25,7 +25,7 @@ const PatientInfo = () => {
     const handleGetPatient = async () => {
         try {
             const response = await getPatient({ patientId: id }).unwrap();
-            console.log(response);
+            //console.log(response);
             setData(response);
         } catch (error) {
             handleErrorNotification(error);
@@ -45,32 +45,40 @@ const PatientInfo = () => {
         </div>);
     }
 
+
+    const PatientPadCard = () => {
+        return (<>
+            <SectionElement label={Strings.pad} value={buildPatientPad(data)} icon={<RiUserHeartLine />} />
+
+        </>);
+    }
+
     const tabs: any[] = [
         {
-            label: <div className="flex items-baseline gap-1 justify-center"><RiFileList3Line /><span className="text text-sm">Informacion del paciente</span></div>,
+            label: <div className="flex items-baseline gap-1 justify-center"><RiFileList3Line /><span className="text text-sm">{Strings.patientInformation}</span></div>,
             key: 1,
-            children: <PatientContentInfo />,
+            children: <FormPatient type={FormPatientType.UPDATE} patient={data} />,
         },
         {
-            label: <div className="flex items-baseline gap-1 justify-center"><RiVipDiamondLine /><span className="text text-sm">Membresia Pad</span></div>,
+            label: <div className="flex items-baseline gap-1 justify-center"><RiVipDiamondLine /><span className="text text-sm">{Strings.membership}</span></div>,
             key: 2,
-            children: <NoData />,
+            children: <PatientPadCard />,
         },
         {
-            label: <div className="flex items-baseline gap-1 justify-center"><RiHeartPulseLine /><span className="text text-sm">Ficha medica</span></div>,
+            label: <div className="flex items-baseline gap-1 justify-center"><RiHeartPulseLine /><span className="text text-sm">{Strings.medicalRecord}</span></div>,
             key: 3,
             children: <NoData />,
         },
     ];
 
     return (
-        <LayoutCard  showBack={true} title={`Paciente - ${buildPatientName(data)}`} isLoading={isLoading} content={
+        <LayoutCard showBack={true} isLoading={isLoading} content={
             <div className="flex flex-col">
-                <Tabs
+                {data && <Tabs
                     size="large"
                     type="card"
                     items={tabs}
-                />
+                />}
             </div>
         } />);
 }

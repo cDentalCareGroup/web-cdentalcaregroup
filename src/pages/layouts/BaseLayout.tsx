@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from 'react';
- import { RiMap2Line,RiMentalHealthLine, RiLogoutBoxLine, RiCalendarCheckLine, RiMenu3Fill} from "react-icons/ri";
-
 import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
-    UploadOutlined,
-    UserOutlined,
-    VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, MenuProps, theme } from 'antd';
 import Sidebar, { getItem } from '../components/Sidebar';
@@ -15,13 +10,14 @@ import { adminRoutes, adminRoutesToMenuOptions, getUserSidebar } from '../routes
 import useSessionStorage from '../../core/sessionStorage';
 import Constants from '../../utils/Constants';
 import User from '../../data/user/user';
-import { FirebaseOpenLinkType, getBrowserToken, handleOnMessage } from '../../services/firebase';
+import { FirebaseOpenLinkType, getBrowserToken, getFirebaseValue, handleOnMessage } from '../../services/firebase';
 import { useSaveTokenMutation } from '../../services/authService';
 import { SaveTokenRequest } from '../../data/user/user.request';
 import Spinner from '../components/Spinner';
 import { getUserRol, UserRoles } from '../../utils/Extensions';
+import Strings from '../../utils/Strings';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Content } = Layout;
 
 const BaseLayout: React.FC = () => {
 
@@ -82,10 +78,10 @@ const BaseLayout: React.FC = () => {
     const user = session as User;
      const role = getUserRol(user);
     if (role == UserRoles.ADMIN) {
-      window.open(`http://localhost:5173/admin/branchoffice/appointment/detail/${folio}`);
+      window.open(`http://localhost:5173/admin/branchoffice/appointments/detail/${folio}`);
       //window.open(`https://cdentalcaregroup-fcdc9.web.app/admin/appointment/detail/${folio}`);
     } else {
-     // window.open(`https://cdentalcaregroup-fcdc9.web.app/receptionist/appointment/detail/${folio}`);
+      window.open(`http://localhost:5173/receptionist/appointments/detail/${folio}`);
     }
   }
 
@@ -103,12 +99,12 @@ const BaseLayout: React.FC = () => {
             <Sidebar items={getUserSidebar(session as User)} collapsed={collapsed} />
             <Layout className="site-layout">
                 <Header style={{ padding: 0, background: colorBgContainer }}>
-                   <div className='flex flex-row justify-between'>
+                   <div className='flex flex-row justify-between flex-nowrap'>
                    {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
                         className: 'trigger flex p-4',
                         onClick: () => setCollapsed(!collapsed),
                     })}
-                    <span className='mr-8 sm:invisible'>{formatName()}</span>
+                    <span className='mr-8'>{formatName()}</span>
                    </div>
                 </Header>
                 <Content
@@ -120,6 +116,9 @@ const BaseLayout: React.FC = () => {
                 >
                     <Outlet />
                 </Content>
+               <div className='flex w-full items-end justify-end'>
+               <span className='mr-2 mb-1 text-xs text-gray-300'>{Strings.appVersion}</span>
+               </div>
             </Layout>
         </Layout>
     );

@@ -1,8 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
-import da from "date-fns/esm/locale/da/index.js";
+import { fetchAndActivate, getRemoteConfig, getValue } from "firebase/remote-config";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -24,6 +23,22 @@ const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
 
+const remoteConfig = getRemoteConfig(app);
+
+
+export const initFirebaseRemoteConfig = async() => {
+    fetchAndActivate(remoteConfig)
+        .then(() => {
+            // ...
+        })
+        .catch((err) => {
+            // ...
+        });
+}
+
+export const getFirebaseValue = (key: string) => {
+    return getValue(remoteConfig, key);
+}
 
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
