@@ -78,10 +78,9 @@ const BaseLayout: React.FC = () => {
     const user = session as User;
      const role = getUserRol(user);
     if (role == UserRoles.ADMIN) {
-      window.open(`http://localhost:5173/admin/branchoffice/appointments/detail/${folio}`);
-      //window.open(`https://cdentalcaregroup-fcdc9.web.app/admin/appointment/detail/${folio}`);
+      window.open(`https://cdentalcaregroup-fcdc9.web.app/admin/branchoffice/appointments/detail/${folio}`);
     } else {
-      window.open(`http://localhost:5173/receptionist/appointments/detail/${folio}`);
+      window.open(`https://cdentalcaregroup-fcdc9.web.app/receptionist/appointments/detail/${folio}`);
     }
   }
 
