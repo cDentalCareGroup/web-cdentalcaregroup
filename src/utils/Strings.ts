@@ -78,6 +78,13 @@ class Strings {
     static requiredTermsConditions = 'Debes aceptar los términos y condiciones'
     static requiredField = "Campo requerido"
 
+
+    static employeeName = "Nombre del empleado"
+    static contractType = "Tipo de contrato"
+    static employeeType = "Tipo de empleado"
+    static rfc = "RFC"
+    static nss = "NSS"
+
     static genderMale = "Masculino"
     static genderFemale = "Femenino"
     static default = "No especificado"

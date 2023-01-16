@@ -80,7 +80,7 @@ const getPatientPrimaryContact = (appointment: AppointmentDetail | undefined): s
 
 const getDentist = (appointment: AppointmentDetail | undefined) => {
   const name = appointment?.dentist?.name ?
-    `${appointment.dentist?.name} ${appointment.dentist?.lastname} ${appointment.dentist?.secondLastname}` : 'No asignado'
+    `${appointment.dentist?.name} ${appointment.dentist?.lastname ?? ''} ${appointment.dentist?.secondLastname ?? ''}` : 'No asignado'
   return name;
 }
 

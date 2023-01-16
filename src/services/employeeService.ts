@@ -1,4 +1,5 @@
 import { Employee } from "../data/employee/employee";
+import { EmployeeType } from "../data/employee/employee.types";
 import { apiSlice } from "./apiSlice";
 
 export const employeeService = apiSlice.injectEndpoints({
@@ -48,16 +49,13 @@ export const employeeService = apiSlice.injectEndpoints({
         }),
         transformResponse: (response: { data: any }, _, __) => response.data,
       }),
-    //   getEmployeesBySchedule: builder.mutation<string[], any>({
-    //     query: (data) => ({
-    //       url: ApiEndpointsConstants.GET_EMPLOYEE_SCHEDULES_BY_ID,
-    //       method: "POST",
-    //       body:{
-    //         ...data
-    //       }
-    //     }),
-    //     transformResponse: (response: { data: string[] }, _, __) => response.data,
-    //   }),
+      getEmployeeTypes: builder.mutation<EmployeeType[], any>({
+        query: (_) => ({
+          url: 'employee/getTypes',
+          method: "GET",
+        }),
+        transformResponse: (response: { data: EmployeeType[] }, _, __) => response.data,
+      }),
     }),
   });
   
@@ -66,4 +64,5 @@ export const employeeService = apiSlice.injectEndpoints({
     useGetEmployeesByBranchOfficeMutation,
     useRegisterEmployeeScheduleMutation,
     useDeleteEmployeeScheduleMutation,
+    useGetEmployeeTypesMutation
    } = employeeService;

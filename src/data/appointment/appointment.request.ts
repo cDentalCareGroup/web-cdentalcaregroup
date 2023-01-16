@@ -19,9 +19,11 @@ export class RegisterAppointmentDentistRequest {
 export class UpdateAppointmentStatusRequest {
   id: number;
   status: string;
-  constructor(id: number, status: string) {
+  amount: string;
+  constructor(id: number, status: string, amount: string) {
     this.id = id;
     this.status = status;
+    this.amount = amount;
   }
 }
 export class GetAppointmentAvailabilityRequest {

@@ -24,6 +24,7 @@ import Patients from "../patients/Patients";
 import PatientInfo from "../patients/PatientInfo";
 import FormPatient from "../patients/FormPatient";
 import SchedulesBranchOffice from "../branchoffice/schedules/SchedulesBranchOffice";
+import Employees from "../employees/Employees";
 
 export class Route {
     label: string;
@@ -46,8 +47,10 @@ export class Route {
 
 const adminMap = new Route('Maps', 'maps', '/admin/maps', <MapFilter />, <RiMap2Line />);
 const adminBranchOfficesAppointments = new Route('Citas', 'branchoffices', '/admin/branchoffices/appointments', <BranchOffices type={BranchOfficeType.APPOINTMENTS} />, <RiCalendar2Line />);
-const adminBranchOfficesSchedules = new Route('Horarios', 'branchoffices/schedules', '/admin/branchoffices/schedules',  <BranchOffices type={BranchOfficeType.SCHEDULES} />, <RiCalendarCheckLine />);
-const adminBranchOfficeSchedules = new Route('HorariosSucursal', 'branchoffices/schedules/detail', '/admin/branchoffices/schedules/detail/:id',  <SchedulesBranchOffice />, <RiCalendarCheckLine />);
+const adminBranchOfficesSchedules = new Route('Horarios', 'branchoffices/schedules', '/admin/branchoffices/schedules', <BranchOffices type={BranchOfficeType.SCHEDULES} />, <RiCalendarCheckLine />);
+const adminBranchOfficeSchedules = new Route('HorariosSucursal', 'branchoffices/schedules/detail', '/admin/branchoffices/schedules/detail/:id', <SchedulesBranchOffice />, <RiCalendarCheckLine />);
+const adminEmployees = new Route('Empleados', 'employees', '/admin/employees', <Employees />, <RiUser3Line />);
+
 
 const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/branchoffice/appointments', <Appointments rol={UserRoles.ADMIN} />, <RiCalendar2Line />);
 const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/branchoffice/appointments/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
@@ -70,6 +73,7 @@ const adminRoutes: Route[] = [
     adminBranchOfficeSchedules,
     adminAppointments,
     adminAppointmentDetails,
+    adminEmployees,
     logout
 ];
 
@@ -87,7 +91,7 @@ const getUserSidebar = (user: User): ItemType[] => {
     if (rol == UserRoles.ADMIN) {
         return adminRoutesToMenuOptions();
     }
-    if(rol == UserRoles.RECEPTIONIST) {
+    if (rol == UserRoles.RECEPTIONIST) {
         return receptionistRoutesToMenuOptions();
     }
     return [];
@@ -108,7 +112,8 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             null,
             [
                 getItem(adminBranchOfficesAppointments.label, adminBranchOfficesAppointments.fullPath, adminBranchOfficesAppointments.icon),
-                 getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon)
+                getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon),
+                // getItem(adminEmployees.label, adminEmployees.fullPath, adminEmployees.icon)
             ],
             'group'),
         getItem(
@@ -139,11 +144,11 @@ const receptionistRoutesToMenuOptions = (): ItemType[] => {
             'cng',
             null,
             [
-                getItem(logout.label, logout.fullPath,logout.icon)
+                getItem(logout.label, logout.fullPath, logout.icon)
             ],
             'group'),
     ];
     return items;
 }
 
-export { adminRoutes, adminRoutesToMenuOptions,getUserSidebar,receptionistRoutesToMenuOptions,receptionistRoutes };
+export { adminRoutes, adminRoutesToMenuOptions, getUserSidebar, receptionistRoutesToMenuOptions, receptionistRoutes };

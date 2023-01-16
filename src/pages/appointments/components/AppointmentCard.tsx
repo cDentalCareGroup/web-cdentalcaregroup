@@ -1,9 +1,9 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
-import { RiCalendar2Line, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiPhoneLine, RiUser3Line } from "react-icons/ri";
-import { getDentist, getPatientEmail, getPatientName, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
+import { RiCalendar2Line, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
-import { Button, Radio, Row, Tag } from "antd";
+import { Button, Form, Input, Radio, Row, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
 import { GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
 import { useRef, useState } from "react";
@@ -83,6 +83,9 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         Constants.BRANCH_ID,
         0
     );
+
+    const [modalFinish, setModalFinish] = useState(false);
+    const [amount, setAmount] = useState('');
 
     const getStautsTag = (): JSX.Element => {
         if (data.appointment.status == 'activa') {
@@ -183,7 +186,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await updateAppointmentStatus(
                 new UpdateAppointmentStatusRequest(
                     data.appointment.id,
-                    status
+                    status,
+                    amount
                 )).unwrap();
             setData(response);
             onStatusChange(status);
@@ -411,21 +415,21 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const CardContent = (): JSX.Element => {
         return <>
+            <SectionElement label={Strings.pad} value={getPatientPad(data)} icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.dateAndTime} value={`${data.appointment.appointment} ${data.appointment.time}`} icon={<RiCalendar2Line />} />
             <SectionElement label={Strings.branchOffice} value={data.branchOffice.name} icon={<RiMentalHealthLine />} />
             <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />
             <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
 
-            {appointment.dentist?.typeName == Constants.EMPLOYEE_SPECIALIST &&
-                <div className="ml-2 flex flex-row items-baseline gap-2 mb-2">
-                    <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
-                    <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={hasLabs ? 1 : 0}>
-                        <Radio value={1}>Si</Radio>
-                        <Radio value={0}>No</Radio>
-                    </Radio.Group>
+            {data.appointment.status != 'finalizada' && <div className="ml-2 flex flex-row items-baseline gap-2 mb-2">
+                <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
+                <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={hasLabs ? 1 : 0}>
+                    <Radio value={1}>Si</Radio>
+                    <Radio value={0}>No</Radio>
+                </Radio.Group>
 
-                </div>}
+            </div>}
             {getStautsTag()}
         </>
     }
@@ -447,11 +451,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     {!data.dentist && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
                     {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >Iniciar cita</Button>}
                     {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >Reagendar</Button>}
-                    {canFinish() && <Button loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('finalizada')} >Finalizar cita</Button>}
+                    {canFinish() && <Button loading={isActionLoading} onClick={() => setModalFinish(true)} >Finalizar cita</Button>}
                     {data.appointment.status == 'finalizada' && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
                 </Row>
 
             </Card>
+
+            <Modal title='Finalizar cita' confirmLoading={isActionLoading} onOk={() => handleUpdateAppointmentStatus('finalizada')} onCancel={() => setModalFinish(false)} open={modalFinish} okText='Finalizar' >
+                <span>Costo de la cita</span>
+                <Input addonBefore="$" size="large" value={amount} onChange={((event) => setAmount(event.target.value))} prefix={<></>} placeholder='10.00' />
+            </Modal>
 
             <Modal title={'Asignar dentista'} okText={'Guardar'} confirmLoading={isActionLoading} open={modalDentist} onOk={() => handleOnSaveDentist()} onCancel={() => {
                 resetSetDentistParams();
@@ -515,12 +524,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     defaultValue={dentist?.id ?? 0}
                 />
 
-                {dentist?.description == 'Especialista' &&
-                    <div className="ml-5">
-                        <br />
-                        <Checkbox onChange={(value) => setHasLabs(value.target.checked)}>Laboratorios</Checkbox>
-                        <br />
-                    </div>}
+                <div className="ml-5">
+                    <br />
+                    <Checkbox onChange={(value) => setHasLabs(value.target.checked)}>Laboratorios</Checkbox>
+                    <br />
+                </div>
 
                 <br />
                 <Calendar availableHours={times}

@@ -79,7 +79,17 @@ const FormPatient = (props: FormPatientProps) => {
             form.resetFields(['colony', 'city', 'state']);
             setColonies([]);
             if (cp.length < 5) return
-            const response = await fetch(`https://www.walmart.com.mx/api/wmx/service/v1/common/neighborhood/details?zipcode=${cp}&channel=4&shipping=1`)
+            const response = await fetch(`https://www.walmart.com.mx/api/wmx/service/v1/common/neighborhood/details?zipcode=${cp}&channel=4&shipping=1`, {
+                headers: {
+                    'Access-Control-Allow-Origin': "*",
+                    'Access-Control-Allow-Headers': "Origin, X-Requested-With, Content-Type, Accept",
+                    'accept': 'application/json',
+                    'Authorization':'Bearer h+xlORCo6Cxl0WiS47qkhv7Q.restapp-354905749-9-1093987605'
+                    
+                },
+                mode: 'cors',
+                method: 'GET'
+            })
                 .then((response) => {
                     if (response.status != 200) {
                         handleErrorNotification('NOT_FOUND_CP');
