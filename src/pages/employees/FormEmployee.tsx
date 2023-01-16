@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { RiHashtag, RiLockLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiProfileLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { Colonies, Colony } from "../../data/address/colonies";
+import { RegisterEmployeeRequest } from "../../data/employee/employee.request";
 import { EmployeeType } from "../../data/employee/employee.types";
 import { Latitudes } from "../../data/maps/latitudes";
 import { Patient } from "../../data/patient/patient";
 import { PatientOrigin } from "../../data/patient/patient.origin";
 import { RegisterPatientRequest, UpdatePatientRequest } from "../../data/patient/patient.request";
-import { useGetEmployeeTypesMutation } from "../../services/employeeService";
-import { useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
+import { useGetEmployeeTypesMutation, useRegisterEmployeeMutation } from "../../services/employeeService";
+import { useGetColoniesFromZipCodeMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
@@ -25,12 +26,15 @@ const FormEmployee = () => {
     const [latitudes, setLatitudes] = useState<Latitudes>();
     const [typeList, setTypeList] = useState<EmployeeType[]>([]);
     const [getEmployeeTypes] = useGetEmployeeTypesMutation();
+    const [getColoniesFromZipCode] = useGetColoniesFromZipCodeMutation();
+    const [registerEmployee] = useRegisterEmployeeMutation();
+    const [showNormalInputs, setShowNormalInputs] = useState(false);
 
     useEffect(() => {
         handleGetEmployeeTypes();
     }, []);
 
-    const handleGetEmployeeTypes = async() => {
+    const handleGetEmployeeTypes = async () => {
         try {
             const response = await getEmployeeTypes({}).unwrap();
             setTypeList(response);
@@ -49,20 +53,15 @@ const FormEmployee = () => {
             form.resetFields(['colony', 'city', 'state']);
             setColonies([]);
             if (cp.length < 5) return
-            const response = await fetch(`https://www.walmart.com.mx/api/wmx/service/v1/common/neighborhood/details?zipcode=${cp}&channel=4&shipping=1`)
-                .then((response) => {
-                    if (response.status != 200) {
-                        handleErrorNotification('NOT_FOUND_CP');
-                    } else {
-                        return response.json()
-                    }
-                })
-                .then((response) => response as Colonies)
+            const response = await getColoniesFromZipCode({ cp: cp }).unwrap();
             if (response.neighborhood != null && response.neighborhood.colonies != null) {
                 setColonies(response.neighborhood?.colonies);
+                setShowNormalInputs(false);
+            } else {
+                setShowNormalInputs(true);
             }
         } catch (error) {
-            handleErrorNotification(error);
+            setShowNormalInputs(true);
         }
     }
 
@@ -74,9 +73,9 @@ const FormEmployee = () => {
                     method: "GET"
                 }
             ).then((response) => response.json().catch((error) => error));
-
+            console.log(response);
             if (response.status === "OK" && response.results.length > 0) {
-                console.log(response[0]);
+
                 const address = response.results[0];
                 const lat = address.geometry.location.lat;
                 const lng = address.geometry.location.lng;
@@ -107,8 +106,38 @@ const FormEmployee = () => {
     }
 
 
-    const handleRegisterEmployee = (values: any) => {
-        console.log(values);
+    const handleRegisterEmployee = async (values: any) => {
+        let col = '';
+        let city = '';
+        let state = '';
+        if (colony != null && colony != undefined) {
+            col = capitalizeFirstLetter(colony.colony);
+            city = capitalizeFirstLetter(colony.county?.toLowerCase());
+            if (colony.stateCities) {
+                state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
+            }
+        } else {
+            col = values.colony;
+            city = values.city;
+            state = values.state;
+        }
+
+        try {
+            setIsLoading(true);
+            await registerEmployee(
+                new RegisterEmployeeRequest(
+                    values,
+                    latitudes!,
+                    1,
+                    city, col, state
+                )).unwrap();
+            form.resetFields();
+            setIsLoading(false);
+            setShowNormalInputs(false);
+        } catch (error) {
+            setIsLoading(false);
+            handleErrorNotification(error);
+        }
     }
 
 
@@ -204,7 +233,7 @@ const FormEmployee = () => {
                     />
                 </Form.Item>
 
-                <Form.Item
+                {!showNormalInputs && <Form.Item
                     name="colony"
                     label={Strings.colony}
                     rules={[{ required: true, message: Strings.requiredField }]}
@@ -212,7 +241,16 @@ const FormEmployee = () => {
                     <Select disabled={colonies.length == 0} size="large" placeholder={Strings.selectColony} onChange={(value) => handleOnColonyChange(value)}>
                         {colonies?.map((value, index) => <Select.Option key={`${index}`} value={`${index}`}>{capitalizeFirstLetter(value.colony)}</Select.Option>)}
                     </Select>
-                </Form.Item>
+                </Form.Item>}
+
+                {showNormalInputs && <Form.Item
+                    name="colony"
+                    label={Strings.colony}
+
+                    rules={[{ required: true, message: Strings.requiredField }]}
+                >
+                    <Input size="large" prefix={<RiMapPin3Line />} placeholder={Strings.colony} />
+                </Form.Item>}
 
 
                 <Form.Item
@@ -220,7 +258,7 @@ const FormEmployee = () => {
                     label={Strings.city}
                     rules={[{ required: true, message: Strings.requiredField }]}
                 >
-                    <Input disabled size="large" prefix={<RiMap2Line />} placeholder={Strings.city} />
+                    <Input disabled={!showNormalInputs} size="large" prefix={<RiMap2Line />} placeholder={Strings.city} />
 
                 </Form.Item>
 
@@ -229,7 +267,7 @@ const FormEmployee = () => {
                     label={Strings.state}
                     rules={[{ required: true, message: Strings.requiredField }]}
                 >
-                    <Input disabled size="large" prefix={<RiMapPin3Line />} placeholder={Strings.state} />
+                    <Input disabled={!showNormalInputs} size="large" prefix={<RiMapPin3Line />} placeholder={Strings.state} />
 
                 </Form.Item>
 
@@ -254,8 +292,8 @@ const FormEmployee = () => {
                     rules={[{ required: true, message: Strings.requiredField }]}
                 >
                     <Select size="large" placeholder={Strings.employeeType}>
-                       
-                        {typeList.map((value,index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
+
+                        {typeList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                     </Select>
                 </Form.Item>
 

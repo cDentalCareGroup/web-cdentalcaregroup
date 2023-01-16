@@ -24,8 +24,9 @@ export class RegisterPatientRequest {
     lon: number;
     branchOfficeId: number;
     originId: number;
+    organization: number;
 
-    constructor(values: any, colony: Colony, latitudes: Latitudes, branchId: any) {
+    constructor(values: any, latitudes: Latitudes, branchId: any, city: string, colony: string, state: string) {
         this.name = values.name;
         this.lastname = values.lastname;
         this.secondLastname = values.secondLastname;
@@ -34,14 +35,10 @@ export class RegisterPatientRequest {
         this.phone = values.phone;
         this.email = values.email ?? "";
         this.street = values.street;
-        this.colony = capitalizeFirstLetter(colony.colony);
+        this.colony = capitalizeFirstLetter(colony);
         this.zipCode = values.zipCode;
-        this.city = capitalizeFirstLetter(colony.county?.toLowerCase());
-        if (colony.stateCities != null) {
-            this.state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
-        } else {
-            this.state = 'Morelos';
-        }
+        this.city = capitalizeFirstLetter(city);
+        this.state = capitalizeFirstLetter(state);
         this.streetNumber = values.streetNumber ?? "";
         this.civilStatus = values.civilState ?? "other";
         this.occupation = values.occupation ?? "";
@@ -49,6 +46,7 @@ export class RegisterPatientRequest {
         this.lon = latitudes?.lng ?? 0;
         this.branchOfficeId = Number(branchId);
         this.originId = Number(values.origin);
+        this.organization = values.organization;
     }
 }
 
@@ -84,6 +82,8 @@ export class UpdatePatientRequest {
     branchOfficeId: number;
     originId: number;
     patientId: number;
+    organization: number;
+    startDate: string;
 
     constructor(values: any, branchId: any, colony: string, city: string, state: string, latitudes: Latitudes, patientId: number, birthday: string) {
         this.name = values.name;
@@ -106,5 +106,7 @@ export class UpdatePatientRequest {
         this.branchOfficeId = Number(branchId);
         this.originId = Number(values.origin);
         this.patientId = Number(patientId);
+        this.organization = values.organization;
+        this.startDate = values.startDate;
     }
 }

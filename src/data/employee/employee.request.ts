@@ -1,3 +1,6 @@
+import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { Colony } from "../address/colonies";
+import { Latitudes } from "../maps/latitudes";
 
 export class GetEmployeeByTypeRequest {
     type: string;
@@ -21,7 +24,7 @@ export class RegisterEmployeeRequest {
     lastname: string;
     secondLastname: string;
     street: string;
-    number: string;
+    streetNumber: string;
     colony: string;
     cp: string;
     state: string;
@@ -29,54 +32,36 @@ export class RegisterEmployeeRequest {
     brithday: string;
     rfc: string;
     nss: string;
-    status: number;
     branchOfficeId: number;
-    jobSchemeId: number;
-    typeId: number;
     email: string;
     gender: string;
-
-    constructor(
-        user: string,
-        password: string,
-        name: string,
-        lastname: string,
-        secondLastname: string,
-        street: string,
-        number: string,
-        colony: string,
-        cp: string,
-        state: string,
-        phone: string,
-        brithday: string,
-        rfc: string,
-        nss: string,
-        status: number,
-        branchOfficeId: number,
-        jobSchemeId: number,
-        typeId: number,
-        email: string,
-        gender: string
-    ) {
-        this.user = user;
-        this.password = password;
-        this.name = name;
-        this.lastname = lastname;
-        this.secondLastname = secondLastname;
-        this.street = street;
-        this.number = number;
-        this.colony = colony;
-        this.cp = cp;
-        this.state = state;
-        this.phone = phone;
-        this.brithday = brithday;
-        this.rfc = rfc;
-        this.nss = nss;
-        this.status = status;
-        this.branchOfficeId = branchOfficeId;
-        this.jobSchemeId = jobSchemeId;    
-        this.typeId = typeId;    
-        this.email = email;    
-        this.gender = gender;    
+    city: string;
+    lat: number;
+    lon: number;
+    contractType: number;
+    employeeType: number;
+    constructor(values: any, latitudes: Latitudes, branchId: any, city: string, colony: string, state: string) {
+        this.name = values.name;
+        this.lastname = values.lastname;
+        this.secondLastname = values.secondLastname;
+        this.brithday = values.birthday;
+        this.gender = values.gender;
+        this.phone = values.phone;
+        this.email = values.email ?? "";
+        this.street = values.street;
+        this.colony = capitalizeFirstLetter(colony);
+        this.cp = values.zipCode;
+        this.city = capitalizeFirstLetter(city);
+        this.state = capitalizeFirstLetter(state);
+        this.streetNumber = values.streetNumber ?? "";
+        this.lat = latitudes?.lat ?? 0;
+        this.lon = latitudes?.lng ?? 0;
+        this.branchOfficeId = Number(branchId);
+        this.nss = values.nss;
+        this.rfc = values.rfc;
+        this.user = values.username;
+        this.password = values.password;
+        this.contractType = values.contractType;
+        this.employeeType = values.employeeType;
     }
 }

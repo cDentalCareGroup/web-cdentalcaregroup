@@ -1,4 +1,6 @@
+import { Colonies, Colony } from "../data/address/colonies";
 import { Patient } from "../data/patient/patient";
+import { PatientOrganization } from "../data/patient/patient.organization";
 import { PatientOrigin } from "../data/patient/patient.origin";
 import { apiSlice } from "./apiSlice";
 
@@ -63,6 +65,21 @@ export const patientService = apiSlice.injectEndpoints({
         }),
         transformResponse: (response: { data: Patient }, meta, arg) => response.data,
       }),
+      getPatientOrganizations: builder.mutation<PatientOrganization[], any>({
+        query: (_) => ({
+          url: '/patient/organizations',
+          method: "GET",
+        }),
+        transformResponse: (response: { data: PatientOrganization[] }, meta, arg) => response.data,
+      }),
+      getColoniesFromZipCode: builder.mutation<Colonies, any>({
+        query: (data) => ({
+          url: '/patient/colonies',
+          method: "POST",
+          body:{...data}
+        }),
+        transformResponse: (response: { data: Colonies }, meta, arg) => response.data,
+      }),
     })
   });
   
@@ -73,5 +90,7 @@ export const patientService = apiSlice.injectEndpoints({
     useGetPatientOriginsMutation,
     useUpdatePatientStatusMutation,
     useGetPatientMutation,
-    useUpdatePatientMutation
+    useUpdatePatientMutation,
+    useGetPatientOrganizationsMutation,
+    useGetColoniesFromZipCodeMutation
   } = patientService;

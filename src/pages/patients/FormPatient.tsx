@@ -1,13 +1,15 @@
 import { Button, DatePicker, Form, Input, Row, Select } from "antd";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { RiHashtag, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { Colonies, Colony } from "../../data/address/colonies";
 import { Latitudes } from "../../data/maps/latitudes";
 import { Patient } from "../../data/patient/patient";
+import { PatientOrganization } from "../../data/patient/patient.organization";
 import { PatientOrigin } from "../../data/patient/patient.origin";
 import { RegisterPatientRequest, UpdatePatientRequest } from "../../data/patient/patient.request";
-import { useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
+import { useGetColoniesFromZipCodeMutation, useGetPatientOrganizationsMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
@@ -28,11 +30,16 @@ const FormPatient = (props: FormPatientProps) => {
     const [updatePatient,] = useUpdatePatientMutation();
     const [isLoading, setIsLoading] = useState(false);
     const [getPatientOrigins] = useGetPatientOriginsMutation();
+    const [getPatientOrganizations] = useGetPatientOrganizationsMutation();
+    const [getColoniesFromZipCode] = useGetColoniesFromZipCodeMutation();
     const [colonies, setColonies] = useState<Colony[]>([]);
     const [colony, setColony] = useState<Colony>();
     const [form] = Form.useForm();
     const [latitudes, setLatitudes] = useState<Latitudes>();
     const [origins, setOrigins] = useState<PatientOrigin[] | undefined>([]);
+    const [organizations, setOrganizations] = useState<PatientOrganization[] | undefined>([]);
+    const [showNormalInputs, setShowNormalInputs] = useState(false);
+
     const [branchId, setBranchId] = useSessionStorage(
         Constants.BRANCH_ID,
         0
@@ -42,6 +49,7 @@ const FormPatient = (props: FormPatientProps) => {
             handleSetupValues();
         }
         handleGetPatientOrigins();
+        handleGetPatientOrganizations();
     }, []);
 
 
@@ -61,7 +69,11 @@ const FormPatient = (props: FormPatientProps) => {
         form.setFieldValue('origin', props.patient?.sourceClient);
         form.setFieldValue('civilState', props.patient?.maritalStatus);
         form.setFieldValue('occupation', props.patient?.job);
-
+        form.setFieldValue('organization', props.patient?.organizationClient);
+        if (props.patient?.startDate != null) {
+            form.setFieldValue('startDate', dayjs(props.patient?.startDate, 'YYYY-MM-DD'));
+        }
+        form.setFieldValue('birthday', dayjs(props.patient?.birthDay, 'YYYY-MM-DD'));
         setLatitudes(new Latitudes(Number(props.patient?.lat), Number(props.patient?.lng)));
     }
 
@@ -74,35 +86,30 @@ const FormPatient = (props: FormPatientProps) => {
         }
     }
 
+    const handleGetPatientOrganizations = async () => {
+        try {
+            const response = await getPatientOrganizations({}).unwrap();
+            setOrganizations(response);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     const getColoniesFromPostalCode = async (cp: string) => {
         try {
             form.resetFields(['colony', 'city', 'state']);
             setColonies([]);
             if (cp.length < 5) return
-            const response = await fetch(`https://www.walmart.com.mx/api/wmx/service/v1/common/neighborhood/details?zipcode=${cp}&channel=4&shipping=1`, {
-                headers: {
-                    'Access-Control-Allow-Origin': "*",
-                    'Access-Control-Allow-Headers': "Origin, X-Requested-With, Content-Type, Accept",
-                    'accept': 'application/json',
-                    'Authorization':'Bearer h+xlORCo6Cxl0WiS47qkhv7Q.restapp-354905749-9-1093987605'
-                    
-                },
-                mode: 'cors',
-                method: 'GET'
-            })
-                .then((response) => {
-                    if (response.status != 200) {
-                        handleErrorNotification('NOT_FOUND_CP');
-                    } else {
-                        return response.json()
-                    }
-                })
-                .then((response) => response as Colonies)
+            const response = await getColoniesFromZipCode({ cp: cp }).unwrap();
             if (response.neighborhood != null && response.neighborhood.colonies != null) {
                 setColonies(response.neighborhood?.colonies);
+                setShowNormalInputs(false);
+            } else {
+                setShowNormalInputs(true);
             }
         } catch (error) {
-            handleErrorNotification(error);
+            setShowNormalInputs(true);
+            //handleErrorNotification(error);
         }
     }
 
@@ -148,14 +155,32 @@ const FormPatient = (props: FormPatientProps) => {
     }
 
     const handleRegisterPatient = async (values: any) => {
-        if (colony == undefined && latitudes == undefined) {
-            return;
+        let col = '';
+        let city = '';
+        let state = '';
+        if (colony != null && colony != undefined) {
+            col = capitalizeFirstLetter(colony.colony);
+            city = capitalizeFirstLetter(colony.county?.toLowerCase());
+            if (colony.stateCities) {
+                state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
+            }
+        } else {
+            col = values.colony;
+            city = values.city;
+            state = values.state;
         }
         setIsLoading(true);
         try {
-            await registerPatient(new RegisterPatientRequest(values, colony!, latitudes!, branchId)).unwrap();
+            await registerPatient(
+                new RegisterPatientRequest(
+                    values,
+                    latitudes!,
+                    branchId,
+                    city, col, state
+                )).unwrap();
             form.resetFields();
             setIsLoading(false);
+            setShowNormalInputs(false);
             handleSucccessNotification(NotificationSuccess.REGISTER);
         } catch (error) {
             handleErrorNotification(error);
@@ -246,14 +271,14 @@ const FormPatient = (props: FormPatientProps) => {
                         </Select>
                     </Form.Item>
 
-                    {props.type == FormPatientType.REGISTER && <Form.Item
+                    <Form.Item
                         name="birthday"
                         label={Strings.birthday}
                         style={{ minWidth: 200, padding: 10 }}
                         rules={[{ required: true, message: Strings.requiredField }]}>
                         <DatePicker
                             size="large" style={{ minWidth: 200 }} />
-                    </Form.Item>}
+                    </Form.Item>
                     <Form.Item
                         name="phone"
                         label={Strings.phoneNumber}
@@ -320,7 +345,7 @@ const FormPatient = (props: FormPatientProps) => {
                         />
                     </Form.Item>
 
-                    <Form.Item
+                    {!showNormalInputs && <Form.Item
                         name="colony"
                         label={Strings.colony}
                         style={{ minWidth: 300, padding: 10 }}
@@ -329,7 +354,16 @@ const FormPatient = (props: FormPatientProps) => {
                         <Select disabled={colonies.length == 0} size="large" placeholder={Strings.selectColony} onChange={(value) => handleOnColonyChange(value)}>
                             {colonies?.map((value, index) => <Select.Option key={`${index}`} value={`${index}`}>{capitalizeFirstLetter(value.colony)}</Select.Option>)}
                         </Select>
-                    </Form.Item>
+                    </Form.Item>}
+
+                    {showNormalInputs && <Form.Item
+                        name="colony"
+                        label={Strings.colony}
+                        style={{ minWidth: 300, padding: 10 }}
+                        rules={[{ required: true, message: Strings.requiredField }]}
+                    >
+                        <Input size="large" prefix={<RiMapPin3Line />} placeholder={Strings.colony} />
+                    </Form.Item>}
 
 
                     <Form.Item
@@ -338,7 +372,7 @@ const FormPatient = (props: FormPatientProps) => {
                         style={{ minWidth: 200, padding: 10 }}
                         rules={[{ required: true, message: Strings.requiredField }]}
                     >
-                        <Input disabled size="large" prefix={<RiMap2Line />} placeholder={Strings.city} />
+                        <Input disabled={!showNormalInputs} size="large" prefix={<RiMap2Line />} placeholder={Strings.city} />
 
                     </Form.Item>
 
@@ -348,7 +382,7 @@ const FormPatient = (props: FormPatientProps) => {
                         style={{ minWidth: 200, padding: 10 }}
                         rules={[{ required: true, message: Strings.requiredField }]}
                     >
-                        <Input disabled size="large" prefix={<RiMapPin3Line />} placeholder={Strings.state} />
+                        <Input disabled={!showNormalInputs} size="large" prefix={<RiMapPin3Line />} placeholder={Strings.state} />
 
                     </Form.Item>
 
@@ -360,6 +394,16 @@ const FormPatient = (props: FormPatientProps) => {
                     >
                         <Select size="large" placeholder='Origen' >
                             {origins?.map((value, _) => <Select.Option key={value.id} value={value.id}>{value.name}</Select.Option>)}
+                        </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                        name="organization"
+                        label='Organización'
+                        style={{ minWidth: 200, padding: 10 }}
+                    >
+                        <Select size="large" placeholder='Organización' >
+                            {organizations?.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                         </Select>
                     </Form.Item>
 
@@ -382,6 +426,15 @@ const FormPatient = (props: FormPatientProps) => {
                         <Input size="large" prefix={<RiSuitcaseLine />} placeholder={Strings.ocupation} />
 
                     </Form.Item>
+
+                    {props.type == FormPatientType.UPDATE && <Form.Item
+                        name="startDate"
+                        label='Fecha de registro'
+                        style={{ minWidth: 200, padding: 10 }}
+                    >
+                        <DatePicker
+                            size="large" style={{ minWidth: 200 }} />
+                    </Form.Item>}
 
                 </Row>
                 <Form.Item>

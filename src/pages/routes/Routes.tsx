@@ -113,7 +113,7 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             [
                 getItem(adminBranchOfficesAppointments.label, adminBranchOfficesAppointments.fullPath, adminBranchOfficesAppointments.icon),
                 getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon),
-                // getItem(adminEmployees.label, adminEmployees.fullPath, adminEmployees.icon)
+                getItem(adminEmployees.label, adminEmployees.fullPath, adminEmployees.icon)
             ],
             'group'),
         getItem(
