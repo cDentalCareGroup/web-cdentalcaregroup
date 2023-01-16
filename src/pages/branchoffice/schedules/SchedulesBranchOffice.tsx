@@ -6,11 +6,12 @@ import { DeleteScheduleRequest, GetSchedulesByBranchOfficeRequest, RegisterSched
 import { branchOfficeSchedulesToDataTable, scheduleEmployeeOptionToRegisterSchedule } from "../../../data/branchoffice/branchoffice.extensions";
 import { Employee } from "../../../data/employee/employee";
 import { buildEmployeeName, employeesToSelectItemOptions, employeesToSelectItemOptionsEmpty } from "../../../data/employee/employee.extentions";
-import { GetEmployeeByBranchOfficeRequest } from "../../../data/employee/employee.request";
+import { GetEmployeeByBranchOfficeRequest, GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
 import { DeleteEmpoyeeScheduleRequest } from "../../../data/schedule/schedule.request";
 import SelectItemOption from "../../../data/select/select.item.option";
 import { useDeleteBranchOfficeScheduleMutation, useGetSchedulesByBranchOfficeMutation, useRegisterBranchOfficeScheduleMutation } from "../../../services/branchOfficeService";
-import { useDeleteEmployeeScheduleMutation, useGetEmployeesByBranchOfficeMutation, useRegisterEmployeeScheduleMutation } from "../../../services/employeeService";
+import { useDeleteEmployeeScheduleMutation, useGetEmployeesByBranchOfficeMutation, useGetEmployeesByTypeMutation, useGetEmployeeTypesMutation, useRegisterEmployeeScheduleMutation } from "../../../services/employeeService";
+import Constants from "../../../utils/Constants";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../../utils/Notifications";
 import Strings from "../../../utils/Strings";
 import SelectSearch from "../../components/SelectSearch";
@@ -21,7 +22,7 @@ const SchedulesBranchOffice = () => {
     const [getSchedulesByBranchOffice, { isLoading }] = useGetSchedulesByBranchOfficeMutation();
     const [registerBranchOfficeSchedule] = useRegisterBranchOfficeScheduleMutation();
     const [deleteBranchOfficeSchedule] = useDeleteBranchOfficeScheduleMutation();
-    const [getEmployeesByBranchOffice] = useGetEmployeesByBranchOfficeMutation();
+    const [getEmployeesByBranchOffice] = useGetEmployeesByTypeMutation();
     const [registerEmployeeSchedule] = useRegisterEmployeeScheduleMutation();
     const [deleteEmployeeSchedule] = useDeleteEmployeeScheduleMutation();
     const [times, setTimes] = useState<[string, string]>();
@@ -147,9 +148,9 @@ const SchedulesBranchOffice = () => {
     const hanldeGetEmployees = async () => {
         try {
             const response = await getEmployeesByBranchOffice(
-                new GetEmployeeByBranchOfficeRequest(id ?? '')
+                new GetEmployeeByTypeRequest('Medico/Especialista')
             ).unwrap();
-            setDentistList(employeesToSelectItemOptionsEmpty(response));
+           setDentistList(employeesToSelectItemOptionsEmpty(response.filter((value,_) => value.branchOfficeId == Number(id))));
         } catch (error) {
             handleErrorNotification(error);
         }
