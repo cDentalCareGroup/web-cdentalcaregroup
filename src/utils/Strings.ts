@@ -110,7 +110,7 @@ class Strings {
     static dentists = "Dentistas"
     static actions = "Acciones"
 
-    static appVersion = 'v.1.0.0';
+    static appVersion = 'v.1.0.1';
 }
 
 export default Strings;
