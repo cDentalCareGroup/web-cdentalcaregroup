@@ -48,12 +48,12 @@ const AppointmentInfo = () => {
                         <SectionElement label={Strings.pad} value={getPatientPad(data)} icon={<RiUserHeartLine />} />
                         <div className="flex flex-row gap-2 items-center p-2">
                             <Tag onClick={() => {
-                                window.open(`https://api.whatsapp.com/send/?phone=527772811293`, '_blank', 'noopener,noreferrer');
+                                window.open(`https://api.whatsapp.com/send/?phone=${getPatientPrimaryContact(data)}`, '_blank', 'noopener,noreferrer');
                             }} className="cursor-pointer" icon={<WhatsAppOutlined />} color="#25D366">
                                 {Strings.whatsapp}
                             </Tag>
                             <Tag onClick={() => {
-                                window.open(`mailto:imanueld22@gmail.com`, '_blank', 'noopener,noreferrer');
+                                window.open(`mailto:${getPatientEmail(data)}`, '_blank', 'noopener,noreferrer');
                             }} className="cursor-pointer" icon={<MailFilled />} color="#55acee">
                                 {Strings.email}
                             </Tag>
