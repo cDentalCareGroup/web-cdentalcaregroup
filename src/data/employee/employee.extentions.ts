@@ -27,4 +27,20 @@ const buildEmployeeName = (employee: Employee): string => {
     ${capitalizeFirstLetter(employee.secondLastname ?? '')}`;
 }
 
-export { employeesToSelectItemOptions, buildEmployeeName, employeesToSelectItemOptionsEmpty };
+const buildEmployeeEmail = (employee: Employee): string => {
+  if (employee.email != "" && employee.email != null) {
+      return employee.email;
+  }
+  return `-`;
+}
+const buildEmployeeNumber = (employee: Employee): string => {
+  return `${employee.primaryContact}`;
+}
+
+export { 
+  employeesToSelectItemOptions, 
+  buildEmployeeName,
+  employeesToSelectItemOptionsEmpty,
+  buildEmployeeEmail,
+  buildEmployeeNumber
+ };

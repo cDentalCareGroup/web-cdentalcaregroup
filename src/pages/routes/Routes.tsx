@@ -25,6 +25,9 @@ import PatientInfo from "../patients/PatientInfo";
 import FormPatient from "../patients/FormPatient";
 import SchedulesBranchOffice from "../branchoffice/schedules/SchedulesBranchOffice";
 import Employees from "../employees/Employees";
+import FormEmployee, { FormEmployeeType } from "../employees/FormEmployee";
+import EmployeeInfo from "../employees/EmployeeInfo";
+import EmployeeInfoCard from "../employees/EmployeeInfo";
 
 export class Route {
     label: string;
@@ -50,6 +53,8 @@ const adminBranchOfficesAppointments = new Route('Citas', 'branchoffices', '/adm
 const adminBranchOfficesSchedules = new Route('Horarios', 'branchoffices/schedules', '/admin/branchoffices/schedules', <BranchOffices type={BranchOfficeType.SCHEDULES} />, <RiCalendarCheckLine />);
 const adminBranchOfficeSchedules = new Route('HorariosSucursal', 'branchoffices/schedules/detail', '/admin/branchoffices/schedules/detail/:id', <SchedulesBranchOffice />, <RiCalendarCheckLine />);
 const adminEmployees = new Route('Empleados', 'employees', '/admin/employees', <Employees />, <RiUser3Line />);
+const adminRegistrerEmployees = new Route('Employees', 'employeesregister', '/admin/employees/register', <FormEmployee type={FormEmployeeType.REGISTER} />, <RiCalendar2Line />);
+const adminEmployeesInfo = new Route('Employees', 'employeesinfo', '/admin/employees/detail/:id', <EmployeeInfoCard />, <RiUser3Line />);
 
 
 const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/branchoffice/appointments', <Appointments rol={UserRoles.ADMIN} />, <RiCalendar2Line />);
@@ -60,7 +65,6 @@ const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLo
 
 const receptionistAppointments = new Route('Citas', 'citasreceptionis', '/receptionist/appointments', <Appointments rol={UserRoles.RECEPTIONIST} />, <RiCalendar2Line />);
 const receptionistDetails = new Route('Citas', 'appointmentinforeceptionis', '/receptionist/appointments/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
-
 const receptionistRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/receptionist/patients/register', <FormPatient type={FormPatientType.REGISTER} />, <RiUser3Line />);
 const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/patients', <Patients />, <RiUser3Line />);
 const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/receptionist/patients/detail/:id', <PatientInfo />, <RiUser3Line />);
@@ -74,6 +78,8 @@ const adminRoutes: Route[] = [
     adminAppointments,
     adminAppointmentDetails,
     adminEmployees,
+    adminRegistrerEmployees,
+    adminEmployeesInfo,
     logout
 ];
 

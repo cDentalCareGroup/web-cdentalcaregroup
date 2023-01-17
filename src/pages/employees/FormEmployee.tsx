@@ -1,23 +1,33 @@
 import { Button, DatePicker, Divider, Form, Input, Row, Select } from "antd";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { RiHashtag, RiLockLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiProfileLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
-import useSessionStorage from "../../core/sessionStorage";
-import { Colonies, Colony } from "../../data/address/colonies";
-import { RegisterEmployeeRequest } from "../../data/employee/employee.request";
+import { RiHashtag, RiHospitalLine, RiLockLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiProfileLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
+import { Colony } from "../../data/address/colonies";
+import { BranchOffice } from "../../data/branchoffice/branchoffice";
+import { Employee } from "../../data/employee/employee";
+import { RegisterEmployeeRequest, UpdateEmployeeRequest } from "../../data/employee/employee.request";
 import { EmployeeType } from "../../data/employee/employee.types";
 import { Latitudes } from "../../data/maps/latitudes";
-import { Patient } from "../../data/patient/patient";
-import { PatientOrigin } from "../../data/patient/patient.origin";
-import { RegisterPatientRequest, UpdatePatientRequest } from "../../data/patient/patient.request";
-import { useGetEmployeeTypesMutation, useRegisterEmployeeMutation } from "../../services/employeeService";
+import { Role } from "../../data/user/role";
+import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
+import { useGetEmployeeRolesMutation, useGetEmployeeTypesMutation, useRegisterEmployeeMutation, useUpdateEmployeeMutation } from "../../services/employeeService";
 import { useGetColoniesFromZipCodeMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
-import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import LayoutCard from "../layouts/LayoutCard";
 
-const FormEmployee = () => {
+
+interface FormEmployeeProps {
+    type: FormEmployeeType;
+    employee?: Employee;
+}
+export enum FormEmployeeType {
+    REGISTER, UPDATE
+}
+
+
+const FormEmployee = (props: FormEmployeeProps) => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [colonies, setColonies] = useState<Colony[]>([]);
@@ -28,11 +38,29 @@ const FormEmployee = () => {
     const [getEmployeeTypes] = useGetEmployeeTypesMutation();
     const [getColoniesFromZipCode] = useGetColoniesFromZipCodeMutation();
     const [registerEmployee] = useRegisterEmployeeMutation();
+    const [updateEmployee] = useUpdateEmployeeMutation();
     const [showNormalInputs, setShowNormalInputs] = useState(false);
-
+    const [getBranchOffices] = useGetBranchOfficesMutation();
+    const [branchOfficeList, setBranchOfficeList] = useState<BranchOffice[]>([]);
+    const [getEmployeeRoles] = useGetEmployeeRolesMutation();
+    const [roleList, setRoleList] = useState<Role[]>([]);
     useEffect(() => {
         handleGetEmployeeTypes();
+        handleGetBranchOffices();
+        handleGetRoles();
+        if (props.type == FormEmployeeType.UPDATE) {
+            handleSetupValues();
+        }
     }, []);
+
+    const handleGetRoles = async () => {
+        try {
+            const response = await getEmployeeRoles({}).unwrap();
+            setRoleList(response);
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
 
     const handleGetEmployeeTypes = async () => {
         try {
@@ -43,8 +71,37 @@ const FormEmployee = () => {
         }
     }
 
+    const handleGetBranchOffices = async () => {
+        try {
+            const response = await getBranchOffices({}).unwrap();
+            setBranchOfficeList(response);
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
+
 
     const handleSetupValues = () => {
+        form.setFieldValue('name', props.employee?.name);
+        form.setFieldValue('lastname', props.employee?.lastname);
+        form.setFieldValue('secondLastname', props.employee?.secondLastname);
+        form.setFieldValue('gender', props.employee?.gender);
+        form.setFieldValue('phone', props.employee?.primaryContact);
+        form.setFieldValue('email', props.employee?.email);
+        form.setFieldValue('street', props.employee?.street);
+        form.setFieldValue('streetNumber', props.employee?.number);
+        form.setFieldValue('zipCode', props.employee?.cp);
+        form.setFieldValue('colony', props.employee?.colony);
+        form.setFieldValue('city', props.employee?.city);
+        form.setFieldValue('state', props.employee?.state);
+        form.setFieldValue('branchOffice', props.employee?.branchOfficeId);
+        form.setFieldValue('contractType', props.employee?.jobScheme);
+        form.setFieldValue('employeeType', props.employee?.typeId);
+        form.setFieldValue('rfc', props.employee?.rfc);
+        form.setFieldValue('nss', props.employee?.nss);
+        form.setFieldValue('username', props.employee?.user);
+        form.setFieldValue('email', props.employee?.email);
+        form.setFieldValue('birthday', dayjs(props.employee?.birthDay, 'YYYY-MM-DD'));
     }
 
 
@@ -121,18 +178,18 @@ const FormEmployee = () => {
             city = values.city;
             state = values.state;
         }
-
         try {
             setIsLoading(true);
             await registerEmployee(
                 new RegisterEmployeeRequest(
                     values,
                     latitudes!,
-                    1,
+                    values.branchOffice,
                     city, col, state
                 )).unwrap();
             form.resetFields();
             setIsLoading(false);
+            handleSucccessNotification(NotificationSuccess.REGISTER);
             setShowNormalInputs(false);
         } catch (error) {
             setIsLoading(false);
@@ -141,12 +198,69 @@ const FormEmployee = () => {
     }
 
 
-    return (<LayoutCard title={'registro empleados'} isLoading={false} content={
+    const shouldShowBack = (): boolean => {
+        return props.type == FormEmployeeType.REGISTER;
+    }
+
+    const buildCardTitle = (): string => {
+        return props.type == FormEmployeeType.REGISTER ? "Registro de empleados" : ''
+    }
+
+    const handleCheckForm = (values: any) => {
+        if (props.type == FormEmployeeType.REGISTER) {
+            handleRegisterEmployee(values);
+        } else {
+            handleUpdateEmployee(values);
+        }
+    }
+
+    const handleUpdateEmployee = async (values: any) => {
+        let col = '';
+        let city = '';
+        let state = '';
+        if (colony != null && colony != undefined) {
+            col = capitalizeFirstLetter(colony.colony);
+            city = capitalizeFirstLetter(colony.county?.toLowerCase());
+            if (colony.stateCities) {
+                state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
+            }
+        } else {
+            col = values.colony;
+            city = values.city;
+            state = values.state;
+        }
+        try {
+            setIsLoading(true);
+            await updateEmployee(
+                new UpdateEmployeeRequest(
+                    values,
+                    values.branchOffice,
+                    city, col, state, props.employee?.id ?? 0
+                )
+            ).unwrap();
+            setIsLoading(false);
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+        } catch (error) {
+            setIsLoading(false);
+            handleErrorNotification(error);
+        }
+    }
+
+    return (<LayoutCard showBack={shouldShowBack()} title={buildCardTitle()} isLoading={false} content={
         <div className="flex flex-col">
-            <Form form={form} layout="vertical" onFinish={handleRegisterEmployee}>
+            <Form form={form} layout="vertical" onFinish={handleCheckForm}>
                 <Divider orientation="left" orientationMargin="0">
                     Informacion del empleado
                 </Divider>
+                <Form.Item
+                    name='branchOffice'
+                    label={Strings.branchOfficeOrigin}
+                    rules={[{ required: true, message: Strings.requiredField }]}
+                >
+                    <Select size="large" placeholder={Strings.branchOfficeOrigin}>
+                        {branchOfficeList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
+                    </Select>
+                </Form.Item>
                 <Form.Item
                     name="name"
                     label={Strings.employeeName}
@@ -292,7 +406,6 @@ const FormEmployee = () => {
                     rules={[{ required: true, message: Strings.requiredField }]}
                 >
                     <Select size="large" placeholder={Strings.employeeType}>
-
                         {typeList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                     </Select>
                 </Form.Item>
@@ -318,6 +431,16 @@ const FormEmployee = () => {
                 <Divider orientation="left" orientationMargin="0">
                     Informacion del sistema
                 </Divider>
+
+                {props.type == FormEmployeeType.REGISTER && <Form.Item
+                    name="role"
+                    label='Rol de usuario'
+                    rules={[{ required: true, message: Strings.requiredField }]}
+                >
+                    <Select size="large" placeholder='Selecciona un rol'>
+                        {roleList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
+                    </Select>
+                </Form.Item>}
                 <Form.Item
                     name="username"
                     label={Strings.username}
@@ -330,7 +453,10 @@ const FormEmployee = () => {
                 <Form.Item
                     name="password"
                     label={Strings.password}
-                    rules={[{ required: true, message: Strings.requiredField }]}
+                    rules={[{
+                        required: props.type == FormEmployeeType.REGISTER,
+                        message: props.type == FormEmployeeType.REGISTER ? Strings.requiredField : ''
+                    }]}
                 >
                     <Input.Password
                         size="large"
@@ -358,7 +484,7 @@ const FormEmployee = () => {
 
                 <Form.Item>
                     <Button loading={isLoading} type="primary" htmlType="submit">
-                        Guardar
+                        {props.type == FormEmployeeType.REGISTER ? 'Guardar' : 'Actualizar'}
                     </Button>
                 </Form.Item>
             </Form>

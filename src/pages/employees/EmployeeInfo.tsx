@@ -1,58 +1,46 @@
-import {  Tabs } from "antd";
+import { Tabs } from "antd";
 import { useEffect, useState } from "react";
 import { RiCalendar2Line, RiFileList3Line, RiFunctionLine, RiHeartPulseLine, RiMailLine, RiPhoneLine, RiUser3Line, RiUserHeartLine, RiVipDiamondLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
+import { EmployeeInfo } from "../../data/employee/employee.info";
 import { Patient } from "../../data/patient/patient";
 import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPatientGender, buildPatientName, buildPatientPad, buildPatientPhone, buildPatientStartedAt } from "../../data/patient/patient.extensions";
+import { useGetEmployeeMutation } from "../../services/employeeService";
 import { useGetPatientMutation } from "../../services/patientService";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import NoData from "../components/NoData";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
-import FormPatient, { FormPatientType } from "./FormPatient";
+import FormEmployee, { FormEmployeeType } from "./FormEmployee";
 
-const PatientInfo = () => {
+const EmployeeInfoCard = () => {
+
     const { id } = useParams();
-    const [getPatient, { isLoading }] = useGetPatientMutation();
-    const [data, setData] = useState<Patient>();
+    const [getEmployee, {isLoading}] = useGetEmployeeMutation();
+    const [data, setData] = useState<EmployeeInfo>();
 
     useEffect(() => {
-        handleGetPatient();
+        handleGetEmployee();
     }, []);
 
 
-    const handleGetPatient = async () => {
+    const handleGetEmployee = async () => {
         try {
-            const response = await getPatient({ patientId: id }).unwrap();
-            //console.log(response);
+            const response = await getEmployee({id:id}).unwrap();
             setData(response);
         } catch (error) {
             handleErrorNotification(error);
         }
     }
 
-    const PatientPadCard = () => {
-        return (<>
-            <SectionElement label={Strings.pad} value={buildPatientPad(data)} icon={<RiUserHeartLine />} />
-        </>);
-    }
+
 
     const tabs: any[] = [
         {
-            label: <div className="flex items-baseline gap-1 justify-center"><RiFileList3Line /><span className="text text-sm">{Strings.patientInformation}</span></div>,
+            label: <div className="flex items-baseline gap-1 justify-center"><RiFileList3Line /><span className="text text-sm">Informacion del empleado</span></div>,
             key: 1,
-            children: <FormPatient type={FormPatientType.UPDATE} patient={data} />,
-        },
-        {
-            label: <div className="flex items-baseline gap-1 justify-center"><RiVipDiamondLine /><span className="text text-sm">{Strings.membership}</span></div>,
-            key: 2,
-            children: <PatientPadCard />,
-        },
-        {
-            label: <div className="flex items-baseline gap-1 justify-center"><RiHeartPulseLine /><span className="text text-sm">{Strings.medicalRecord}</span></div>,
-            key: 3,
-            children: <NoData />,
+            children: <FormEmployee type={FormEmployeeType.UPDATE} employee={data?.employee} />,
         },
     ];
 
@@ -68,4 +56,4 @@ const PatientInfo = () => {
         } />);
 }
 
-export default PatientInfo;
+export default EmployeeInfoCard;

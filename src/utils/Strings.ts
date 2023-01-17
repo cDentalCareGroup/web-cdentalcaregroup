@@ -47,6 +47,7 @@ class Strings {
     static accept = 'Aceptar';
     static return = "Regresar"
     static save = "Guardar"
+    static update = "Actualizar"
     static scheduleAppointment = "Agendar cita"
     static rescheduleAppointment = "Reagendar cita"
     static cancelAppointment = "Cancelar cita"
@@ -57,6 +58,7 @@ class Strings {
 
     static searchAppointmentsByPatientName = "Buscar citas por nombre de paciente";
     static searchPatient= "Buscar paciente";
+    static branchOfficeOrigin = "Sucursal de origen"
 
     static selectBranchOffice = "Selecciona una clinica"
     static selectColony = "Selecciona una colonia"

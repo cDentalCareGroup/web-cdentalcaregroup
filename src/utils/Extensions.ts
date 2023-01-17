@@ -135,4 +135,23 @@ const capitalizeFirstLetter = (value: string | undefined): string => {
   return '';
 }
 
-export { getInitRoute, getUserRol, dayName, monthName, isAdmin, capitalizeFirstLetter }
+
+const RESPONSIVE_LIST = {
+  gutter: 4,
+  xs: 1,
+  sm: 2,
+  md: 3,
+  lg: 3,
+  xl: 3,
+  xxl: 4,
+};
+const RESPONSIVE_LIST_SMALL = {
+  gutter: 4,
+  xs: 1,
+  sm: 2,
+  md: 2,
+  lg: 2,
+  xl: 2,
+  xxl: 2,
+};
+export { getInitRoute, getUserRol, dayName, monthName, isAdmin, capitalizeFirstLetter,RESPONSIVE_LIST,RESPONSIVE_LIST_SMALL }

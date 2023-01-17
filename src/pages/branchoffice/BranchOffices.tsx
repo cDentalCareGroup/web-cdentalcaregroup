@@ -1,4 +1,4 @@
-import { Button, Card, Divider, Form, Row, Select, Table, Tag, TimePicker } from "antd";
+import { Button, Card, Divider, Form, List, Row, Select, Table, Tag, TimePicker } from "antd";
 import { useEffect, useState } from "react";
 import { BranchOffice } from "../../data/branchoffice/branchoffice";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
@@ -13,6 +13,7 @@ import {
 import Constants from "../../utils/Constants";
 import useSessionStorage from "../../core/sessionStorage";
 import Strings from "../../utils/Strings";
+import { RESPONSIVE_LIST, RESPONSIVE_LIST_SMALL } from "../../utils/Extensions";
 
 
 interface BranchOfficesProps {
@@ -77,23 +78,26 @@ const BranchOffices = (props: BranchOfficesProps) => {
             isLoading={isLoading}
             content={
                 <div className="flex flex-col max-w-full">
-                    <Row>
-                        {data.map((value, index) =>
-                            <Card key={index} title={value.name} className="m-2 cursor-pointer" actions={buildActions(value)}>
-                                <SectionElement label={Strings.phoneNumber} value={value.primaryContact} icon={<RiPhoneLine />} />
-                                {props.type == BranchOfficeType.APPOINTMENTS && <div className="flex">
-                                    <Tag color="processing">Citas {value.appointmens}</Tag>
-                                </div>}
+                    <List
+                        grid={RESPONSIVE_LIST_SMALL}
+                        dataSource={data}
+                        renderItem={(value, index) => (
+                            <List.Item>
+                                <Card key={index} title={value.name} className="m-2 cursor-pointer" actions={buildActions(value)}>
+                                    <SectionElement label={Strings.phoneNumber} value={value.primaryContact} icon={<RiPhoneLine />} />
+                                    {props.type == BranchOfficeType.APPOINTMENTS && <div className="flex">
+                                        <Tag color="processing">Citas {value.appointmens}</Tag>
+                                    </div>}
 
-                                {props.type == BranchOfficeType.SCHEDULES && <div className="flex gap-2 mt-4">
-                                    <Button onClick={() => {
-                                        navigate(`/admin/branchoffices/schedules/detail/${value.id}`)
-                                    }}>{Strings.seeSchedules}</Button>
-                                </div>}
-                            </Card>
+                                    {props.type == BranchOfficeType.SCHEDULES && <div className="flex gap-2 mt-4">
+                                        <Button onClick={() => {
+                                            navigate(`/admin/branchoffices/schedules/detail/${value.id}`)
+                                        }}>{Strings.seeSchedules}</Button>
+                                    </div>}
+                                </Card>
+                            </List.Item>
                         )}
-                    </Row>
-
+                    />
                 </div>
             }
         />
