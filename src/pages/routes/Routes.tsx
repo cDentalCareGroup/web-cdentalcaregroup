@@ -10,6 +10,7 @@ import {
     RiDashboardLine,
     RiCalendar2Line,
     RiMentalHealthLine,
+    RiPhoneLine,
 } from "react-icons/ri";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import User from "../../data/user/user";
@@ -28,6 +29,9 @@ import Employees from "../employees/Employees";
 import FormEmployee, { FormEmployeeType } from "../employees/FormEmployee";
 import EmployeeInfo from "../employees/EmployeeInfo";
 import EmployeeInfoCard from "../employees/EmployeeInfo";
+import Calls from "../callcenter/Calls";
+import CallInfo from "../callcenter/CallInfo";
+import CallsType from "../callcenter/CallsType";
 
 export class Route {
     label: string;
@@ -70,6 +74,11 @@ const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/p
 const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/receptionist/patients/detail/:id', <PatientInfo />, <RiUser3Line />);
 
 
+const callCenter = new Route('Call Center', 'callCenter', '/callcenter', <Calls />, <RiUser3Line />);
+const callCenterCalInfo = new Route('Call Center', 'callCenterInfo', '/callcenter/call', <CallInfo />, <RiUser3Line />);
+const callsType= new Route('LLamadas', 'callsType', '/callcenter/calltypes', <CallsType />, <RiPhoneLine />);
+
+
 const adminRoutes: Route[] = [
     adminMap,
     adminBranchOfficesAppointments,
@@ -92,6 +101,14 @@ const receptionistRoutes: Route[] = [
     logout
 ];
 
+
+const callCenterRoutes: Route[] = [
+    callCenter,
+    callCenterCalInfo,
+    callsType,
+    logout,
+];
+
 const getUserSidebar = (user: User): ItemType[] => {
     const rol = getUserRol(user);
     if (rol == UserRoles.ADMIN) {
@@ -99,6 +116,9 @@ const getUserSidebar = (user: User): ItemType[] => {
     }
     if (rol == UserRoles.RECEPTIONIST) {
         return receptionistRoutesToMenuOptions();
+    }
+    if (rol == UserRoles.CALL_CENTER) {
+        return callCenterRoutesToMenuOptions();
     }
     return [];
 }
@@ -157,4 +177,27 @@ const receptionistRoutesToMenuOptions = (): ItemType[] => {
     return items;
 }
 
-export { adminRoutes, adminRoutesToMenuOptions, getUserSidebar, receptionistRoutesToMenuOptions, receptionistRoutes };
+const callCenterRoutesToMenuOptions = (): ItemType[] => {
+    const items: MenuProps['items'] = [
+        getItem(
+            'Administracion',
+            'cli',
+            null,
+            [
+                getItem(callCenter.label, callCenter.fullPath, callCenter.icon),
+                getItem(callsType.label, callsType.fullPath, callsType.icon),
+            ],
+            'group'),
+        getItem(
+            'Configuración',
+            'cng',
+            null,
+            [
+                getItem(logout.label, logout.fullPath, logout.icon)
+            ],
+            'group'),
+    ];
+    return items;
+}
+
+export { adminRoutes, adminRoutesToMenuOptions, getUserSidebar, receptionistRoutesToMenuOptions, receptionistRoutes, callCenterRoutes };

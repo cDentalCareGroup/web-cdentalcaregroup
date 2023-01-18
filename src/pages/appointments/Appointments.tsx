@@ -80,7 +80,7 @@ const Appointments = (props: AppointmentsProps) => {
             handleGetAppointmentsByBranchOffice('finalizada');
         }
         if (value.id == 4) {
-            handleGetAppointmentsByBranchOffice('noatendida');
+            handleGetAppointmentsByBranchOffice('no-atendida');
         }
     }
     const onStatusChange = (value: string) => {

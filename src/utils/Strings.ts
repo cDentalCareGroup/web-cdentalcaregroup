@@ -11,6 +11,11 @@ class Strings {
     static colony = "Colonia"
     static city = "Ciudad"
     static state = "Estado"
+    static description = "Descripción"
+    static script = "Diálogo"
+    static simpleName = "Nombre";
+    static goal = "Meta";
+
 
     static membership = "Membresía Pad"
     static medicalRecord = "Ficha médica"
@@ -48,6 +53,7 @@ class Strings {
     static return = "Regresar"
     static save = "Guardar"
     static update = "Actualizar"
+    static edit = "Editar"
     static scheduleAppointment = "Agendar cita"
     static rescheduleAppointment = "Reagendar cita"
     static cancelAppointment = "Cancelar cita"
@@ -112,7 +118,12 @@ class Strings {
     static dentists = "Dentistas"
     static actions = "Acciones"
 
-    static appVersion = 'v.1.0.2';
+    static updateCallType = "Actualizar tipo de llamada"
+    static registerCallType = "Registrar tipo de llamada"
+    static callTypes = "Tipos de llamada"
+    static searchCallTypes = "'Buscar tipo de llamada'"
+
+    static appVersion = 'v.1.0.5';
 }
 
 export default Strings;

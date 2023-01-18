@@ -30,8 +30,8 @@ export class Patient {
     pad: number;
     currentPadId: number;
     padType: string;
-    padAcquisitionDate: Date;
-    padExpirationDate: Date;
+    padAcquisitionDate: string;
+    padExpirationDate: string;
     padAcquisitionBranch: string;
     padPrice: number;
     createdAt: Date;
@@ -71,8 +71,8 @@ export class Patient {
       pad: number,
       currentPadId: number,
       padType: string,
-      padAcquisitionDate: Date,
-      padExpirationDate: Date,
+      padAcquisitionDate: string,
+      padExpirationDate: string,
       padAcquisitionBranch: string,
       padPrice: number,
       createdAt: Date,

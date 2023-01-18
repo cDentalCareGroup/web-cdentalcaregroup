@@ -97,6 +97,9 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         if (data.appointment.status == 'finalizada') {
             return <Tag color="default">{getAppointmentStatus(data)}</Tag>
         }
+        if (data.appointment.status == 'no-atendida') {
+            return <Tag color="red">{getAppointmentStatus(data)}</Tag>
+        }
         return <></>;
     }
 
@@ -422,7 +425,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
 
-            {data.appointment.status != 'finalizada' && <div className="ml-2 flex flex-row items-baseline gap-2 mb-2">
+            {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' && <div className="ml-2 flex flex-row items-baseline gap-2 mb-2">
                 <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
                 <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={hasLabs ? 1 : 0}>
                     <Radio value={1}>Si</Radio>
@@ -448,11 +451,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 ]}>
                 {!hideContent && CardContent()}
                 <Row className="mt-4 gap-2">
-                    {!data.dentist && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
+                    {(!data.dentist) ||data.appointment.status == 'no-atendida'  && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
                     {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >Iniciar cita</Button>}
                     {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >Reagendar</Button>}
                     {canFinish() && <Button loading={isActionLoading} onClick={() => setModalFinish(true)} >Finalizar cita</Button>}
-                    {data.appointment.status == 'finalizada' && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
+                    {(data.appointment.status == 'finalizada' || data.appointment.status == 'no-atendida' ) && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
                 </Row>
 
             </Card>

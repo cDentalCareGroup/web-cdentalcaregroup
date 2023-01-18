@@ -12,11 +12,18 @@ const getInitRoute = (user: User): string => {
     return '/admin/maps';
   } else {
     const receptionist = 'Recepción';
+    const callCenter = 'Call center';
 
     const isReceptionist = user.roles?.toLowerCase()
       .replace(/\s+/g, '')
       .includes(receptionist.toLowerCase().replace(/\s+/g, ''));
-    return isReceptionist ? '/receptionist/appointments' : '/';
+
+
+    const isCallCenter = user.roles?.toLowerCase()
+      .replace(/\s+/g, '')
+      .includes(callCenter.toLowerCase().replace(/\s+/g, ''));
+
+    return isReceptionist ? '/receptionist/appointments' : isCallCenter ? '/callcenter' : '/';
   }
 }
 
@@ -30,11 +37,19 @@ const getUserRol = (user: User): UserRoles => {
     return UserRoles.ADMIN;
   } else {
     const receptionist = 'Recepción';
+    const callCenter = 'Call center';
+
 
     const isReceptionist = user.roles?.toLowerCase()
       .replace(/\s+/g, '')
       .includes(receptionist.toLowerCase().replace(/\s+/g, ''));
-    return isReceptionist ? UserRoles.RECEPTIONIST : UserRoles.UNDEFINED;
+
+
+    const isCallCenter = user.roles?.toLowerCase()
+      .replace(/\s+/g, '')
+      .includes(callCenter.toLowerCase().replace(/\s+/g, ''));
+
+    return isReceptionist ? UserRoles.RECEPTIONIST : isCallCenter ? UserRoles.CALL_CENTER: UserRoles.UNDEFINED;
   }
 }
 
@@ -43,7 +58,7 @@ const isAdmin = (user: User): boolean => {
 }
 
 export enum UserRoles {
-  ADMIN, RECEPTIONIST, UNDEFINED
+  ADMIN, RECEPTIONIST, UNDEFINED, CALL_CENTER
 }
 
 
@@ -154,4 +169,4 @@ const RESPONSIVE_LIST_SMALL = {
   xl: 2,
   xxl: 2,
 };
-export { getInitRoute, getUserRol, dayName, monthName, isAdmin, capitalizeFirstLetter,RESPONSIVE_LIST,RESPONSIVE_LIST_SMALL }
+export { getInitRoute, getUserRol, dayName, monthName, isAdmin, capitalizeFirstLetter, RESPONSIVE_LIST, RESPONSIVE_LIST_SMALL }

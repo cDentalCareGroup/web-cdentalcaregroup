@@ -48,12 +48,20 @@ const BaseLayout: React.FC = () => {
     const isAdminRoute = location.pathname.toLowerCase()
         .replace(/\s+/g, '')
         .includes('admin'.toLowerCase().replace(/\s+/g, ''));
+
+      const isReceptionistRoute = location.pathname.toLowerCase()
+        .replace(/\s+/g, '')
+        .includes('receptionist'.toLowerCase().replace(/\s+/g, ''));
+
     const user = session as User;
     const rol = getUserRol(user);
 
-    if (isAdminRoute && rol == UserRoles.RECEPTIONIST) {
+    if (isAdminRoute && (rol == UserRoles.RECEPTIONIST || rol == UserRoles.CALL_CENTER)) {
         navigate('/unauthorized',{replace: true});
-    }  
+    }
+    if (isReceptionistRoute && rol == UserRoles.CALL_CENTER) {
+      navigate('/unauthorized',{replace: true});
+    }
   }
 
   const requestPermission = async () => {
