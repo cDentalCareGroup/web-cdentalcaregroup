@@ -17,6 +17,8 @@ import Strings from "../../utils/Strings";
 import BackArrow from "../components/BackArrow";
 import NoData from "../components/NoData";
 import { UserRoles } from "../../utils/Extensions";
+import Spinner from "../components/Spinner";
+import DataLoading from "../components/DataLoading";
 
 interface AppointmentsProps {
     rol: UserRoles
@@ -33,6 +35,7 @@ const Appointments = (props: AppointmentsProps) => {
         0
     );
     const navigate = useNavigate();
+    const [isFiltering, setIsFiltering] = useState(false);
 
     useEffect(() => {
         handleGetAppointmentsByBranchOffice('activa');
@@ -53,17 +56,22 @@ const Appointments = (props: AppointmentsProps) => {
         setIsLoading(false);
     }
 
-    const handleOnSearch = (query: string) => {
+    const handleOnSearch = (query: string, shoudlSearch: Boolean) => {
         if (query == '' || query == null) {
-            handleOnFilterChange(defaultFilter);
-        } else {
+            handleFilterAppointments(data!,'activa');
+        } else if(shoudlSearch) {
+            setIsFiltering(true);
+            setAppointments([]);
             const result = data?.filter((value) =>
                 getPatientName(value)
                     .toLowerCase()
-                    .replace(/\s+/g, '')
-                    .includes(query.toLowerCase().replace(/\s+/g, ''))
+                    .replace(/\s+/g, ' ')
+                    .includes(query.toLowerCase())
             )
             setAppointments(result);
+            setTimeout(() => {
+                setIsFiltering(false);
+            },200)
         }
     }
     const handleOnFilterChange = async (value: SelectItemOption) => {
@@ -97,13 +105,14 @@ const Appointments = (props: AppointmentsProps) => {
 
             <div className="flex flex-col">
                 {props.rol == UserRoles.ADMIN && <BackArrow />}
-                <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={handleOnSearch} enterButton />
+                <Search onChange={(event) => handleOnSearch(event.target.value, false)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={(event) => handleOnSearch(event, true)} enterButton />
                 <SingleFilters data={DEFAULT_APPOINTMENTS_FILTERS} onFilterChange={handleOnFilterChange} defaultOption={defaultFilter} />
 
-                <Row>
+                {!isFiltering && <Row>
                     {appointments?.map((value, index) => <AppointmentCard hideContent={false} appointment={value} key={index} onStatusChange={onStatusChange} />
                     )}
-                </Row>
+                </Row>}
+                {isFiltering && <DataLoading />}
                 {!isLoading && appointments?.length == 0 && <NoData />}
             </div>
         } />);

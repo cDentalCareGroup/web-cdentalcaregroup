@@ -451,7 +451,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 ]}>
                 {!hideContent && CardContent()}
                 <Row className="mt-4 gap-2">
-                    {(!data.dentist) ||data.appointment.status == 'no-atendida'  && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
+                    {!data.dentist && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
                     {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >Iniciar cita</Button>}
                     {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >Reagendar</Button>}
                     {canFinish() && <Button loading={isActionLoading} onClick={() => setModalFinish(true)} >Finalizar cita</Button>}
