@@ -12,7 +12,7 @@ import { useGetAppointmentInfoMutation } from "../../services/appointmentService
 import { useEffect, useState } from "react";
 import { handleErrorNotification } from "../../utils/Notifications";
 import { AppointmentDetail } from "../../data/appointment/appointment.detail";
-import { getHasLabs, getPatientAddress, getPatientBirthDay, getPatientEmail, getPatientGender, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
+import { getHasCabinet, getHasLabs, getPatientAddress, getPatientBirthDay, getPatientEmail, getPatientGender, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
 import { getAppointmentDate, getAppointmentDentist, getAppointmentFolio, getAppointmentStatus } from "../../data/appointment/appointment.extensions";
 import AppointmentCard from "./components/AppointmentCard";
 const AppointmentInfo = () => {
@@ -64,6 +64,7 @@ const AppointmentInfo = () => {
                         <SectionElement label={Strings.folio} value={getAppointmentFolio(data)} icon={<RiSearch2Line />} />
                         <SectionElement label={Strings.dentist} value={getAppointmentDentist(data)} icon={<RiMentalHealthLine />} />
                         <SectionElement label={Strings.hasLabs} value={getHasLabs(data)} icon={<RiStethoscopeLine />} />
+                        <SectionElement label={Strings.hasCabinet} value={getHasCabinet(data)} icon={<RiStethoscopeLine />} />
                         <SectionElement label={Strings.dateAndTime} value={getAppointmentDate(data)} icon={<RiCalendar2Line />} />
                         <SectionElement label={Strings.status} value={getAppointmentStatus(data)} icon={<RiFunctionLine />} />
 

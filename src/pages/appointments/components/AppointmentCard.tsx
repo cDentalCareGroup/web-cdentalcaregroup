@@ -6,7 +6,7 @@ import { AppointmentDetail } from "../../../data/appointment/appointment.detail"
 import { Button, Form, Input, Radio, Row, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
 import { GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SelectItemOption from "../../../data/select/select.item.option";
 import { employeesToSelectItemOptions } from "../../../data/employee/employee.extentions";
 import Modal from "antd/es/modal/Modal";
@@ -15,8 +15,8 @@ import { useGetPatientsMutation } from "../../../services/patientService";
 import { FilterEmployeesRequest } from "../../../data/filter/filters.request";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../../data/filter/filters";
 import { appointmentToBranchOfficeSelectItemOption, appointmentToDentistSelectItemOption, branchOfficesToSelectOptionItem, patientsToSelectItemOption } from "../../../data/select/select.item.option.extensions";
-import { useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
-import { AppointmentAvailbilityByDentistRequest, GetAppointmentAvailabilityRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
+import { useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasCabinetAppointmentMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
+import { AppointmentAvailbilityByDentistRequest, GetAppointmentAvailabilityRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasCabinetAppointmentRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
 import { useAppSelector } from "../../../core/store";
 import { selectCurrentUser } from "../../../core/authReducer";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../../utils/Notifications";
@@ -55,6 +55,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [getDentistAvailability] = useGetDentistAvailabilityMutation();
     const [registerNextAppointment] = useRegisterNextAppointmentMutation();
     const [updateHasLabsAppointment] = useUpdateHasLabsAppointmentMutation();
+    const [updateHasCabinetAppointment] = useUpdateHasCabinetAppointmentMutation();
 
     const [dentistList, setDentistList] = useState<SelectItemOption[]>([]);
     const [dentist, setDentist] = useState<SelectItemOption | undefined>();
@@ -76,6 +77,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [modalNextAppointment, setModalNextAppointment] = useState(false);
     const scrollRef = useRef<any>(null);
     const [hasLabs, setHasLabs] = useState(false);
+    const [hasCabinet, setHasCabinet] = useState(false);
 
     const user = useAppSelector(selectCurrentUser);
     const navigate = useNavigate();
@@ -376,6 +378,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     branchOffice?.id.toString() ?? '0',
                     dentist?.id.toString() ?? '0',
                     hasLabs,
+                    hasCabinet,
                     date,
                     dateTime,
                 )
@@ -400,15 +403,33 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const handleOnHasLabs = async (value: any) => {
-        const hasLab = value == 1
+        const hasLab = value == 1;
         setHasLabs(hasLab);
         try {
-            await updateHasLabsAppointment(
+            const response = await updateHasLabsAppointment(
                 new UpdateHasLabsAppointmentRequest(
                     data.appointment.id,
-                    hasLabs
+                    hasLab
                 )
             ).unwrap();
+            setData(response);
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
+
+    const handleOnHasCabinet = async (value: any) => {
+        const hasCabinetValue = value == 1;
+        setHasCabinet(hasCabinetValue);
+        try {
+            const response = await updateHasCabinetAppointment(
+                new UpdateHasCabinetAppointmentRequest(
+                    data.appointment.id,
+                    hasCabinetValue
+                )
+            ).unwrap();
+            setData(response);
             handleSucccessNotification(NotificationSuccess.UPDATE);
         } catch (error) {
             handleErrorNotification(error);
@@ -425,14 +446,25 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
 
-            {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' && <div className="ml-2 flex flex-row items-baseline gap-2 mb-2">
-                <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
-                <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={hasLabs ? 1 : 0}>
-                    <Radio value={1}>Si</Radio>
-                    <Radio value={0}>No</Radio>
-                </Radio.Group>
+            {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' &&
+                <div className="flex flex-col flex-wrap">
+                    <div className="ml-2 flex flex-row items-baseline gap-2 mb-2">
+                        <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
+                        <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={data.appointment.hasLabs ? 1 : 0}>
+                            <Radio value={1}>Si</Radio>
+                            <Radio value={0}>No</Radio>
+                        </Radio.Group>
+                    </div>
 
-            </div>}
+                    <div className="ml-2 flex flex-row items-baseline gap-2 mb-2">
+                        <span className="text text-base text-gray-500">{Strings.hasCabinet}</span>
+                        <Radio.Group onChange={(event) => handleOnHasCabinet(event.target.value)} value={data.appointment.hasCabinet ? 1 : 0}>
+                            <Radio value={1}>Si</Radio>
+                            <Radio value={0}>No</Radio>
+                        </Radio.Group>
+                    </div>
+                </div>
+            }
             {getStautsTag()}
         </>
     }
@@ -451,11 +483,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 ]}>
                 {!hideContent && CardContent()}
                 <Row className="mt-4 gap-2">
-                    {!data.dentist && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
+                    {!data.dentist && data.appointment.status != 'no-atendida' && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
                     {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >Iniciar cita</Button>}
                     {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >Reagendar</Button>}
                     {canFinish() && <Button loading={isActionLoading} onClick={() => setModalFinish(true)} >Finalizar cita</Button>}
-                    {(data.appointment.status == 'finalizada' || data.appointment.status == 'no-atendida' ) && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
+                    {(data.appointment.status == 'finalizada' || data.appointment.status == 'no-atendida') && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
                 </Row>
 
             </Card>
@@ -530,6 +562,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 <div className="ml-5">
                     <br />
                     <Checkbox onChange={(value) => setHasLabs(value.target.checked)}>Laboratorios</Checkbox>
+                    <br />
+                    <Checkbox onChange={(value) => setHasCabinet(value.target.checked)}>Estudios</Checkbox>
                     <br />
                 </div>
 

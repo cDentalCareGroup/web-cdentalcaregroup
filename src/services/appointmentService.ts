@@ -107,13 +107,21 @@ export const appointmentService = apiSlice.injectEndpoints({
       }),
       transformResponse: (response: { data: GetAppointmentDetail }, meta, arg) => response.data,
     }),
-    updateHasLabsAppointment: builder.mutation<any, any>({
+    updateHasLabsAppointment: builder.mutation<AppointmentDetail, any>({
       query: (data) => ({
         url: '/appointment/update/haslabs',
         method: "POST",
         body: { ...data },
       }),
-      transformResponse: (response: { data: any }, meta, arg) => response.data,
+      transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
+    }),
+    updateHasCabinetAppointment: builder.mutation<AppointmentDetail, any>({
+      query: (data) => ({
+        url: '/appointment/update/hasCabinet',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
     }),
   })
 });
@@ -130,5 +138,6 @@ export const {
   useGetAppointmentDetailPatientMutation,
   useCancelAppointmentMutation,
   useUpdateHasLabsAppointmentMutation,
-  useGetAppointmentInfoMutation
+  useGetAppointmentInfoMutation,
+  useUpdateHasCabinetAppointmentMutation
 } = appointmentService;

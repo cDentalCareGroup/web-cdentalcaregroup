@@ -8,6 +8,7 @@ class Strings {
     static group = "Group";
     static street = "Calle"
     static hasLabs = "Tiene laboratorios?";
+    static hasCabinet = "Tiene estudios?";
     static colony = "Colonia"
     static city = "Ciudad"
     static state = "Estado"
@@ -123,7 +124,7 @@ class Strings {
     static callTypes = "Tipos de llamada"
     static searchCallTypes = "'Buscar tipo de llamada'"
 
-    static appVersion = 'v.1.0.6';
+    static appVersion = 'v.1.0.7';
 }
 
 export default Strings;

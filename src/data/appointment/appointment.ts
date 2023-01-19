@@ -21,6 +21,7 @@ export class Appointment {
     finishedAt: string;
     comments: string;
     hasLabs?: number;
+    hasCabinet?: number;
     constructor( id: number,
        appointment: string,
        branchId: number,
@@ -41,7 +42,8 @@ export class Appointment {
        startedAt: string,
        finishedAt: string,
        comments: string,
-       hasLabs?: number
+       hasLabs?: number,
+       hasCabinet?: number
        ) {
            this.id = id;
            this.appointment = appointment;
@@ -64,6 +66,7 @@ export class Appointment {
            this.comments = comments;
            this.finishedAt = finishedAt;
            this.hasLabs = hasLabs;
+           this.hasCabinet = hasCabinet;
    
     }
    }

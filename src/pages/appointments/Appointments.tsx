@@ -12,13 +12,12 @@ import {  getPatientName } from "../../data/patient/patient.extensions";
 import AppointmentCard from "./components/AppointmentCard";
 import Constants from "../../utils/Constants";
 import useSessionStorage from "../../core/sessionStorage";
-import { useNavigate } from "react-router-dom";
 import Strings from "../../utils/Strings";
 import BackArrow from "../components/BackArrow";
 import NoData from "../components/NoData";
 import { UserRoles } from "../../utils/Extensions";
-import Spinner from "../components/Spinner";
 import DataLoading from "../components/DataLoading";
+import { sortAppointments } from "../../data/appointment/appointment.extensions";
 
 interface AppointmentsProps {
     rol: UserRoles
@@ -34,7 +33,6 @@ const Appointments = (props: AppointmentsProps) => {
         Constants.BRANCH_ID,
         0
     );
-    const navigate = useNavigate();
     const [isFiltering, setIsFiltering] = useState(false);
 
     useEffect(() => {
@@ -52,16 +50,17 @@ const Appointments = (props: AppointmentsProps) => {
         }
     }
     const handleFilterAppointments = (response: AppointmentDetail[], query: string) => {
-        setAppointments(response?.filter((value, _) => value.appointment.status == query));
+        setAppointments(sortAppointments(response, query));
         setIsLoading(false);
+        setIsFiltering(false);
     }
 
     const handleOnSearch = (query: string, shoudlSearch: Boolean) => {
         if (query == '' || query == null) {
-            handleFilterAppointments(data!,'activa');
+            handleGetAppointmentsByBranchOffice('activa');
         } else if(shoudlSearch) {
-            setIsFiltering(true);
             setAppointments([]);
+            setIsFiltering(true);
             const result = data?.filter((value) =>
                 getPatientName(value)
                     .toLowerCase()

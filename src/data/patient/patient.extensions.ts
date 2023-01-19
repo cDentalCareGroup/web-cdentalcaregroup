@@ -1,6 +1,7 @@
 import { AppointmentDetail } from "../appointment/appointment.detail"
 import { Patient } from "./patient"
 import { formatISO } from "date-fns";
+import { capitalizeFirstLetter } from "../../utils/Extensions";
 
 const DEFAULT_FIELD_VALUE = "-"
 
@@ -51,7 +52,7 @@ const buildPatientGender = (patient: Patient | undefined): string => {
 
 const getPatientName = (appointment: AppointmentDetail | undefined) => {
   const name = appointment?.prospect?.name ??
-    `${appointment?.patient?.name} ${appointment?.patient?.lastname} ${appointment?.patient?.secondLastname}`;
+    `${capitalizeFirstLetter(appointment?.patient?.name)} ${capitalizeFirstLetter(appointment?.patient?.lastname)} ${capitalizeFirstLetter(appointment?.patient?.secondLastname ?? '')}`;
   return name;
 }
 const getPatientEmail = (appointment: AppointmentDetail | undefined): string => {
@@ -98,6 +99,10 @@ const getHasLabs = (appointment: AppointmentDetail | undefined) => {
   const hasLabs = appointment?.appointment.hasLabs == 1 ? 'Si' : 'No';
   return hasLabs;
 }
+const getHasCabinet = (appointment: AppointmentDetail | undefined) => {
+  const hasCabinet = appointment?.appointment.hasCabinet == 1 ? 'Si' : 'No';
+  return hasCabinet;
+}
 const getPatientPad = (appointment: AppointmentDetail | undefined) => {
   if (appointment?.patient != null) {
     if (appointment.patient.pad) {
@@ -135,7 +140,7 @@ const getPatientBirthDay = (appointment: AppointmentDetail | undefined) => {
 const getPatientGender = (appointment: AppointmentDetail | undefined) => {
   if (appointment?.patient != null) {
     const gender = `${appointment.patient.gender}`;
-    return gender;
+    return gender.toLowerCase() == 'male' ? 'Masculino' : 'Femenino';
   }
   return DEFAULT_FIELD_VALUE;
 }
@@ -164,5 +169,6 @@ export {
   getPatientPrimaryContact,
   getStartFinishedDate,
   buildPatientGender,
-  buildPatientStartedAt
+  buildPatientStartedAt,
+  getHasCabinet
 }

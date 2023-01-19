@@ -97,20 +97,23 @@ export class RegisterNextAppointmentRequest {
   branchOfficeId: string;
   dentistId: string;
   hasLabs: boolean;
+  hasCabinet: boolean;
 
   constructor(
     patientId: number,
     branchOfficeId: string,
     dentistId: string,
     hasLabs: boolean,
+    hasCabinet: boolean,
     date?: Date,
-    time?: AvailableTime,) {
+    time?: AvailableTime) {
     this.date = date;
     this.time = time;
     this.patientId = patientId;
     this.branchOfficeId = branchOfficeId;
     this.dentistId = dentistId;
     this.hasLabs = hasLabs;
+    this.hasCabinet = hasCabinet;
   }
 
 }
@@ -155,5 +158,14 @@ export class UpdateHasLabsAppointmentRequest {
   constructor(id: number, hasLabs: boolean) {
       this.id = id;
       this.hasLabs = hasLabs;
+  }
+}
+
+export class UpdateHasCabinetAppointmentRequest {
+  id: number;
+  hasCabinet: boolean;
+  constructor(id: number, hasCabinet: boolean) {
+      this.id = id;
+      this.hasCabinet = hasCabinet;
   }
 }
