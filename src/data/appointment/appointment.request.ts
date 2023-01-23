@@ -20,10 +20,12 @@ export class UpdateAppointmentStatusRequest {
   id: number;
   status: string;
   amount: string;
-  constructor(id: number, status: string, amount: string) {
+  paymentMethod: number;
+  constructor(id: number, status: string, amount: string, paymentMethod: number) {
     this.id = id;
     this.status = status;
     this.amount = amount;
+    this.paymentMethod = paymentMethod;
   }
 }
 export class GetAppointmentAvailabilityRequest {
@@ -96,15 +98,17 @@ export class RegisterNextAppointmentRequest {
   patientId: number;
   branchOfficeId: string;
   dentistId: string;
-  hasLabs: boolean;
-  hasCabinet: boolean;
+  hasLabs: number;
+  hasCabinet: number;
+  service: string;
 
   constructor(
     patientId: number,
     branchOfficeId: string,
     dentistId: string,
-    hasLabs: boolean,
-    hasCabinet: boolean,
+    hasLabs: number,
+    hasCabinet: number,
+    service: string,
     date?: Date,
     time?: AvailableTime) {
     this.date = date;
@@ -114,6 +118,7 @@ export class RegisterNextAppointmentRequest {
     this.dentistId = dentistId;
     this.hasLabs = hasLabs;
     this.hasCabinet = hasCabinet;
+    this.service = service;
   }
 
 }
@@ -154,8 +159,8 @@ export class CancelAppointmentRequest {
 
 export class UpdateHasLabsAppointmentRequest {
   id: number;
-  hasLabs: boolean;
-  constructor(id: number, hasLabs: boolean) {
+  hasLabs: number;
+  constructor(id: number, hasLabs: number) {
       this.id = id;
       this.hasLabs = hasLabs;
   }
@@ -163,8 +168,8 @@ export class UpdateHasLabsAppointmentRequest {
 
 export class UpdateHasCabinetAppointmentRequest {
   id: number;
-  hasCabinet: boolean;
-  constructor(id: number, hasCabinet: boolean) {
+  hasCabinet: number;
+  constructor(id: number, hasCabinet: number) {
       this.id = id;
       this.hasCabinet = hasCabinet;
   }

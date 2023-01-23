@@ -87,13 +87,18 @@ const Appointments = (props: AppointmentsProps) => {
             handleGetAppointmentsByBranchOffice('finalizada');
         }
         if (value.id == 4) {
+            handleGetAppointmentsByBranchOffice('finalizada-cita');
+        }
+        if (value.id == 5) {
             handleGetAppointmentsByBranchOffice('no-atendida');
         }
     }
     const onStatusChange = (value: string) => {
         if (value == 'proceso') {
             setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[1]);
-        } else {
+        } else if(value == 'finalizada-cita'){
+            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[3]);
+        }else {
             setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[2]);
         }
         handleGetAppointmentsByBranchOffice(value);

@@ -14,8 +14,9 @@ const DEFAULT_FILTERS = [
 const DEFAULT_APPOINTMENTS_FILTERS = [
   new SelectItemOption(1, "Activas", 1, ""),
   new SelectItemOption(2, "En proceso", 2, ""),
-  new SelectItemOption(3, "Finalizadas", 3, ""),
-  new SelectItemOption(4, "No atendidas", 4, ""),
+  new SelectItemOption(3, "Finalizadas sin próxima cita", 3, ""),
+  new SelectItemOption(4, "Finalizadas con próxima cita", 4, ""),
+  new SelectItemOption(5, "No atendidas", 5, ""),
 ];
 
 const DEFAULT_PATIENTS_ACTIVE = [

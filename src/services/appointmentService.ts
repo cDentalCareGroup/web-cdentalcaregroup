@@ -1,6 +1,8 @@
 import { AppointmentDetail } from "../data/appointment/appointment.detail";
 import { GetAppointmentDetail } from "../data/appointment/appointment.request";
 import { AvailableTime } from "../data/appointment/available.time";
+import { PaymentMethod } from "../data/payment/payment.method";
+import { Service } from "../data/service/service";
 import { apiSlice } from "./apiSlice";
 
 
@@ -99,13 +101,13 @@ export const appointmentService = apiSlice.injectEndpoints({
       }),
       transformResponse: (response: { data: AvailableTime[] }, meta, arg) => response.data,
     }),
-    registerNextAppointment: builder.mutation<GetAppointmentDetail, any>({
+    registerNextAppointment: builder.mutation<AppointmentDetail, any>({
       query: (data) => ({
         url: '/appointment/resgiter/nextappointment',
         method: "POST",
         body: { ...data },
       }),
-      transformResponse: (response: { data: GetAppointmentDetail }, meta, arg) => response.data,
+      transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
     }),
     updateHasLabsAppointment: builder.mutation<AppointmentDetail, any>({
       query: (data) => ({
@@ -123,6 +125,20 @@ export const appointmentService = apiSlice.injectEndpoints({
       }),
       transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
     }),
+    getPaymentMethods: builder.mutation<PaymentMethod[], any>({
+      query: (_) => ({
+        url: '/appointment/paymentmethods',
+        method: "GET",
+      }),
+      transformResponse: (response: { data: PaymentMethod[] }, meta, arg) => response.data,
+    }),
+    getServices: builder.mutation<Service[], any>({
+      query: (_) => ({
+        url: '/appointment/services',
+        method: "GET",
+      }),
+      transformResponse: (response: { data: Service[] }, meta, arg) => response.data,
+    }),
   })
 });
 
@@ -139,5 +155,7 @@ export const {
   useCancelAppointmentMutation,
   useUpdateHasLabsAppointmentMutation,
   useGetAppointmentInfoMutation,
-  useUpdateHasCabinetAppointmentMutation
+  useUpdateHasCabinetAppointmentMutation,
+  useGetPaymentMethodsMutation,
+  useGetServicesMutation
 } = appointmentService;

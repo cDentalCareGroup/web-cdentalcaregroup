@@ -1,4 +1,4 @@
-import {  Modal, QRCode } from "antd";
+import { Button, Input, Modal, QRCode } from "antd";
 import { useEffect, useState } from "react";
 import { BranchOffice } from "../../data/branchoffice/branchoffice";
 import { DEFAULT_FILTERS } from "../../data/filter/filters";
@@ -7,7 +7,7 @@ import CustomMarker from "../../data/maps/custom.marker";
 import { branchOfficesToCustomMarkers, branchOfficeToCustomMarker, patientListToCustomMarkerList } from "../../data/maps/custom.marker.extensions";
 import { Patient } from "../../data/patient/patient";
 import SelectItemOption from "../../data/select/select.item.option";
-import {  branchOfficesToSelectOptionItemEmptyDescription } from "../../data/select/select.item.option.extensions";
+import { branchOfficesToSelectOptionItemEmptyDescription } from "../../data/select/select.item.option.extensions";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
 import { handleErrorNotification } from "../../utils/Notifications";
@@ -26,6 +26,7 @@ import SectionElement from "../components/SectionElement";
 import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPatientName, buildPatientPad, buildPatientPhone } from "../../data/patient/patient.extensions";
 import Strings from "../../utils/Strings";
 import LayoutCard from "../layouts/LayoutCard";
+import { Link } from "react-router-dom";
 
 
 const MapFilter = () => {
@@ -38,6 +39,10 @@ const MapFilter = () => {
     const [markers, setMarkers] = useState<CustomMarker[]>([]);
     const [selectedPatient, setSelectedPatient] = useState<Patient>();
     const [isOpen, setIsOpen] = useState(false);
+    const [latitude, setLatitude] = useState(0.0);
+    const [longitude, setLongitude] = useState(0.0);
+    const [isActionLoading, setIsActionLoading] = useState(false);
+
 
     useEffect(() => {
         handleGetBranchOffices();
@@ -114,6 +119,16 @@ const MapFilter = () => {
         }
     };
 
+
+    const handleUpdateLatLng = async() => {
+        try {
+                console.log(latitude);
+                console.log(longitude)
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
+
     return (
         <LayoutCard isLoading={isLoading}
             content={
@@ -128,13 +143,35 @@ const MapFilter = () => {
                         <div className="flex flex-col flex-wrap">
                             <SectionElement label={Strings.patientName} value={buildPatientName(selectedPatient)} icon={<RiUserLine className="text-gray-500" />} />
                             <SectionElement label={Strings.nextAppointment} value={buildPatientName(selectedPatient)} icon={<RiCalendarCheckFill className="text-gray-500" />} />
-                            <SectionElement label={Strings.address} value={buildPatientAddress(selectedPatient)} icon={<RiUserLocationLine className="text-gray-500" />} />
                             <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(selectedPatient)} icon={<RiPhoneLine className="text-gray-500" />} />
                             <SectionElement label={Strings.email} value={buildPatientEmail(selectedPatient)} icon={<RiMailLine className="text-gray-500" />} />
                             <SectionElement label={Strings.birthday} value={buildPatientBirthday(selectedPatient)} icon={<RiGiftLine className="text-gray-500" />} />
                             <SectionElement label={Strings.pad} value={buildPatientPad(selectedPatient)} icon={<RiVipDiamondLine className="text-gray-500" />} />
-                            <div className="flex w-full items-center justify-center flex-col flex-wrap">
-                                <QRCode value={`${selectedPatient?.folio}`} />
+                            <SectionElement label={Strings.address} value={buildPatientAddress(selectedPatient)} icon={<RiUserLocationLine className="text-gray-500" />} />
+
+                            <div className="flex w-full items-end justify-end">
+                            <Link
+                                to='#'
+                                onClick={(e) => {
+                                    window.open(
+                                        `https://www.google.com/maps/search/?api=1&query=${selectedPatient?.lat},${selectedPatient?.lng}`,
+                                        '_blank', 'noopener,noreferrer');
+                                    e.preventDefault();
+                                }}>
+                                <Button type="link" size="small">Ver dirección del paciente</Button>
+                            </Link>
+                        </div>
+                            <br />
+                            <span className="text text-base font-bold text-gray-500">Actualizar coordenadas</span>
+                            <br />
+                            <span className="text text-base text-gray-500">Latitud</span>
+                            <Input onChange={(event) => setLatitude(Number(event.target.value))} size="large" />
+                            <br />
+                            <span className="text text-base text-gray-500">Longitud</span>
+                            <Input onChange={(event) => setLongitude(Number(event.target.value))} size="large" />
+                            <br />
+                            <div className="flex">
+                                <Button onClick={() => handleUpdateLatLng()} loading={isActionLoading} type="primary">Actualizar cordenadas</Button>
                             </div>
                         </div>
                     </Modal>
