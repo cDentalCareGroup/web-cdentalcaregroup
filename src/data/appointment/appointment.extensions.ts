@@ -39,21 +39,21 @@ const formatAppointmentDate = (appointment: AppointmentDetail | undefined): Date
 const sortAppointments = (response: AppointmentDetail[], status: string): AppointmentDetail[] => {
 
     if (status.includes('finalizada-cita')) {
-        const appointments = response.filter((value, _) => value.appointment.status == 'finalizada' && (value.patient?.nextDateAppointment != null && value.patient?.nextDateAppointment != undefined))
-        .map((value, _) => new AppointmentDate(value, formatAppointmentDate(value)));
+        const appointments = response.filter((value, _) => value.patient?.nextDateAppointment != null && value.patient?.nextDateAppointment != undefined)
+            .map((value, _) => new AppointmentDate(value, formatAppointmentDate(value)));
         const dataSorted = appointments.sort((a: AppointmentDate, b: AppointmentDate) => {
             return a.date.valueOf() - b.date.valueOf();
         });
         return dataSorted.map((value, _) => value.appointment);
-    } else if(status.includes('finalizada')){
-        const appointments = response.filter((value, _) => value.appointment.status == status &&  (value.patient?.nextDateAppointment == null || value.patient?.nextDateAppointment == undefined))
-        .map((value, _) => new AppointmentDate(value, formatAppointmentDate(value)));
+    } else if (status.includes('finalizada')) {
+        const appointments = response.filter((value, _) => value.patient?.nextDateAppointment == null || value.patient?.nextDateAppointment == undefined)
+            .map((value, _) => new AppointmentDate(value, formatAppointmentDate(value)));
         const dataSorted = appointments.sort((a: AppointmentDate, b: AppointmentDate) => {
             return a.date.valueOf() - b.date.valueOf();
         });
         return dataSorted.map((value, _) => value.appointment);
-    }else {
-        const appointments = response.filter((value, _) => value.appointment.status == status).map((value, _) => new AppointmentDate(value, formatAppointmentDate(value)));
+    } else {
+        const appointments = response.map((value, _) => new AppointmentDate(value, formatAppointmentDate(value)));
         const dataSorted = appointments.sort((a: AppointmentDate, b: AppointmentDate) => {
             return a.date.valueOf() - b.date.valueOf();
         });

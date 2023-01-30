@@ -11,6 +11,7 @@ import {
     RiCalendar2Line,
     RiMentalHealthLine,
     RiPhoneLine,
+    RiUserHeartLine,
 } from "react-icons/ri";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import User from "../../data/user/user";
@@ -59,6 +60,9 @@ const adminBranchOfficeSchedules = new Route('HorariosSucursal', 'branchoffices/
 const adminEmployees = new Route('Empleados', 'employees', '/admin/employees', <Employees />, <RiUser3Line />);
 const adminRegistrerEmployees = new Route('Employees', 'employeesregister', '/admin/employees/register', <FormEmployee type={FormEmployeeType.REGISTER} />, <RiCalendar2Line />);
 const adminEmployeesInfo = new Route('Employees', 'employeesinfo', '/admin/employees/detail/:id', <EmployeeInfoCard />, <RiUser3Line />);
+const adminPatients = new Route('Pacientes', 'patients', '/admin/patients', <Patients rol={UserRoles.ADMIN} />, <RiUserHeartLine />);
+const adminRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/admin/patients/register', <FormPatient type={FormPatientType.REGISTER} rol={UserRoles.ADMIN} />, <RiUser3Line />);
+const adminPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/admin/patients/detail/:id', <PatientInfo rol={UserRoles.ADMIN} />, <RiUser3Line />);
 
 
 const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/branchoffice/appointments', <Appointments rol={UserRoles.ADMIN} />, <RiCalendar2Line />);
@@ -69,9 +73,9 @@ const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLo
 
 const receptionistAppointments = new Route('Citas', 'citasreceptionis', '/receptionist/appointments', <Appointments rol={UserRoles.RECEPTIONIST} />, <RiCalendar2Line />);
 const receptionistDetails = new Route('Citas', 'appointmentinforeceptionis', '/receptionist/appointments/detail/:folio', <AppointmentInfo />, <RiCalendar2Line />);
-const receptionistRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/receptionist/patients/register', <FormPatient type={FormPatientType.REGISTER} />, <RiUser3Line />);
-const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/patients', <Patients />, <RiUser3Line />);
-const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/receptionist/patients/detail/:id', <PatientInfo />, <RiUser3Line />);
+const receptionistRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/receptionist/patients/register', <FormPatient type={FormPatientType.REGISTER} rol={UserRoles.RECEPTIONIST} />, <RiUser3Line />);
+const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/patients', <Patients rol={UserRoles.RECEPTIONIST} />, <RiUserHeartLine />);
+const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/receptionist/patients/detail/:id', <PatientInfo rol={UserRoles.RECEPTIONIST} />, <RiUser3Line />);
 
 
 const callCenter = new Route('Call Center', 'callCenter', '/callcenter', <Calls />, <RiUser3Line />);
@@ -89,6 +93,9 @@ const adminRoutes: Route[] = [
     adminEmployees,
     adminRegistrerEmployees,
     adminEmployeesInfo,
+    adminPatients,
+    adminRegisterPatients,
+    adminPatientsInfo,
     logout
 ];
 
@@ -139,7 +146,9 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             [
                 getItem(adminBranchOfficesAppointments.label, adminBranchOfficesAppointments.fullPath, adminBranchOfficesAppointments.icon),
                 getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon),
-                getItem(adminEmployees.label, adminEmployees.fullPath, adminEmployees.icon)
+                getItem(adminEmployees.label, adminEmployees.fullPath, adminEmployees.icon),
+                getItem(adminPatients.label, adminPatients.fullPath, adminPatients.icon)
+
             ],
             'group'),
         getItem(

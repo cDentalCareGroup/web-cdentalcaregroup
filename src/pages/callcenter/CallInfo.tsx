@@ -16,10 +16,10 @@ import { handleErrorNotification, handleSucccessNotification, NotificationSucces
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
+import RegisterCall from "./RegisterCall";
 
 const CallInfo = () => {
 
-    const [getCatalogs] = useGetCatalogsMutation();
     const [updateCall] = useUpdateCallMutation();
     const navigate = useNavigate();
 
@@ -28,27 +28,12 @@ const CallInfo = () => {
         null
     );
     const [data, setData] = useState<GetCalls>();
-    const [isOpen, setIsOpen] = useState(false);
-    const [catalogs, setCatalogs] = useState<CallCatalog[]>([]);
     const [comment, setComment] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         handleSetupValues();
-        handleGetCallCatalogs();
     }, []);
-
-    const handleGetCallCatalogs = async () => {
-        try {
-            setIsLoading(true);
-            const response = await getCatalogs({}).unwrap();
-            setCatalogs(response);
-            setIsLoading(false);
-        } catch (error) {
-            console.log(error);
-            setIsLoading(false);
-        }
-    }
 
 
     const handleSetupValues = () => {
@@ -79,7 +64,7 @@ const CallInfo = () => {
         } else if (data?.catalog.name.includes('cita-no-show')) {
             return NotAttended();
         } else if (data?.catalog.name.includes('presupuesto')) {
-            <div>presupuesto</div>
+            return Budget();
         }
         return <></>
     }
@@ -92,6 +77,13 @@ const CallInfo = () => {
             return 'Presuperto'
         }
         return '';
+    }
+
+    const Budget = (): JSX.Element => {
+        return (
+            <div>
+                <SectionElement label={Strings.description} value={data?.call.description ?? ''} icon={<RiUser3Line />} />
+            </div>);
     }
 
     const buildNotAttendedDate = () => {
@@ -124,20 +116,18 @@ const CallInfo = () => {
                 onChange={(event) => setComment(event.target.value)}
                 placeholder="Detalle de la llamada"
             />
-            {/* <div className="flex w-full gap-2 mb-2 mt-4">
-                <Button>Agendar cita</Button>
-                <Button type="dashed" onClick={() => setIsOpen(true)}>Agendar llamada</Button>
-            </div> */}
+
+            <RegisterCall patientId={data?.patient.id} appointmentId={data?.appointment?.id} />
         </div>)
     }
 
     const handleUpdateCall = async () => {
         try {
             setIsLoading(true);
-           await updateCall(new UpdateCallRequest(data?.call.id ?? 0, comment)).unwrap();
-           handleSucccessNotification(NotificationSuccess.UPDATE);
-           setIsLoading(false);
-           navigate(-1);
+            await updateCall(new UpdateCallRequest(data?.call.id ?? 0, comment)).unwrap();
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+            setIsLoading(false);
+            navigate(-1);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -164,20 +154,9 @@ const CallInfo = () => {
                     <Divider />
                     {buildInitView()}
                     {CallActions()}
-                    <div className="flex"> 
-                        <Button loading={isLoading} disabled={data?.call.status!='activa'} type="primary" onClick={() => handleUpdateCall()}>Guardar</Button>
+                    <div className="flex mt-4 w-full justify-end items-end">
+                        <Button loading={isLoading} disabled={data?.call.status != 'activa'} type="primary" onClick={() => handleUpdateCall()}>Guardar</Button>
                     </div>
-
-                    <Modal okText='Guardar' open={isOpen} onCancel={() => setIsOpen(false)} title='Agendar llamada'>
-                        <div className="flex flex-row gap-4 mb-4">
-                            <Select size="large" placeholder='Tipo de llamada' onChange={(value) => { }}>
-                                {catalogs?.map((value, index) => <Select.Option key={`${index}`} value={`${index}`}>{capitalizeFirstLetter(value.name)}</Select.Option>)}
-                            </Select>
-
-                            <DatePicker
-                                size="large" placeholder="Fecha" style={{ minWidth: 200 }} />
-                        </div>
-                    </Modal>
                 </div>
             }
         />

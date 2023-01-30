@@ -2,42 +2,84 @@ import { Button, Card, Radio, Row, Space, Tag } from "antd";
 import Search from "antd/es/input/Search";
 import Modal from "antd/es/modal/Modal";
 import { useEffect, useState } from "react";
-import {  RiMailLine, RiPhoneLine } from "react-icons/ri";
+import { RiMailLine, RiPhoneLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
+import { DEFAULT_FILTERS } from "../../data/filter/filters";
+import { FilterEmployeesRequest } from "../../data/filter/filters.request";
 import { Patient } from "../../data/patient/patient";
 import { buildPatientEmail, buildPatientName, buildPatientPhone } from "../../data/patient/patient.extensions";
 import { UpdatePatientStatusRequest } from "../../data/patient/patient.request";
-import { useGetPatientsByBranchOfficeMutation, useUpdatePatientStatusMutation } from "../../services/patientService";
+import SelectItemOption from "../../data/select/select.item.option";
+import { branchOfficesToSelectOptionItem } from "../../data/select/select.item.option.extensions";
+import User from "../../data/user/user";
+import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
+import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation, useUpdatePatientStatusMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
+import { isAdmin, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 
-const Patients = () => {
+interface PatientsProps {
+    rol: UserRoles;
+}
 
-    const [getPatientsByBranchOffice, { isLoading }] = useGetPatientsByBranchOfficeMutation();
+
+const Patients = (props: PatientsProps) => {
+
+    const [getPatientsByBranchOffice] = useGetPatientsByBranchOfficeMutation();
+    const [getPatients] = useGetPatientsMutation();
+
     const [updatePatientStatus] = useUpdatePatientStatusMutation();
     const [branchId, setBranchId] = useSessionStorage(Constants.BRANCH_ID, 0);
+    const [session, setSession] = useSessionStorage(Constants.SESSION_AUTH, 0);
     const [patientList, setPatientList] = useState<Patient[]>([]);
     const [data, setData] = useState<Patient[]>([]);
     const navigate = useNavigate();
     const [patient, setPatient] = useState<Patient>();
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState('');
 
 
     useEffect(() => {
-        handleGetPatients();
+        if (session != null) {
+            const user = session as User;
+            if (isAdmin(user)) {
+                handleGetAllPatients();
+            } else {
+                handleGetPatients();
+            }
+        }
     }, []);
 
     const handleGetPatients = async () => {
         try {
+            setIsLoading(true);
             const response = await getPatientsByBranchOffice(Number(branchId)).unwrap();
             setPatientList(response);
             setData(response);
+            setIsLoading(false);
         } catch (error) {
+            setIsLoading(false);
+            handleErrorNotification(error);
+        }
+    }
+
+
+
+    const handleGetAllPatients = async () => {
+        try {
+            setIsLoading(true);
+            const response = await getPatients(new FilterEmployeesRequest([DEFAULT_FILTERS[3]])).unwrap();
+            setPatientList(response);
+            setData(response);
+            console.log(response);
+            setIsLoading(false);
+        } catch (error) {
+            setIsLoading(false);
             handleErrorNotification(error);
         }
     }
@@ -86,7 +128,13 @@ const Patients = () => {
         <div className="flex flex-col">
             <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchPatient} onSearch={handleOnSearch} enterButton />
             <div className="flex w-full items-end justify-end mt-4 mb-12">
-                <Button type="primary" onClick={() => navigate('/receptionist/patients/register')}>{Strings.registerPatient}</Button>
+                <Button type="primary" onClick={() => {
+                    if (props.rol == UserRoles.ADMIN) {
+                        navigate('/admin/patients/register')
+                    } else {
+                        navigate('/receptionist/patients/register')
+                    }
+                }}>{Strings.registerPatient}</Button>
             </div>
             <Row>
                 {patientList.map((value, index) =>
@@ -94,8 +142,14 @@ const Patients = () => {
                         <Button type="dashed" onClick={() => {
                             setPatient(value);
                             setIsOpen(true);
-                        }} danger>{Strings.delete}</Button>,
-                        <Button type="dashed" onClick={() => navigate(`/receptionist/patients/detail/${value.id}`)}>{Strings.seeInfo}</Button>
+                        }} danger>{'Estatus'}</Button>,
+                        <Button type="dashed" onClick={() => {
+                            if(props.rol == UserRoles.ADMIN) {
+                                navigate(`/admin/patients/detail/${value.id}`)
+                            } else {
+                                navigate(`/receptionist/patients/detail/${value.id}`)
+                            }
+                        }}>{Strings.seeInfo}</Button>
 
                     ]}>
                         <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(value)} icon={<RiPhoneLine />} />

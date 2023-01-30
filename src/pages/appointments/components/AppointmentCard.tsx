@@ -1,6 +1,6 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
-import { RiCalendar2Line, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { RiCalendar2Line, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
 import { Button, Form, Input, Radio, Row, Select, Tag } from "antd";
@@ -26,7 +26,7 @@ import { AvailableTime } from "../../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../../data/appointment/available.times.extensions";
 import { useGetBranchOfficesMutation } from "../../../services/branchOfficeService";
 import ScheduleAppointmentInfoCard from "./ScheduleAppointmentInfoCard";
-import { format } from "date-fns";
+import { format, isToday, parseISO } from "date-fns";
 import Checkbox from "antd/es/checkbox/Checkbox";
 import useSessionStorage from "../../../core/sessionStorage";
 import Constants from "../../../utils/Constants";
@@ -36,6 +36,7 @@ import { getAppointmentStatus } from "../../../data/appointment/appointment.exte
 import { Employee } from "../../../data/employee/employee";
 import { PaymentMethod } from "../../../data/payment/payment.method";
 import { servicesToSelectItemOption } from "../../../data/service/service.extentions";
+import RegisterCall from "../../callcenter/RegisterCall";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -193,18 +194,33 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             && data.appointment.status != 'no-atendida'
     }
     const canReschedule = (): boolean => {
-        return data.appointment.status == 'activa'
+        return data.appointment.status == 'activa' || data.appointment.status == 'no-atendida'
     }
 
     const handleUpdateAppointmentStatus = async (status: string) => {
         try {
+            if (status == 'finalizada') {
+                if (paymentMethodId == 0 || paymentMethodId == undefined) {
+                    handleErrorNotification(Constants.EMPTY_PAYMENT_METHOD);
+                    return;
+                }
+                if (amount == '' || amount == undefined) {
+                    handleErrorNotification(Constants.EMPTY_COST);
+                    return;
+                }
+                if (service == null || service == undefined) {
+                    handleErrorNotification(Constants.EMPTY_SERVICE);
+                    return;
+                }
+            }
             setIsActionLoading(true);
             const response = await updateAppointmentStatus(
                 new UpdateAppointmentStatusRequest(
                     data.appointment.id,
                     status,
                     amount,
-                    paymentMethodId
+                    paymentMethodId,
+                    service?.id ?? 0
                 )).unwrap();
             setData(response);
             onStatusChange(status);
@@ -293,6 +309,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             resetRescheduleAppointmentParams();
             handleSucccessNotification(NotificationSuccess.UPDATE);
             onAppointmentChange?.(response);
+            onStatusChange?.('activa');
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -383,6 +400,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const handleOnRegisterNextAppointment = async () => {
         try {
+            if (service == null || service == undefined) {
+                handleErrorNotification(Constants.EMPTY_SERVICE);
+                return;
+            }
             setIsActionLoading(true);
             const dateTime = availableTimes.find((value, _) => value.time == time);
             const response = await registerNextAppointment(
@@ -392,7 +413,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     dentist?.id.toString() ?? '0',
                     hasLabs,
                     hasCabinet,
-                    service?.label ?? '',
+                    service?.id ?? 0,
                     date,
                     dateTime,
                 )
@@ -459,7 +480,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />
             <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
-
+            <SectionElement label={Strings.service} value={data.service?.name ?? '-'} icon={<RiServiceLine />} />
             {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' &&
                 <div className="flex flex-col flex-wrap">
                     <div className="ml-2 flex flex-col items-baseline gap-2 mb-2">
@@ -483,22 +504,33 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             }
             {getStautsTag()}
             {showNextAppointment() &&
-                <SectionElement label={'Siguiente cita'} value={`${data.patient?.nextDateAppointment}`} icon={<RiCalendar2Line />} />
+                <SectionElement label={'Siguiente cita'} value={buildNextAppointmentText()} icon={<RiCalendar2Line />} />
             }
         </>
     }
 
     const canRegisterNextAppointment = (): boolean => {
-        return (data.appointment.status == 'finalizada' || data.appointment.status == 'no-atendida')
+        return data.appointment.status == 'finalizada'
             && (data.patient?.nextDateAppointment == undefined || data.patient?.nextDateAppointment == null)
     }
 
+    const buildNextAppointmentText = (): string => {
+        if (data.patient?.nextDateAppointment != null) {
+            if (isToday(parseISO(data.patient?.nextDateAppointment.toString()))) {
+                return `Hoy a las ${data.patient.nextDateAppointment.toString().split(' ')[1]}`;
+            } else {
+                return `${data.patient?.nextDateAppointment}`
+            }
+        }
+        return ``;
+    }
     const showNextAppointment = (): boolean => {
         return data.patient?.nextDateAppointment != undefined || data.patient?.nextDateAppointment != null
     }
 
     const handleSetModalFinish = async () => {
         await handleGetPaymentMethods();
+        await handleGetServices();
         setModalFinish(true)
     }
     const handleGetPaymentMethods = async () => {
@@ -551,6 +583,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 <span className="flex mt-2 mb-1">Costo de la cita</span>
                 <Input addonBefore="$" size="large" value={amount} onChange={((event) => setAmount(event.target.value))} prefix={<></>} placeholder='10.00' />
 
+                <span className="flex mt-2">Tipo de servicio</span>
+                <SelectSearch icon={<></>} placeholder="Tipo de servicio" items={serviceList} onChange={(event) => setService(event)} />
             </Modal>
 
             <Modal title={'Asignar dentista'} okText={'Guardar'} confirmLoading={isActionLoading} open={modalDentist} onOk={() => handleOnSaveDentist()} onCancel={() => {

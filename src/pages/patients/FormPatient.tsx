@@ -1,7 +1,7 @@
 import { Button, DatePicker, Form, Input, Row, Select } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { RiHashtag, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
+import { RiHashtag, RiHospitalLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { Colonies, Colony } from "../../data/address/colonies";
 import { Latitudes } from "../../data/maps/latitudes";
@@ -9,16 +9,22 @@ import { Patient } from "../../data/patient/patient";
 import { PatientOrganization } from "../../data/patient/patient.organization";
 import { PatientOrigin } from "../../data/patient/patient.origin";
 import { RegisterPatientRequest, UpdatePatientRequest } from "../../data/patient/patient.request";
+import SelectItemOption from "../../data/select/select.item.option";
+import { branchOfficesToSelectOptionItem } from "../../data/select/select.item.option.extensions";
+import User from "../../data/user/user";
+import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetColoniesFromZipCodeMutation, useGetPatientOrganizationsMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { capitalizeFirstLetter, isAdmin, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
+import SelectSearch from "../components/SelectSearch";
 import LayoutCard from "../layouts/LayoutCard";
 
 interface FormPatientProps {
     type: FormPatientType;
     patient?: Patient;
+    rol: UserRoles;
 }
 export enum FormPatientType {
     REGISTER, UPDATE
@@ -29,6 +35,7 @@ const FormPatient = (props: FormPatientProps) => {
     const [registerPatient] = useRegisterPatientMutation();
     const [updatePatient,] = useUpdatePatientMutation();
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingContent, setIsLoadingContent] = useState(false);
     const [getPatientOrigins] = useGetPatientOriginsMutation();
     const [getPatientOrganizations] = useGetPatientOrganizationsMutation();
     const [getColoniesFromZipCode] = useGetColoniesFromZipCodeMutation();
@@ -44,7 +51,14 @@ const FormPatient = (props: FormPatientProps) => {
         Constants.BRANCH_ID,
         0
     );
+    const [branchOfficeList, setBranchoOfficeList] = useState<SelectItemOption[]>([]);
+    const [branchOfficeId, setBranchoOfficeId] = useState(0);
+    const [getBranchOffices] = useGetBranchOfficesMutation();
+
     useEffect(() => {
+        if (props.rol == UserRoles.ADMIN) {
+            handleGetBranchOffices();
+        }
         if (props.type == FormPatientType.UPDATE) {
             handleSetupValues();
         }
@@ -52,8 +66,18 @@ const FormPatient = (props: FormPatientProps) => {
         handleGetPatientOrganizations();
     }, []);
 
+    const handleGetBranchOffices = async () => {
+        try {
+            const response = await getBranchOffices({}).unwrap();
+            setBranchoOfficeList(branchOfficesToSelectOptionItem(response));
+            console.log('aqui')
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
 
     const handleSetupValues = () => {
+        setIsLoadingContent(true);
         form.setFieldValue('name', props.patient?.name);
         form.setFieldValue('lastname', props.patient?.lastname);
         form.setFieldValue('secondLastname', props.patient?.secondLastname);
@@ -75,6 +99,11 @@ const FormPatient = (props: FormPatientProps) => {
         }
         form.setFieldValue('birthday', dayjs(props.patient?.birthDay, 'YYYY-MM-DD'));
         setLatitudes(new Latitudes(Number(props.patient?.lat), Number(props.patient?.lng)));
+
+        if (props.rol == UserRoles.ADMIN) {
+            setBranchId(props.patient?.originBranchOfficeId);
+        }
+        setIsLoadingContent(false);
     }
 
     const handleGetPatientOrigins = async () => {
@@ -175,7 +204,7 @@ const FormPatient = (props: FormPatientProps) => {
                 new RegisterPatientRequest(
                     values,
                     latitudes!,
-                    branchId,
+                    props.rol == UserRoles.ADMIN ? branchOfficeId : Number(branchId),
                     city, col, state
                 )).unwrap();
             form.resetFields();
@@ -231,10 +260,23 @@ const FormPatient = (props: FormPatientProps) => {
         }
     }
 
-    return (<LayoutCard showBack={shouldShowBack()} title={buildCardTitle()} isLoading={false} content={
+    return (<LayoutCard showBack={shouldShowBack()} title={buildCardTitle()} isLoading={isLoadingContent} content={
         <div className="flex flex-col">
             <Form form={form} name="horizontal_login" layout="vertical" onFinish={handleCheckForm}>
-                <Row>
+               
+                    {props.rol == UserRoles.ADMIN && <Form.Item
+                        name="branchOfficeId"
+                        label={Strings.branchOfficeOrigin}
+                        style={{ minWidth: 300, padding: 10 }}
+                        rules={[{ required: true, message: Strings.requiredField }]}>
+                        <SelectSearch
+                            placeholder={Strings.branchOfficeOrigin}
+                            items={branchOfficeList}
+                            onChange={(event) => setBranchoOfficeId(event.id)}
+                            icon={<RiHospitalLine />}
+                        />
+                    </Form.Item>}
+
                     <Form.Item
                         name="name"
                         label={Strings.patientName}
@@ -314,7 +356,7 @@ const FormPatient = (props: FormPatientProps) => {
                     <Form.Item
                         name="street"
                         label={Strings.street}
-                        style={{ minWidth: 300, padding: 10, maxWidth: 300 }}
+                        style={{ minWidth: 300, padding: 10}}
                         rules={[{ required: true, message: Strings.requiredField }]}
                     >
                         <Input size="large" prefix={<RiMapPin5Line />} placeholder={Strings.street} />
@@ -436,7 +478,6 @@ const FormPatient = (props: FormPatientProps) => {
                             size="large" style={{ minWidth: 200 }} />
                     </Form.Item>}
 
-                </Row>
                 <Form.Item>
                     <Button loading={isLoading} type="primary" htmlType="submit">
                         {props.type == FormPatientType.REGISTER ? 'Guardar' : 'Actualizar'}

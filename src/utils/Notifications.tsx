@@ -1,11 +1,11 @@
 import React from "react";
 import { Button, notification } from 'antd';
 import { NotificationPlacement } from "antd/es/notification/interface";
+import Constants from "./Constants";
 
 
 
 export const handleErrorNotification = (value: any) => {
-    console.log(value);
     if (value.hasOwnProperty('data') && value.data.hasOwnProperty('message')) {
         notification.open({
             message: 'Ups!',
@@ -67,6 +67,15 @@ const getErrorMessage = (message: string): string => {
     }
     if (message == 'PATIENT_EXISTS') {
         return "El paciente ya esta registrado"
+    }
+    if (message == Constants.EMPTY_SERVICE) {
+        return "Debes seleccionar un servicio"
+    }
+    if (message == Constants.EMPTY_PAYMENT_METHOD) {
+        return "Debes seleccionar un método de pago"
+    }
+    if (message == Constants.EMPTY_COST) {
+        return "Debes ingresar un costo, si no aplica ingresa 0"
     }
     return 'Ocurrio un error, intenta mas tarde';
 }

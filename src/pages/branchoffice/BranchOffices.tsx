@@ -72,6 +72,17 @@ const BranchOffices = (props: BranchOfficesProps) => {
     }
 
 
+    const buildAppointmentStatus = (value: BranchOffice): JSX.Element => {
+        return (
+            <div className="flex flex-row gap-2 flex-wrap">
+                <Tag color="success">{`Citas activas ${value.appointment?.active ?? ''}`}</Tag>
+                <Tag color="processing">{`Citas en proceso ${value.appointment?.proccess ?? ''}`}</Tag>
+                <Tag color="default">{`Citas finalizadas ${value.appointment?.finshed ?? ''}`}</Tag>
+                <Tag color="error">{`Citas no atendidas ${value.appointment?.noAttended ?? ''}`}</Tag>
+            </div>
+        );
+    }
+
     return (
         <LayoutCard
             title={buildBranchOfficesTitle()}
@@ -85,9 +96,7 @@ const BranchOffices = (props: BranchOfficesProps) => {
                             <List.Item>
                                 <Card key={index} title={value.name} className="m-2 cursor-pointer" actions={buildActions(value)}>
                                     <SectionElement label={Strings.phoneNumber} value={value.primaryContact} icon={<RiPhoneLine />} />
-                                    {props.type == BranchOfficeType.APPOINTMENTS && <div className="flex">
-                                        <Tag color="processing">Citas {value.appointmens}</Tag>
-                                    </div>}
+                                    {props.type == BranchOfficeType.APPOINTMENTS && buildAppointmentStatus(value)}
 
                                     {props.type == BranchOfficeType.SCHEDULES && <div className="flex gap-2 mt-4">
                                         <Button onClick={() => {

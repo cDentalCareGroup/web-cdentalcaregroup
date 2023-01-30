@@ -43,7 +43,6 @@ const Calls = () => {
 
 
     const buildActions = (index: number, value: GetCalls): JSX.Element[] => {
-        console.log(index)
         if (index == 0) {
             return [
                 <span onClick={() => {

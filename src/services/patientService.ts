@@ -80,6 +80,14 @@ export const patientService = apiSlice.injectEndpoints({
         }),
         transformResponse: (response: { data: Colonies }, meta, arg) => response.data,
       }),
+      updatePatientLatLng: builder.mutation<any, any>({
+        query: (data) => ({
+          url: '/patient/update/latlng',
+          method: "POST",
+          body:{...data}
+        }),
+        transformResponse: (response: { data: any }, meta, arg) => response.data,
+      }),
     })
   });
   
@@ -92,5 +100,6 @@ export const patientService = apiSlice.injectEndpoints({
     useGetPatientMutation,
     useUpdatePatientMutation,
     useGetPatientOrganizationsMutation,
-    useGetColoniesFromZipCodeMutation
+    useGetColoniesFromZipCodeMutation,
+    useUpdatePatientLatLngMutation
   } = patientService;

@@ -48,6 +48,7 @@ class Strings {
     static status = "Estatus"
     static appointment = "Cita"
     static appointments = "Citas"
+    static service = "Servicio";
 
     //button actions
     static accept = 'Aceptar';
@@ -124,7 +125,7 @@ class Strings {
     static callTypes = "Tipos de llamada"
     static searchCallTypes = "'Buscar tipo de llamada'"
 
-    static appVersion = 'v.1.0.9';
+    static appVersion = 'v.1.0.14';
 }
 
 export default Strings;

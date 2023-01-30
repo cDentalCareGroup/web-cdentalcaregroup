@@ -9,8 +9,8 @@ import { Patient } from "../../data/patient/patient";
 import SelectItemOption from "../../data/select/select.item.option";
 import { branchOfficesToSelectOptionItemEmptyDescription } from "../../data/select/select.item.option.extensions";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
-import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
-import { handleErrorNotification } from "../../utils/Notifications";
+import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation, useUpdatePatientLatLngMutation } from "../../services/patientService";
+import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Filters from "../components/Filters";
 import Map from "../components/Map";
 import {
@@ -27,12 +27,15 @@ import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPati
 import Strings from "../../utils/Strings";
 import LayoutCard from "../layouts/LayoutCard";
 import { Link } from "react-router-dom";
+import { UpdateLatLngRequest } from "../../data/maps/latitude.request";
 
 
 const MapFilter = () => {
     const [getPatientsByBranchOffice] = useGetPatientsByBranchOfficeMutation();
     const [getPatientsMutation] = useGetPatientsMutation();
     const [getBranchOffices, { isLoading }] = useGetBranchOfficesMutation();
+    const [updatePatientLatLng] = useUpdatePatientLatLngMutation();
+
     const [data, setData] = useState<BranchOffice[]>([]);
     const [filters, setFilters] = useState<SelectItemOption[]>([]);
     const [patients, setPatients] = useState<Patient[]>([]);
@@ -120,10 +123,11 @@ const MapFilter = () => {
     };
 
 
-    const handleUpdateLatLng = async() => {
+    const handleUpdateLatLng = async () => {
         try {
-                console.log(latitude);
-                console.log(longitude)
+            await updatePatientLatLng(new UpdateLatLngRequest(latitude, longitude, selectedPatient?.id ?? 0)).unwrap();
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+            setIsOpen(false);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -150,17 +154,17 @@ const MapFilter = () => {
                             <SectionElement label={Strings.address} value={buildPatientAddress(selectedPatient)} icon={<RiUserLocationLine className="text-gray-500" />} />
 
                             <div className="flex w-full items-end justify-end">
-                            <Link
-                                to='#'
-                                onClick={(e) => {
-                                    window.open(
-                                        `https://www.google.com/maps/search/?api=1&query=${selectedPatient?.lat},${selectedPatient?.lng}`,
-                                        '_blank', 'noopener,noreferrer');
-                                    e.preventDefault();
-                                }}>
-                                <Button type="link" size="small">Ver dirección del paciente</Button>
-                            </Link>
-                        </div>
+                                <Link
+                                    to='#'
+                                    onClick={(e) => {
+                                        window.open(
+                                            `https://www.google.com/maps/search/?api=1&query=${selectedPatient?.lat},${selectedPatient?.lng}`,
+                                            '_blank', 'noopener,noreferrer');
+                                        e.preventDefault();
+                                    }}>
+                                    <Button type="link" size="small">Ver dirección del paciente</Button>
+                                </Link>
+                            </div>
                             <br />
                             <span className="text text-base font-bold text-gray-500">Actualizar coordenadas</span>
                             <br />

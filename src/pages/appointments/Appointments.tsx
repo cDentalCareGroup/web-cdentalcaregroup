@@ -8,7 +8,7 @@ import { handleErrorNotification } from "../../utils/Notifications";
 import LayoutCard from "../layouts/LayoutCard";
 import SingleFilters from '../components/SingleFilters';
 import { AppointmentDetail } from "../../data/appointment/appointment.detail";
-import {  getPatientName } from "../../data/patient/patient.extensions";
+import { getPatientName } from "../../data/patient/patient.extensions";
 import AppointmentCard from "./components/AppointmentCard";
 import Constants from "../../utils/Constants";
 import useSessionStorage from "../../core/sessionStorage";
@@ -42,23 +42,20 @@ const Appointments = (props: AppointmentsProps) => {
     const handleGetAppointmentsByBranchOffice = async (status: string) => {
         try {
             setIsLoading(true);
-            const response = await getAppointmentsByBranchOffice({ id: Number(branchId) }).unwrap();
+            const response = await getAppointmentsByBranchOffice({ id: Number(branchId), status: status }).unwrap();
             setData(response);
-            handleFilterAppointments(response, status);
+            setAppointments(sortAppointments(response, status));
+            setIsLoading(false);
+            setIsFiltering(false);
         } catch (error) {
             handleErrorNotification(error);
         }
-    }
-    const handleFilterAppointments = (response: AppointmentDetail[], query: string) => {
-        setAppointments(sortAppointments(response, query));
-        setIsLoading(false);
-        setIsFiltering(false);
     }
 
     const handleOnSearch = (query: string, shoudlSearch: Boolean) => {
         if (query == '' || query == null) {
             handleGetAppointmentsByBranchOffice('activa');
-        } else if(shoudlSearch) {
+        } else if (shoudlSearch) {
             setAppointments([]);
             setIsFiltering(true);
             const result = data?.filter((value) =>
@@ -70,7 +67,7 @@ const Appointments = (props: AppointmentsProps) => {
             setAppointments(result);
             setTimeout(() => {
                 setIsFiltering(false);
-            },200)
+            }, 200)
         }
     }
     const handleOnFilterChange = async (value: SelectItemOption) => {
@@ -96,8 +93,10 @@ const Appointments = (props: AppointmentsProps) => {
     const onStatusChange = (value: string) => {
         if (value == 'proceso') {
             setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[1]);
-        } else if(value == 'finalizada-cita'){
+        } else if (value == 'finalizada-cita') {
             setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[3]);
+        } else if (value == 'activa'){
+            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[0]);
         }else {
             setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[2]);
         }
