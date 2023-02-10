@@ -35,7 +35,6 @@ const EmployeeInfoCard = () => {
     }
 
 
-
     const tabs: any[] = [
         {
             label: <div className="flex items-baseline gap-1 justify-center"><RiFileList3Line /><span className="text text-sm">Informacion del empleado</span></div>,

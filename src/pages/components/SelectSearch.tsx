@@ -13,8 +13,6 @@ interface SelectSearchProps {
 
 const SelectSearch = ({ placeholder, onChange, items, icon, defaultValue }: SelectSearchProps) => {
 
-
-
   const handleOnChange = (option: number) => {
     const item = items.find((value, _) => value.id == option);
     if (item != null) {

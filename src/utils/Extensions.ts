@@ -49,7 +49,7 @@ const getUserRol = (user: User): UserRoles => {
       .replace(/\s+/g, '')
       .includes(callCenter.toLowerCase().replace(/\s+/g, ''));
 
-    return isReceptionist ? UserRoles.RECEPTIONIST : isCallCenter ? UserRoles.CALL_CENTER: UserRoles.UNDEFINED;
+    return isReceptionist ? UserRoles.RECEPTIONIST : isCallCenter ? UserRoles.CALL_CENTER : UserRoles.UNDEFINED;
   }
 }
 
@@ -169,4 +169,36 @@ const RESPONSIVE_LIST_SMALL = {
   xl: 2,
   xxl: 2,
 };
-export { getInitRoute, getUserRol, dayName, monthName, isAdmin, capitalizeFirstLetter, RESPONSIVE_LIST, RESPONSIVE_LIST_SMALL }
+
+
+const formatter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+});
+
+const formatPrice = (price: number): string => {
+  return formatter.format(price);
+}
+
+
+const stringToDate = (data: string): Date => {
+  const arrayDate = data.split('-');
+  const date = new Date();
+  date.setFullYear(Number(arrayDate[0]));
+  date.setMonth(Number(arrayDate[1]) - 1);
+  date.setDate(Number(arrayDate[2]))
+  return date;
+}
+
+export {
+  getInitRoute,
+  getUserRol,
+  dayName,
+  monthName,
+  isAdmin,
+  capitalizeFirstLetter,
+  RESPONSIVE_LIST,
+  RESPONSIVE_LIST_SMALL,
+  formatPrice,
+  stringToDate
+}

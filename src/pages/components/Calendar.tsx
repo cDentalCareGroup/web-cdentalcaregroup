@@ -28,9 +28,10 @@ interface CalendarProps {
   handleOnSelectDate: (date: Date) => void;
   handleOnSelectTime: (date: any) => void;
   isLoading: Boolean;
+  validateTime: boolean;
   orientation?: string;
 }
-const Calendar = ({ availableHours, handleOnSelectDate, isLoading, handleOnSelectTime, orientation }: CalendarProps) => {
+const Calendar = ({ availableHours, handleOnSelectDate, isLoading, handleOnSelectTime, orientation, validateTime }: CalendarProps) => {
   const today = startOfToday();
   const [selectedDay, setSelectedDay] = useState(today);
   const [currentMonth, setCurrentMonth] = useState(format(today, "MMM-yyyy"));
@@ -59,6 +60,9 @@ const Calendar = ({ availableHours, handleOnSelectDate, isLoading, handleOnSelec
   };
 
   const validateHours = (data: string[]): string[] => {
+    if (!validateTime) {
+      return data;
+    }
     if (selectedDay.getDate() != (new Date()).getDate()) {
       return data;
     }
@@ -67,7 +71,7 @@ const Calendar = ({ availableHours, handleOnSelectDate, isLoading, handleOnSelec
     let newData: string[] = []
     data.forEach((value, index) => {
       const hourToCheck = value.split(':')[0]
-      if (parseInt(hourToCheck) > parseInt(hour)) {
+      if (parseInt(hourToCheck) >= parseInt(hour)) {
         newData.push(value)
       }
     });

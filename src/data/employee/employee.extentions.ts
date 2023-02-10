@@ -34,7 +34,7 @@ const buildEmployeeEmail = (employee: Employee): string => {
   return `-`;
 }
 const buildEmployeeNumber = (employee: Employee): string => {
-  return `${employee.primaryContact}`;
+  return `${employee?.primaryContact ?? '-'}`;
 }
 
 export { 

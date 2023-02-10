@@ -21,25 +21,26 @@ export class UpdateAppointmentStatusRequest {
   status: string;
   amount: string;
   paymentMethod: number;
-  serviceId: number;
-  constructor(id: number, status: string, amount: string, paymentMethod: number, serviceId: number) {
+  servicesId: number[];
+  constructor(id: number, status: string, amount: string, paymentMethod: number, servicesId: number[]) {
     this.id = id;
     this.status = status;
     this.amount = amount;
     this.paymentMethod = paymentMethod;
-    this.serviceId = serviceId;
+    this.servicesId = servicesId;
   }
 }
 export class GetAppointmentAvailabilityRequest {
   branchOfficeName: string;
   dayName: string;
   date: Date;
-
+  filterHours?: boolean;
   constructor(branchOfficeName: string,
-    dayName: string, date: Date) {
+    dayName: string, date: Date, filterHours?: boolean) {
     this.branchOfficeName = branchOfficeName;
     this.dayName = dayName;
     this.date = date;
+    this.filterHours = filterHours;
   }
 
 }
@@ -102,7 +103,8 @@ export class RegisterNextAppointmentRequest {
   dentistId: string;
   hasLabs: number;
   hasCabinet: number;
-  service: number;
+  services: number[];
+  nextAppointmentId: number;
 
   constructor(
     patientId: number,
@@ -110,7 +112,8 @@ export class RegisterNextAppointmentRequest {
     dentistId: string,
     hasLabs: number,
     hasCabinet: number,
-    service: number,
+    services: number[],
+    nextAppointmentId: number,
     date?: Date,
     time?: AvailableTime) {
     this.date = date;
@@ -120,7 +123,8 @@ export class RegisterNextAppointmentRequest {
     this.dentistId = dentistId;
     this.hasLabs = hasLabs;
     this.hasCabinet = hasCabinet;
-    this.service = service;
+    this.services = services;
+    this.nextAppointmentId = nextAppointmentId;
   }
 
 }
@@ -163,8 +167,8 @@ export class UpdateHasLabsAppointmentRequest {
   id: number;
   hasLabs: number;
   constructor(id: number, hasLabs: number) {
-      this.id = id;
-      this.hasLabs = hasLabs;
+    this.id = id;
+    this.hasLabs = hasLabs;
   }
 }
 
@@ -172,7 +176,21 @@ export class UpdateHasCabinetAppointmentRequest {
   id: number;
   hasCabinet: number;
   constructor(id: number, hasCabinet: number) {
-      this.id = id;
-      this.hasCabinet = hasCabinet;
+    this.id = id;
+    this.hasCabinet = hasCabinet;
+  }
+}
+
+
+export class ExtendAppointmentRequest {
+  id: number;
+  times: string[];
+  appointment: string;
+  constructor(id: number,
+    times: string[],
+    appointment: string) {
+    this.id = id;
+    this.times = times;
+    this.appointment = appointment;
   }
 }

@@ -1,6 +1,6 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
-import { RiCalendar2Line, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { RiCalendar2Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
 import { Button, Form, Input, Radio, Row, Select, Tag } from "antd";
@@ -14,13 +14,13 @@ import SelectSearch from "../../components/SelectSearch";
 import { useGetPatientsMutation } from "../../../services/patientService";
 import { FilterEmployeesRequest } from "../../../data/filter/filters.request";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../../data/filter/filters";
-import { appointmentToBranchOfficeSelectItemOption, appointmentToDentistSelectItemOption, branchOfficesToSelectOptionItem, patientsToSelectItemOption } from "../../../data/select/select.item.option.extensions";
-import { useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useGetPaymentMethodsMutation, useGetServicesMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasCabinetAppointmentMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
-import { AppointmentAvailbilityByDentistRequest, GetAppointmentAvailabilityRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasCabinetAppointmentRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
+import { appointmentToBranchOfficeSelectItemOption, appointmentToDentistSelectItemOption, appointmentToPatientSelectItemOption, branchOfficesToSelectOptionItem, patientsToSelectItemOption, timesToSelectItemOption } from "../../../data/select/select.item.option.extensions";
+import { useExtendAppointmentMutation, useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useGetPaymentMethodsMutation, useGetServicesMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasCabinetAppointmentMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
+import { AppointmentAvailbilityByDentistRequest, ExtendAppointmentRequest, GetAppointmentAvailabilityRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasCabinetAppointmentRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
 import { useAppSelector } from "../../../core/store";
 import { selectCurrentUser } from "../../../core/authReducer";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../../utils/Notifications";
-import { dayName, isAdmin } from "../../../utils/Extensions";
+import { dayName, isAdmin, stringToDate } from "../../../utils/Extensions";
 import Calendar from "../../components/Calendar";
 import { AvailableTime } from "../../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../../data/appointment/available.times.extensions";
@@ -32,11 +32,12 @@ import useSessionStorage from "../../../core/sessionStorage";
 import Constants from "../../../utils/Constants";
 import { useNavigate } from "react-router-dom";
 import Strings from "../../../utils/Strings";
-import { getAppointmentStatus } from "../../../data/appointment/appointment.extensions";
+import { extendedTimesToShow, filterExtendedAvailableTimes, getAppointmentStatus } from "../../../data/appointment/appointment.extensions";
 import { Employee } from "../../../data/employee/employee";
 import { PaymentMethod } from "../../../data/payment/payment.method";
 import { servicesToSelectItemOption } from "../../../data/service/service.extentions";
 import RegisterCall from "../../callcenter/RegisterCall";
+import MultiSelectSearch from "../../components/MultiSelectSearch";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -61,12 +62,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [updateHasCabinetAppointment] = useUpdateHasCabinetAppointmentMutation();
     const [getPaymentMethods] = useGetPaymentMethodsMutation();
     const [getServices] = useGetServicesMutation();
+    const [extendAppointment] = useExtendAppointmentMutation();
 
     const [paymentMethodList, setPaymentMethodList] = useState<PaymentMethod[]>([]);
     const [paymentMethodId, setPaymentMethodId] = useState(0);
 
     const [serviceList, setServiceList] = useState<SelectItemOption[]>([]);
-    const [service, setService] = useState<SelectItemOption>();
+    const [services, setServices] = useState<number[]>();
 
 
     const [dentistList, setDentistList] = useState<SelectItemOption[]>([]);
@@ -90,6 +92,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const scrollRef = useRef<any>(null);
     const [hasLabs, setHasLabs] = useState(0);
     const [hasCabinet, setHasCabinet] = useState(0);
+
+    const [modalExtendAppointment, setModalExtendAppointment] = useState(false);
+    const [extendedTimesList, setExtendedTimesList] = useState<SelectItemOption[]>([]);
+    const [extendedAvailableTimes, setExtendedAvailableTimes] = useState<number[]>([]);
+    const [isExtendTimesLoading, setIsExtendTimesLoading] = useState(false);
 
     const user = useAppSelector(selectCurrentUser);
     const navigate = useNavigate();
@@ -118,8 +125,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const handleOnSetDentist = async () => {
-        await handleGetPatients();
         await handleGetDentist();
+        if (data.dentist != null && data.dentist != undefined) {
+            const dentist = appointmentToDentistSelectItemOption(data);
+            setDentist(dentist);
+        }
+        await handleGetPatients();
+        if (data.patient != null && data.patient != undefined) {
+            const defaultPatient = appointmentToPatientSelectItemOption(data);
+            setPatient(defaultPatient);
+        }
         setModalDentist(true);
     }
 
@@ -208,7 +223,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     handleErrorNotification(Constants.EMPTY_COST);
                     return;
                 }
-                if (service == null || service == undefined) {
+                if (services?.length == null || services.length == 0) {
                     handleErrorNotification(Constants.EMPTY_SERVICE);
                     return;
                 }
@@ -220,7 +235,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     status,
                     amount,
                     paymentMethodId,
-                    service?.id ?? 0
+                    services ?? []
                 )).unwrap();
             setData(response);
             onStatusChange(status);
@@ -235,12 +250,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return data.appointment.status == 'proceso'
     }
 
+    const canExtendAppointment = (): boolean => {
+        return data.appointment.status == 'proceso' ||
+            data.appointment.status == 'activa'
+    }
+
     const handleGetAppointmentAvailability = async (date: Date, branchOffice: string) => {
         try {
             setIsCalendarLoading(true);
             const response = await getAppointmentAvailability(
-                new GetAppointmentAvailabilityRequest(branchOffice.split("-")[0], dayName(date), date
-                )
+                new GetAppointmentAvailabilityRequest(branchOffice.split("-")[0], dayName(date), date)
             ).unwrap();
             setTimes(availableTimesToTimes(response));
             setDate(date);
@@ -400,7 +419,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const handleOnRegisterNextAppointment = async () => {
         try {
-            if (service == null || service == undefined) {
+            if (services?.length == null || services.length == 0) {
                 handleErrorNotification(Constants.EMPTY_SERVICE);
                 return;
             }
@@ -413,7 +432,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     dentist?.id.toString() ?? '0',
                     hasLabs,
                     hasCabinet,
-                    service?.id ?? 0,
+                    services ?? [],
+                    appointment.appointment.id ?? 0,
                     date,
                     dateTime,
                 )
@@ -472,15 +492,26 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
 
+    const buildServices = (): string | JSX.Element[] => {
+        if (appointment.services != null && appointment.services.length > 0) {
+            const services = appointment.services?.map((value, index) => <span key={index}>{value.name}</span>);
+            return services;
+        }
+        return `-`
+    }
+
     const CardContent = (): JSX.Element => {
         return <>
+            {data.patient && <SectionElement label={Strings.patientId} value={`${data.patient?.id}`} icon={<RiHashtag />} />}
             <SectionElement label={Strings.pad} value={getPatientPad(data)} icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.dateAndTime} value={`${data.appointment.appointment} ${data.appointment.time}`} icon={<RiCalendar2Line />} />
             <SectionElement label={Strings.branchOffice} value={data.branchOffice.name} icon={<RiMentalHealthLine />} />
             <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />
             <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
-            <SectionElement label={Strings.service} value={data.service?.name ?? '-'} icon={<RiServiceLine />} />
+            <SectionElement label={Strings.services} value={buildServices()} icon={<RiServiceLine />} />
+            {data.extendedTimes != null && data.extendedTimes.length > 0 &&
+                <SectionElement label={'Cita extendida'} value={extendedTimesToShow(data)} icon={<RiCalendar2Line />} />}
             {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' &&
                 <div className="flex flex-col flex-wrap">
                     <div className="ml-2 flex flex-col items-baseline gap-2 mb-2">
@@ -510,22 +541,23 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const canRegisterNextAppointment = (): boolean => {
-        return data.appointment.status == 'finalizada'
-            && (data.patient?.nextDateAppointment == undefined || data.patient?.nextDateAppointment == null)
+         return data.appointment.status == 'finalizada'
+         && (data.appointment.nextAppointmentId == null || data.appointment.nextAppointmentId == undefined)
     }
 
     const buildNextAppointmentText = (): string => {
-        if (data.patient?.nextDateAppointment != null) {
-            if (isToday(parseISO(data.patient?.nextDateAppointment.toString()))) {
-                return `Hoy a las ${data.patient.nextDateAppointment.toString().split(' ')[1]}`;
+        if (data.appointment?.nextAppointmentDate != null) {
+            if (isToday(parseISO(data.appointment?.nextAppointmentDate.toString()))) {
+                return `Hoy`;
             } else {
-                return `${data.patient?.nextDateAppointment}`
+                return `${data.appointment.nextAppointmentDate}`
             }
         }
-        return ``;
+        return `-`;
     }
     const showNextAppointment = (): boolean => {
-        return data.patient?.nextDateAppointment != undefined || data.patient?.nextDateAppointment != null
+        return data.appointment.nextAppointmentId != null && 
+        data.appointment.nextAppointmentId != 0
     }
 
     const handleSetModalFinish = async () => {
@@ -550,6 +582,61 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             handleErrorNotification(error);
         }
     }
+
+    const canSetDentist = (): boolean => {
+        return data.appointment.status == 'activa'
+    }
+
+    const handleOnExtendAppointment = async () => {
+        try {
+            const appointmentDate = stringToDate(data.appointment.appointment);
+            const response = await getAppointmentAvailability(
+                new GetAppointmentAvailabilityRequest(
+                    data.branchOffice.name,
+                    dayName(appointmentDate), appointmentDate)
+            ).unwrap();
+            setExtendedTimesList(
+                timesToSelectItemOption(filterExtendedAvailableTimes(appointment, response))
+            );
+            setModalExtendAppointment(true);
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
+
+    const handleExtendAppointment = async () => {
+        if (extendedAvailableTimes.length == 0) {
+            handleErrorNotification(Constants.EMPTY_TIMES);
+            return;
+        }
+        setIsExtendTimesLoading(true);
+        let times: string[] = [];
+        for (const item of extendedAvailableTimes) {
+            const value = extendedTimesList.find((_, index) => index == item);
+            if (value != null && value.description != undefined) {
+                times.push(value.description);
+            }
+        }
+        try {
+            const response = await extendAppointment(
+                new ExtendAppointmentRequest(
+                    data.appointment.id,
+                    times,
+                    data.appointment.appointment
+                )
+            ).unwrap();
+            setData(response);
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+            setExtendedAvailableTimes([]);
+            setExtendedTimesList([]);
+            setIsExtendTimesLoading(false);
+            setModalExtendAppointment(false);
+        } catch (error) {
+            setIsExtendTimesLoading(false);
+            handleErrorNotification(error);
+        }
+    }
+
     return (
         <div className="m-2">
             <Card title={!hideContent ? getPatientName(data) : ''} bordered={!hideContent} actions={
@@ -564,13 +651,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 ]}>
                 {!hideContent && CardContent()}
                 <Row className="mt-4 gap-2">
-                    {!data.dentist && data.appointment.status != 'no-atendida' && <Button onClick={() => handleOnSetDentist()} >Asignar dentista</Button>}
+                    {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >
+                        {!data.dentist ? 'Asignar dentista' : 'Cambiar dentista'}
+                    </Button>}
                     {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >Iniciar cita</Button>}
                     {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >Reagendar</Button>}
-                    {canFinish() && <Button loading={isActionLoading} onClick={() => {
-                        handleSetModalFinish()
-                    }} >Finalizar cita</Button>}
+                    {canFinish() && <Button type="primary" loading={isActionLoading} onClick={() => { handleSetModalFinish() }} >Finalizar cita</Button>}
+                    {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >Extender cita</Button>}
                     {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
+                    {canRegisterNextAppointment() && <RegisterCall patientId={data?.patient?.id} appointmentId={data?.appointment.id} />}
+
                 </Row>
 
             </Card>
@@ -583,8 +673,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 <span className="flex mt-2 mb-1">Costo de la cita</span>
                 <Input addonBefore="$" size="large" value={amount} onChange={((event) => setAmount(event.target.value))} prefix={<></>} placeholder='10.00' />
 
-                <span className="flex mt-2">Tipo de servicio</span>
-                <SelectSearch icon={<></>} placeholder="Tipo de servicio" items={serviceList} onChange={(event) => setService(event)} />
+                <span className="flex mt-2">Tipo de servicios</span>
+                <MultiSelectSearch icon={<></>} placeholder="Servicios" items={serviceList} onChange={(event) => setServices(event)} />
             </Modal>
 
             <Modal title={'Asignar dentista'} okText={'Guardar'} confirmLoading={isActionLoading} open={modalDentist} onOk={() => handleOnSaveDentist()} onCancel={() => {
@@ -592,12 +682,23 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 setModalDentist(false)
             }}>
                 <br />
-                <SelectSearch placeholder="Selecciona un paciente" items={patientList} onChange={(value) => setPatient(value)} icon={<RiUser3Line />} />
+                <SelectSearch
+                    placeholder="Selecciona un paciente"
+                    items={patientList}
+                    onChange={(value) => setPatient(value)}
+                    icon={<RiUser3Line />}
+                    defaultValue={patient?.id}
+                />
                 <div className="flex w-full items-end justify-end my-2">
                     <Button type="link" size="small" onClick={() => handleGetPatients()}>Actualizar pacientes</Button>
                 </div>
                 <br />
-                <SelectSearch placeholder="Selecciona un dentista" items={dentistList} onChange={(value) => setDentist(value)} icon={<RiMentalHealthLine />} />
+                <SelectSearch
+                    placeholder="Selecciona un dentista"
+                    defaultValue={dentist?.id}
+                    items={dentistList}
+                    onChange={(value) => setDentist(value)}
+                    icon={<RiMentalHealthLine />} />
 
             </Modal>
 
@@ -613,7 +714,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     defaultValue={branchOffice?.id ?? 0}
                 />
                 <br />
-                {branchOffice != undefined && <Calendar availableHours={times}
+                {branchOffice != undefined && <Calendar validateTime={false} availableHours={times}
                     handleOnSelectDate={handleOnSelectDate}
                     isLoading={isCalendarLoading}
                     handleOnSelectTime={(value) => setTime(value)} />}
@@ -630,7 +731,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             </Modal>
 
 
-            <Modal title={`Agendar proxima cita para Paciente #${data?.patient?.id} ${getPatientName(data)}`} width={'50%'} confirmLoading={isActionLoading} onOk={() => handleOnRegisterNextAppointment()} okText='Aceptar' open={modalNextAppointment} onCancel={() => setModalNextAppointment(false)}>
+            <Modal title={`Agendar próxima cita para Paciente #${data?.patient?.id} ${getPatientName(data)}`} width={'50%'} confirmLoading={isActionLoading} onOk={() => handleOnRegisterNextAppointment()} okText='Aceptar' open={modalNextAppointment} onCancel={() => setModalNextAppointment(false)}>
                 <br />
 
                 <SelectSearch
@@ -667,12 +768,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                         </Radio.Group>
                     </div>
 
-                    <span className="flex mt-2">Tipo de servicio</span>
-                    <SelectSearch icon={<></>} placeholder="Tipo de servicio" items={serviceList} onChange={(event) => setService(event)} />
+                    <span className="flex mt-2">Tipo de servicios</span>
+                    <MultiSelectSearch icon={<></>} placeholder="Servicios" items={serviceList} onChange={(event) => setServices(event)} />
                 </div>
 
                 <br />
                 <Calendar availableHours={times}
+                    validateTime={false}
                     handleOnSelectDate={handleOnCalendarDentistChange}
                     isLoading={isCalendarLoading}
                     handleOnSelectTime={(value) => {
@@ -690,6 +792,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                         branchOfficeName={branchOffice?.label} />}
 
                 <br ref={scrollRef} />
+            </Modal>
+
+
+            <Modal confirmLoading={isExtendTimesLoading} title='Extender cita' onOk={() => handleExtendAppointment()} open={modalExtendAppointment} onCancel={() => setModalExtendAppointment(false)} okText='Guardar'>
+                <span className="flex mt-2">Selecciona los horarios</span>
+                <MultiSelectSearch icon={<></>} placeholder="Horarios" items={extendedTimesList} onChange={(event) => setExtendedAvailableTimes(event)} />
             </Modal>
 
 

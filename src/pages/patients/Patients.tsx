@@ -2,7 +2,7 @@ import { Button, Card, Radio, Row, Space, Tag } from "antd";
 import Search from "antd/es/input/Search";
 import Modal from "antd/es/modal/Modal";
 import { useEffect, useState } from "react";
-import { RiMailLine, RiPhoneLine } from "react-icons/ri";
+import { RiHashtag, RiMailLine, RiPhoneLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
 import { DEFAULT_FILTERS } from "../../data/filter/filters";
@@ -144,7 +144,7 @@ const Patients = (props: PatientsProps) => {
                             setIsOpen(true);
                         }} danger>{'Estatus'}</Button>,
                         <Button type="dashed" onClick={() => {
-                            if(props.rol == UserRoles.ADMIN) {
+                            if (props.rol == UserRoles.ADMIN) {
                                 navigate(`/admin/patients/detail/${value.id}`)
                             } else {
                                 navigate(`/receptionist/patients/detail/${value.id}`)
@@ -152,6 +152,7 @@ const Patients = (props: PatientsProps) => {
                         }}>{Strings.seeInfo}</Button>
 
                     ]}>
+                        <SectionElement label={Strings.patientId} value={`${value.id}`} icon={<RiHashtag />} />
                         <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(value)} icon={<RiPhoneLine />} />
                         <SectionElement label={Strings.email} value={buildPatientEmail(value)} icon={<RiMailLine />} />
                         {getStautsTag(value)}

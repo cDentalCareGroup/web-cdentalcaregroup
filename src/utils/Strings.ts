@@ -5,7 +5,7 @@ class Strings {
     static password = "Contarseña";
     static username = "Usuario";
     static cDentalCare = "CDentalCare";
-    static group = "Group";
+    static group = "Grupal";
     static street = "Calle"
     static hasLabs = "Tiene laboratorios?";
     static hasCabinet = "Tiene estudios?";
@@ -16,6 +16,11 @@ class Strings {
     static script = "Diálogo"
     static simpleName = "Nombre";
     static goal = "Meta";
+    static price = "Precio"
+    static type = "Tipo"
+    static durationDays = "Duración en dias";
+
+    static individual = "Individual"
 
 
     static membership = "Membresía Pad"
@@ -49,7 +54,8 @@ class Strings {
     static appointment = "Cita"
     static appointments = "Citas"
     static service = "Servicio";
-
+    static services = "Servicios";
+    static patientId = "Folio de paciente"
     //button actions
     static accept = 'Aceptar';
     static return = "Regresar"
@@ -125,7 +131,7 @@ class Strings {
     static callTypes = "Tipos de llamada"
     static searchCallTypes = "'Buscar tipo de llamada'"
 
-    static appVersion = 'v.1.0.14';
+    static appVersion = 'v.1.0.16.1';
 }
 
 export default Strings;

@@ -1,19 +1,13 @@
 import { Appointment } from "../appointment/appointment";
 import { Patient } from "../patient/patient";
+import { Prospect } from "../prospect/prospect";
 import { Call } from "./call";
 import { CallCatalog } from "./call.catalog";
 
-export class GetCalls {
+export interface GetCalls {
     call: Call;
-    patient: Patient;
     catalog: CallCatalog;
+    patient?: Patient;
     appointment?: Appointment;
-    constructor(call: Call,
-        patient: Patient,
-        catalog: CallCatalog, appointment?: Appointment) {
-        this.call = call;
-        this.patient = patient;
-        this.appointment = appointment;
-        this.catalog = catalog;
-    }
+    propspect?: Prospect;
 }

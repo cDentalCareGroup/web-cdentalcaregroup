@@ -50,7 +50,7 @@ const Employees = () => {
             <div className="flex flex-col">
                 <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder='Buscar emploeado' onSearch={handleOnSearch} enterButton />
                 <div className="flex w-full items-end justify-end mt-4 mb-12">
-                    <Button type="primary" onClick={() => navigate('/admin/employees/register')}>Registrar emploeado</Button>
+                    <Button type="primary" onClick={() => navigate('/admin/employees/register')}>Registrar empleados</Button>
                 </div>
                 <List
                     grid={RESPONSIVE_LIST}

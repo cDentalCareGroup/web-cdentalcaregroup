@@ -51,7 +51,7 @@ const getSuccessMessage = (type: NotificationSuccess): string => {
     if (type == NotificationSuccess.SUCCESS_DELETE) {
         return 'Se elimino correctamente';
     }
-    
+
     return 'Se realizó correctamente';
 }
 
@@ -76,6 +76,18 @@ const getErrorMessage = (message: string): string => {
     }
     if (message == Constants.EMPTY_COST) {
         return "Debes ingresar un costo, si no aplica ingresa 0"
+    }
+    if (message == Constants.EXISTING_SERVICE) {
+        return "Ya existe ese servicio";
+    }
+    if (message == 'REGISTER_EXISTS') {
+        return 'Ya existe un registro con esos datos'
+    }
+    if (message == Constants.EMPTY_TIMES) {
+        return 'Debes seleccionar al menos un horario para extender'
+    }
+    if (message == Constants.PATIENT_PAD_EXISTS) {
+        return 'El paciente seleccionado ya ha sido agregado'
     }
     return 'Ocurrio un error, intenta mas tarde';
 }

@@ -124,7 +124,7 @@ const RescheduleAppointment = () => {
                             />
                         </div>
 
-                        {branchOffice && <Calendar availableHours={times} handleOnSelectDate={handleOnDate} isLoading={isLoading} handleOnSelectTime={(value) => {
+                        {branchOffice && <Calendar validateTime={true} availableHours={times} handleOnSelectDate={handleOnDate} isLoading={isLoading} handleOnSelectTime={(value) => {
                             setTime(value);
                             window.scrollTo({ behavior: 'smooth', top: scrollRef.current.offsetTop })
 

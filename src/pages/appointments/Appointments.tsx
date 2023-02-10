@@ -48,6 +48,7 @@ const Appointments = (props: AppointmentsProps) => {
             setIsLoading(false);
             setIsFiltering(false);
         } catch (error) {
+            console.log(error);
             handleErrorNotification(error);
         }
     }
