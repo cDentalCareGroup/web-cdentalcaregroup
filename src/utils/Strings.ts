@@ -22,7 +22,7 @@ class Strings {
 
     static individual = "Individual"
 
-
+    static nameLabel = "Nombre"
     static membership = "Membresía Pad"
     static medicalRecord = "Ficha médica"
 

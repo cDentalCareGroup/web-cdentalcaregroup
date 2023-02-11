@@ -89,5 +89,12 @@ const getErrorMessage = (message: string): string => {
     if (message == Constants.PATIENT_PAD_EXISTS) {
         return 'El paciente seleccionado ya ha sido agregado'
     }
+    if (message == Constants.IS_INDIVIDUAL_PAD) {
+        return 'En el PAD individual solo puedes agregar un miembro';
+    }
+    if (message == Constants.MAX_MEMBERS_PAD) {
+        return 'Has llegado al número máximo de miembros permitidos para el PAD';
+    }
+
     return 'Ocurrio un error, intenta mas tarde';
 }

@@ -2,6 +2,7 @@ import { AppointmentDetail } from '../appointment/appointment.detail';
 import { AvailableTime } from '../appointment/available.time';
 import { BranchOffice } from '../branchoffice/branchoffice';
 import { Patient } from '../patient/patient';
+import { ServiceCategory } from '../service/service.category';
 import SelectItemOption from './select.item.option';
 const sortSelectItemOptions = (options: SelectItemOption[]): SelectItemOption[] => {
   return options.sort(compareSelectItemOptions);
@@ -100,7 +101,9 @@ const timesToSelectItemOption = (data: AvailableTime[]): SelectItemOption[] => {
   return data.map((value, index) => new SelectItemOption(index, value.time, index, value.simpleTime));
 }
 
-
+const serviceCategoriesToSelectItemOption = (data: ServiceCategory[]): SelectItemOption[] => {
+  return data.map((value, index) => new SelectItemOption(index, value.name, index, value.name));
+}
 
 export {
   sortSelectItemOptions,
@@ -112,5 +115,6 @@ export {
   appointmentToDentistSelectItemOption,
   branchOfficesToSelectOptionItemEmptyDescription,
   appointmentToPatientSelectItemOption,
-  timesToSelectItemOption
+  timesToSelectItemOption,
+  serviceCategoriesToSelectItemOption
 };

@@ -5,6 +5,8 @@ export class RegisterPadCatalogueRequest {
     type: string;
     day: number;
     status: boolean;
+    maxMembers: number;
+    maxAdditionals: number;
 
     constructor(
         name: string,
@@ -12,7 +14,9 @@ export class RegisterPadCatalogueRequest {
         price: number,
         type: string,
         day: number,
-        status: boolean
+        status: boolean,
+        maxMembers: number,
+        maxAdditionals: number
     ) {
         this.name = name;
         this.description = description;
@@ -20,6 +24,8 @@ export class RegisterPadCatalogueRequest {
         this.type = type;
         this.day = day;
         this.status = status;
+        this.maxAdditionals = maxAdditionals;
+        this.maxMembers = maxMembers;
     }
 }
 

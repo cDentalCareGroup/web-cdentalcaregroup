@@ -1,35 +1,48 @@
-import { Button, Modal, Popover, Table } from "antd";
+import { Button, Modal, Popover, RowProps, Table } from "antd";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiCouponLine, RiDeleteBin7Line, RiMentalHealthLine } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { DEFAULT_FILTERS } from "../../data/filter/filters";
 import { FilterEmployeesRequest } from "../../data/filter/filters.request";
+import { PadCatalogueDetail } from "../../data/pad/pad.catalogue.detail";
 import { padCatalogsToSelectItemOption } from "../../data/pad/pad.extensions";
 import SelectItemOption from "../../data/select/select.item.option";
 import { patientsToSelectItemOption } from "../../data/select/select.item.option.extensions";
 import User from "../../data/user/user";
-import { useGetPadCatalogsMutation } from "../../services/padService";
+import { useGetPadCatalogsMutation, useRegisterPadMutation } from "../../services/padService";
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { isAdmin } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
+import CustomFormInput from "../components/CustomFormInput";
 import SelectSearch from "../components/SelectSearch";
 import LayoutCard from "../layouts/LayoutCard";
-
+import { DndContext } from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 const FormPad = () => {
     const [getPadCatalogs] = useGetPadCatalogsMutation();
     const [getPatientsByBranchOffice] = useGetPatientsByBranchOfficeMutation();
+    const [registerPad] = useRegisterPadMutation();
     const [branchId, setBranchId] = useSessionStorage(Constants.BRANCH_ID, 0);
     const [session, setSession] = useSessionStorage(Constants.SESSION_AUTH, 0);
     const [getPatients] = useGetPatientsMutation();
     const [patientList, setPatientList] = useState<SelectItemOption[]>([]);
     const [padCatalogList, setPadCatalogList] = useState<SelectItemOption[]>([]);
+    const [padCatalogs, setPadCatalogs] = useState<PadCatalogueDetail[]>([]);
     const [data, setData] = useState<any[]>([]);
 
     const [patient, setPatient] = useState<SelectItemOption>();
     const [padCatalogue, setPadCatalogue] = useState<SelectItemOption>();
+    const [selectedPadCatalogue, setSelectedPadCatalogue] = useState<PadCatalogueDetail>();
+
     const [isTableLoading, setIsTableLoading] = useState(false);
 
     const [isOpenModal, setIsOpenModal] = useState(false);
@@ -49,6 +62,7 @@ const FormPad = () => {
     const handleGetPadCatalogs = async () => {
         try {
             const response = await getPadCatalogs({}).unwrap();
+            setPadCatalogs(response);
             setPadCatalogList(padCatalogsToSelectItemOption(response));
         } catch (error) {
             handleErrorNotification(error);
@@ -74,7 +88,6 @@ const FormPad = () => {
         }
     }
 
-
     const handleOnAddPatientToPad = () => {
         if (patient == null) {
             return
@@ -84,20 +97,31 @@ const FormPad = () => {
             handleErrorNotification(Constants.PATIENT_PAD_EXISTS)
             return;
         }
-        setIsTableLoading(true);
-        setData([]);
+
         let dataList = data;
+        if (selectedPadCatalogue?.type == 'individual' && dataList.length == 1) {
+            handleErrorNotification(Constants.IS_INDIVIDUAL_PAD)
+            return;
+        } else {
+            const maxMembers = (selectedPadCatalogue?.maxMemebers ?? 1) - 1;
+            if (dataList.length <= maxMembers) {
+                setIsTableLoading(true);
+                setData([]);
+                dataList.push({
+                    key: patient?.id,
+                    id: patient?.id,
+                    fullname: patient.label,
+                })
 
-        dataList.push({
-            key: patient?.id,
-            id: patient?.id,
-            fullname: patient.label,
-        })
-
-        setTimeout(() => {
-            setData(dataList);
-            setIsTableLoading(false);
-        }, 1000)
+                setTimeout(() => {
+                    setData(dataList);
+                    setIsTableLoading(false);
+                }, 1000)
+            } else {
+                handleErrorNotification(Constants.MAX_MEMBERS_PAD);
+                return;
+            }
+        }
     }
 
     const columns = [
@@ -133,16 +157,74 @@ const FormPad = () => {
         }, 1000)
     }
 
+    const disabledSelect = (): boolean => {
+        return padCatalogue != null && data.length > 0
+    }
+
+
+    const handleOnRegisterPad = async () => {
+
+        console.log(padCatalogue)
+        console.log(data);
+
+        try {
+            await registerPad({
+                'padCatalogueId': padCatalogue?.id,
+                'members': data.map((value, _) => value.id),
+                'adquisitionDate': format(new Date(), 'yyyy-MM-dd')
+            }).unwrap();
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+
+    //  class RegisterPadRequest {
+    //     padCatalogueId: number;
+
+    // }
+
+
+    const Row = (props: any) => {
+        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+            id: props['data-row-key'],
+        });
+
+        const style: React.CSSProperties = {
+            ...props.style,
+            transition,
+            cursor: 'move',
+            ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
+        };
+
+        return <tr {...props} ref={setNodeRef} style={style} {...attributes} {...listeners} />;
+    };
+
+    const onDragEnd = ({ active, over }: any) => {
+        if (active.id !== over?.id) {
+          setData((prev) => {
+            const activeIndex = prev.findIndex((i) => i.key === active.id);
+            const overIndex = prev.findIndex((i) => i.key === over?.id);
+            return arrayMove(prev, activeIndex, overIndex);
+          });
+        }
+      };
+
     return (<LayoutCard isLoading={false} content={
         <div>
             <Button onClick={() => setIsOpenModal(true)}>Agregar PAD</Button>
             <Modal width={'85%'} title='Registro de PAD' onCancel={() => setIsOpenModal(false)} onOk={() => setIsOpenModal(false)} open={isOpenModal} okText='Cerrar'>
                 <div className="flex flex-col">
-                    <div className="flex flex-row items-baseline gap-4 my-6">
+                    <div className="flex flex-row items-baseline gap-4 my-4">
                         <SelectSearch
                             placeholder="Selecciona un tipo de pad"
                             items={padCatalogList}
-                            onChange={(event) => setPadCatalogue(event)}
+                            disabled={disabledSelect()}
+                            onChange={(event) => {
+                                setSelectedPadCatalogue(padCatalogs.find((value, _) => value.id == event.id))
+                                setPadCatalogue(event)
+                            }}
                             icon={<RiCouponLine />}
                         />
                         <SelectSearch
@@ -154,14 +236,28 @@ const FormPad = () => {
                         <Button onClick={() => handleOnAddPatientToPad()}>Agregar</Button>
                     </div>
 
-                    <span className="text text-xs text-gray-600 mt-2 mb-4">Nota * El primer miembro de la lista será el miembro principal del PAD</span>
-                    <Table scroll={{ y: 300 }} loading={isTableLoading} columns={columns} dataSource={data} />
+
+                    <span className="text text-xs text-gray-600 mt-4 mb-4">Nota * El primer miembro de la lista será el miembro principal del PAD</span>
+
+                    <DndContext onDragEnd={onDragEnd}>
+                        <SortableContext
+                            // rowKey array
+                            items={data.map((i) => i.key)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <Table components={{
+                                body: {
+                                    row: Row,
+                                },
+                            }} rowKey="key" scroll={{ y: 300 }} loading={isTableLoading} columns={columns} dataSource={data} />
+                        </SortableContext>
+                    </DndContext>
 
                     <div className="flex justify-end items-end mt-4 mb-8">
                         <Popover placement="leftTop" content={
                             <div className="flex flex-col flex-wrap">
                                 <span className="text text-xs text-gray-600 mt-2 mb-4">Una vez guardado no se permitiran cambios. Estas seguro que deseas continuar?</span>
-                                <Button type="primary">Continuar</Button>
+                                <Button type="primary" onClick={() => handleOnRegisterPad()}>Continuar</Button>
                             </div>
                         } title="Confirmación" trigger="hover">
                             <Button type="primary">Guardar</Button>
@@ -172,6 +268,8 @@ const FormPad = () => {
         </div>
     } />);
 }
+
+
 
 export default FormPad;
 

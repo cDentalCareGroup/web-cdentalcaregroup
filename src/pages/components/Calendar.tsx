@@ -5,6 +5,7 @@ import {
   endOfMonth,
   format,
   getDay,
+  getMonth,
   isBefore,
   isEqual,
   isSameMonth,
@@ -38,7 +39,6 @@ const Calendar = ({ availableHours, handleOnSelectDate, isLoading, handleOnSelec
   const firstDayCurrentMonth = parse(currentMonth, "MMM-yyyy", new Date());
   const [showError, setShowError] = useState(false);
   const [selectedTime, setSelectedTime] = useState('');
-
   const days = eachDayOfInterval({
     start: firstDayCurrentMonth,
     end: endOfMonth(firstDayCurrentMonth),
@@ -66,10 +66,13 @@ const Calendar = ({ availableHours, handleOnSelectDate, isLoading, handleOnSelec
     if (selectedDay.getDate() != (new Date()).getDate()) {
       return data;
     }
+    if (getMonth(selectedDay) != getMonth(new Date())) {
+      return data;
+    }
     const splitDate = new Date().toLocaleString('en-GB').split(',')[1].split(':')
     const hour = splitDate[0]
     let newData: string[] = []
-    data.forEach((value, index) => {
+    data.forEach((value, _) => {
       const hourToCheck = value.split(':')[0]
       if (parseInt(hourToCheck) >= parseInt(hour)) {
         newData.push(value)
@@ -157,7 +160,7 @@ const Calendar = ({ availableHours, handleOnSelectDate, isLoading, handleOnSelec
                 onClick={previousMonth}
                 className="-my-1.5 flex flex-none border-none items-center bg-white cursor-pointer justify-center p-1.5 text-gray-400 hover:text-gray-500"
               >
-                 {validateMonths(currentMonth) && <RiArrowLeftSLine className="w-5 h-5" aria-hidden="true" />}
+                {validateMonths(currentMonth) && <RiArrowLeftSLine className="w-5 h-5" aria-hidden="true" />}
               </button>
               <button
                 onClick={nextMonth}

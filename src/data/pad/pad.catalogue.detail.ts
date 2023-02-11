@@ -10,5 +10,7 @@ export interface PadCatalogueDetail {
     status: string;
     day: number;
     components?: PadComponent[]
+    maxMemebers?: number
+    maxAdditional?: number
 }
 

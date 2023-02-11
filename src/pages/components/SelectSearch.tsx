@@ -8,10 +8,11 @@ interface SelectSearchProps {
   onChange: (value: SelectItemOption) => void;
   icon: JSX.Element;
   defaultValue?: number;
+  disabled?: boolean;
 
 }
 
-const SelectSearch = ({ placeholder, onChange, items, icon, defaultValue }: SelectSearchProps) => {
+const SelectSearch = ({ placeholder, onChange, items, icon, defaultValue,disabled }: SelectSearchProps) => {
 
   const handleOnChange = (option: number) => {
     const item = items.find((value, _) => value.id == option);
@@ -25,6 +26,7 @@ const SelectSearch = ({ placeholder, onChange, items, icon, defaultValue }: Sele
       {icon}
       <Select
         showSearch
+        disabled={disabled}
         placeholder={placeholder}
         optionFilterProp="children"
         onChange={handleOnChange}

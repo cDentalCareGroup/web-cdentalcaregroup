@@ -45,6 +45,8 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+    const [maxMembers, setMaxMembers] = useState('');
+    const [maxAditionals, setMaxAditionals] = useState('');
     const [isActive, setIsActive] = useState(true);
     const [components, setComponents] = useState<any[]>([]);
     const [isTableLoading, setIsTableLoading] = useState(false);
@@ -63,6 +65,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
 
     const handleGetPadCatalogueDetail = async () => {
         try {
+            
             setIsLoadingCard(true);
             const response = await getPadCatalogDetail({ 'id': id }).unwrap();
             setType(response.type);
@@ -75,6 +78,10 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             setDescription(response.description);
             setPrice(response.price);
             setIsActive(active);
+            if (type == 'grupal') {
+                setMaxAditionals(`${response.maxAdditional}`);
+                setMaxMembers(`${response.maxMemebers}`)
+            }
             setPadCatalogue(response);
             setComponents(padCatalogueDetailToDataTable(response));
             setIsLoadingCard(false);
@@ -106,7 +113,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             key: 'quantityPad',
         },
         {
-            title: 'Cantidad por paciente',
+            title: 'Cantidad maxima paciente',
             dataIndex: 'quantityPatient',
             key: 'quantityPatient',
         },
@@ -155,7 +162,8 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             setIsLoadingAction(true);
             const response = await registerPadCatalogue(
                 new RegisterPadCatalogueRequest(
-                    name, description, Number(price), type, Number(days), isActive
+                    name, description, Number(price), type, Number(days), isActive,
+                    Number(maxMembers), Number(maxAditionals)
                 )
             ).unwrap();
             setPadCatalogue(response);
@@ -230,6 +238,10 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                     <CustomFormInput value={description} label={Strings.description} onChange={(value) => setDescription(value)} isArea={true} placeholder="Pad para.." />
                     <CustomFormInput value={price} label={Strings.price} onChange={(value) => setPrice(value)} prefix="$" placeholder="0.0" />
                     <CustomFormInput value={days} label={Strings.durationDays} onChange={(value) => setDays(value)} placeholder="365" />
+                    {type == 'grupal' && <div>
+                        <CustomFormInput value={maxMembers} label={'Número de integrantes'} onChange={(value) => setMaxMembers(value)} placeholder="5" />
+                        <CustomFormInput value={maxAditionals} label={'Número de integrantes adicionales'} onChange={(value) => setMaxAditionals(value)} placeholder="5" />
+                    </div>}
 
                     <br />
                     <span>Estatus</span>
@@ -259,7 +271,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                         <SelectSearch icon={<></>} placeholder="Tipo de servicio" items={serviceList} onChange={(event) => setService(event)} />
                         <div className="flex flex-row  gap-4 mt-4">
                             <CustomFormInput value={quantityPad} label="Cantidad por pad" onChange={(value) => setQuantityPad(value)} prefix="#" />
-                            <CustomFormInput value={quantityPatient} label="Cantidad por paciente" onChange={(value) => setQuantityPatient(value)} prefix="#" />
+                            <CustomFormInput value={quantityPatient} label="Cantidad maxima paciente" onChange={(value) => setQuantityPatient(value)} prefix="#" />
                             <CustomFormInput value={discount} label="Descuento" onChange={(value) => setDiscount(value)} prefix="%" />
                             <Button className="mt-8" type="primary" onClick={handleAddComponent}>{Strings.save}</Button>
                         </div>

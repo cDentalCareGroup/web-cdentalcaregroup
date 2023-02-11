@@ -1,5 +1,7 @@
 import { PadCatalogue } from "../data/pad/pad.catalogue";
 import { PadCatalogueDetail } from "../data/pad/pad.catalogue.detail";
+import { Service } from "../data/service/service";
+import { ServiceCategory } from "../data/service/service.category";
 import { apiSlice } from "./apiSlice";
 
 export const padService = apiSlice.injectEndpoints({
@@ -27,6 +29,14 @@ export const padService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: PadCatalogueDetail }, _, __) => response.data,
         }),
+        registerPad: builder.mutation<any, any>({
+            query: (data) => ({
+                url: '/pad/register',
+                method: "POST",
+                body: { ...data }
+            }),
+            transformResponse: (response: { data: any }, _, __) => response.data,
+        }),
         updatePadCatalogue: builder.mutation<PadCatalogueDetail, any>({
             query: (data) => ({
                 url: '/pad/update/catalogue',
@@ -51,6 +61,37 @@ export const padService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: PadCatalogueDetail }, _, __) => response.data,
         }),
+
+        getServices: builder.mutation<Service[], any>({
+            query: (_) => ({
+                url: 'services',
+                method: "GET",
+            }),
+            transformResponse: (response: { data: Service[] }, _, __) => response.data,
+        }),
+        getServiceCategories: builder.mutation<ServiceCategory[], any>({
+            query: (_) => ({
+                url: 'services/categories',
+                method: "GET",
+            }),
+            transformResponse: (response: { data: ServiceCategory[] }, _, __) => response.data,
+        }),
+        registerService: builder.mutation<Service, any>({
+            query: (data) => ({
+                url: 'services/register',
+                method: "POST",
+                body:{...data}
+            }),
+            transformResponse: (response: { data: Service }, _, __) => response.data,
+        }),
+        updateService: builder.mutation<Service, any>({
+            query: (data) => ({
+                url: 'services/update',
+                method: "POST",
+                body:{...data}
+            }),
+            transformResponse: (response: { data: Service }, _, __) => response.data,
+        }),
     }),
 });
 
@@ -60,5 +101,10 @@ export const {
     useRegisterPadCatalogueComponentMutation,
     useDeletePadCatalogueComponentMutation,
     useGetPadCatalogDetailMutation,
-    useUpdatePadCatalogueMutation
+    useUpdatePadCatalogueMutation,
+    useGetServicesMutation,
+    useGetServiceCategoriesMutation,
+    useRegisterServiceMutation,
+    useUpdateServiceMutation,
+    useRegisterPadMutation
 } = padService;
