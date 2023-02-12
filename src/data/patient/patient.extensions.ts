@@ -1,5 +1,5 @@
 import { AppointmentDetail } from "../appointment/appointment.detail"
-import { Patient } from "./patient"
+import { PadComponentService, Patient } from "./patient"
 import { formatISO } from "date-fns";
 import { capitalizeFirstLetter } from "../../utils/Extensions";
 
@@ -8,9 +8,7 @@ const DEFAULT_FIELD_VALUE = "-"
 const buildPatientName = (patient: Patient | undefined): string => {
   return `${patient?.name} ${patient?.lastname} ${patient?.secondLastname}`
 }
-const buildPatientNextAppointment = (patient: Patient | undefined): string => {
-  return `${patient?.nextDateAppointment?.toString() ?? 'Sin visita'}`
-}
+
 const buildPatientAddress = (patient: Patient | undefined): string => {
   return `${patient?.street} ${patient?.number} ${patient?.colony} ${patient?.cp}`
 }
@@ -106,7 +104,7 @@ const getHasCabinet = (appointment: AppointmentDetail | undefined) => {
 const getPatientPad = (appointment: AppointmentDetail | undefined) => {
   if (appointment?.patient != null) {
     if (appointment.patient.pad) {
-      const pad = `${appointment?.patient?.padType} - ${appointment?.patient?.padAcquisitionDate} - ${appointment?.patient?.padExpirationDate}`
+      const pad = `${capitalizeFirstLetter(appointment?.patient?.padType)} - ${appointment?.patient?.padAcquisitionDate} - ${appointment?.patient?.padExpirationDate}`
       return pad;
     } else {
       return `Sin pad`;
@@ -146,12 +144,26 @@ const getPatientGender = (appointment: AppointmentDetail | undefined) => {
 }
 
 
+const padComponentsToDataTable = (components: PadComponentService[]): any[] => {
+  let data: any[] = [];
+  let index = 0;
+  for (const item of components) {
+      data.push({
+          key: index,
+          service: item.service.name,
+          discount: item.component.discount,
+          quantity: item.component.maxPatientQuantity,
+      })
+      index++;
+  }
+  return data;
+}
+
 
 
 
 export {
   buildPatientName,
-  buildPatientNextAppointment,
   buildPatientAddress,
   buildPatientPhone,
   buildPatientEmail,
@@ -170,5 +182,6 @@ export {
   getStartFinishedDate,
   buildPatientGender,
   buildPatientStartedAt,
-  getHasCabinet
+  getHasCabinet,
+  padComponentsToDataTable
 }

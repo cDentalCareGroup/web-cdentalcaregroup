@@ -148,7 +148,7 @@ const FormPad = (props: FormPadProps) => {
             key: 'action',
             render: (_: any, value: any) => (
                 <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
-                    <RiDeleteBin7Line size={20} onClick={() => handleOnDeletePatient(value.id)} className="text text-red-600" />
+                    <RiDeleteBin7Line size={20} onClick={() => handleOnDeletePatient(value.key)} className="text text-red-600" />
                 </div>
             ),
         },
@@ -211,20 +211,20 @@ const FormPad = (props: FormPadProps) => {
     }
 
 
-    const Row = (props: any) => {
-        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-            id: props['data-row-key'],
-        });
+    // const Row = (props: any) => {
 
-        const style: React.CSSProperties = {
-            ...props.style,
-            transition,
-            cursor: 'move',
-            ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
-        };
+    //     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    //         id: props['data-row-key'],
+    //     });
 
-        return <tr {...props} ref={setNodeRef} style={style} {...attributes} {...listeners} />;
-    };
+    //     const style: React.CSSProperties = {
+    //         ...props.style,
+    //         transition,
+    //         cursor: 'move',
+    //         ...(isDragging ? { position: 'relative', zIndex: 9999 } : {}),
+    //     };
+    //     return <tr {...props} ref={setNodeRef} style={style} {...attributes} {...listeners} />;
+    // };
 
     const onDragEnd = ({ active, over }: any) => {
         if (active.id !== over?.id) {
@@ -238,7 +238,7 @@ const FormPad = (props: FormPadProps) => {
 
     return (<LayoutCard isLoading={false} content={
         <div className="flex flex-col">
-            <div className="flex w-full items-end justify-end"> 
+            <div className="flex w-full items-end justify-end">
                 <Button type="primary" onClick={() => setIsOpenModal(true)}>Registrar PAD</Button>
             </div>
             <Modal confirmLoading={isLoading} width={'85%'} title='Registro de PAD' onCancel={() => setIsOpenModal(false)} onOk={() => setIsOpenModal(false)} open={isOpenModal} okText='Cerrar'>
@@ -272,9 +272,9 @@ const FormPad = (props: FormPadProps) => {
                             strategy={verticalListSortingStrategy}
                         >
                             <Table components={{
-                                body: {
-                                    row: Row,
-                                },
+                                // body: {
+                                //     row: Row,
+                                // },
                             }} rowKey="key" scroll={{ y: 300 }} loading={isTableLoading} columns={columns} dataSource={data} />
                         </SortableContext>
                     </DndContext>

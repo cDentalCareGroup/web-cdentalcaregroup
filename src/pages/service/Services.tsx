@@ -6,7 +6,7 @@ import SelectItemOption from "../../data/select/select.item.option";
 import { serviceCategoriesToSelectItemOption } from "../../data/select/select.item.option.extensions";
 import { Service } from "../../data/service/service";
 import { RegisterServiceRequest, UpdateServiceRequest } from "../../data/service/service.request";
-import { useGetServiceCategoriesMutation, useGetServicesMutation, useRegisterServiceMutation, useUpdateServiceMutation } from "../../services/padService";
+import { useGetAllServicesMutation, useGetServiceCategoriesMutation, useRegisterServiceMutation, useUpdateServiceMutation } from "../../services/padService";
 import { RESPONSIVE_LIST, RESPONSIVE_LIST_LARGE, RESPONSIVE_LIST_SMALL } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
@@ -17,7 +17,7 @@ import LayoutCard from "../layouts/LayoutCard";
 
 const Services = () => {
 
-    const [getServices, { isLoading }] = useGetServicesMutation();
+    const [getServices, { isLoading }] = useGetAllServicesMutation();
     const [getServiceCategories] = useGetServiceCategoriesMutation();
     const [registerService] = useRegisterServiceMutation();
     const [updateService] = useUpdateServiceMutation();
@@ -130,11 +130,9 @@ const Services = () => {
     const getStautsTag = (service: Service): JSX.Element => {
         if (service.status != null && service.status == 'activo') {
             return <Tag color="success">{service.status}</Tag>
+        } else {
+            return <Tag color="error">Inactivo</Tag>
         }
-        if (service.status != null && service.status == 'inactivo') {
-            return <Tag color="error">{service.status}</Tag>
-        }
-        return <></>;
     }
 
     return (
@@ -157,7 +155,7 @@ const Services = () => {
                                     <SectionElement label={Strings.nameLabel} value={value.name} icon={<RiServiceLine />} />
                                     <SectionElement label={Strings.price} value={`$${value.price ?? 0}`} icon={<RiMoneyDollarCircleLine />} />
                                     {getStautsTag(value)}
-                               </Card>
+                                </Card>
                             </List.Item>
                         )}
                     />

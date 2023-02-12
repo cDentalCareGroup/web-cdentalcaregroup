@@ -2,8 +2,8 @@ import { Button, Divider, Form, InputNumber } from "antd";
 import Checkbox from "antd/es/checkbox/Checkbox";
 import Input from "antd/es/input/Input";
 import { useEffect, useRef, useState } from "react";
-import {  RiMailLine, RiPhoneLine, RiUser3Line } from "react-icons/ri";
-import { Link, useNavigate } from "react-router-dom";
+import { RiMailLine, RiPhoneLine, RiUser3Line } from "react-icons/ri";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { GetAppointmentAvailabilityRequest, RegisterAppointmentRequest } from "../../data/appointment/appointment.request";
 import { AvailableTime } from "../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../data/appointment/available.times.extensions";
@@ -39,8 +39,10 @@ const ScheduleAppointment = () => {
     const scrollRef = useRef<any>(null)
     const [isLoadingAction, setIsLoadingAction] = useState(false);
     const navigate = useNavigate();
+    const { referal } = useParams();
 
 
+    console.log(referal);
     useEffect(() => {
         handleGetBranchOffices();
     }, []);
@@ -77,7 +79,7 @@ const ScheduleAppointment = () => {
             setIsLoadingAction(true);
             const dateTime = availableTimes.find((value, _) => value.time == time);
             const response = await registerAppointment(
-                new RegisterAppointmentRequest(nameValue, phoneValue, date, dateTime, emailValue, branchOffice?.label.split("-")[0])
+                new RegisterAppointmentRequest(nameValue, phoneValue, date, dateTime, emailValue, branchOffice?.label.split("-")[0], referal)
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER_APPOINTMENT);
             setIsLoadingAction(false);

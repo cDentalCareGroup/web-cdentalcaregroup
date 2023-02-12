@@ -147,6 +147,10 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                     Number(discount)
                 )
             ).unwrap();
+            setDiscount('');
+            setQuantityPad('')
+            setQuantityPatient('')
+            setService(undefined);
             setPadCatalogue(response);
             setComponents(padCatalogueDetailToDataTable(response));
             setIsTableLoading(false);
@@ -166,6 +170,11 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                     Number(maxMembers), Number(maxAditionals)
                 )
             ).unwrap();
+            setName('');
+            setDescription('');
+            setPrice('')
+            setMaxAditionals('')
+            setMaxMembers('');
             setPadCatalogue(response);
             setIsLoadingAction(false);
             handleSucccessNotification(NotificationSuccess.REGISTER);
@@ -234,7 +243,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             title={buildCardTitle()}
             content={
                 <div className="flex flex-col">
-                    <CustomFormInput value={name} label={Strings.name} onChange={(value) => setName(value)} icon={<RiUser4Line />} placeholder="Nombre" />
+                    <CustomFormInput value={name} label={Strings.nameLabel} onChange={(value) => setName(value)} icon={<RiUser4Line />} placeholder="Nombre" />
                     <CustomFormInput value={description} label={Strings.description} onChange={(value) => setDescription(value)} isArea={true} placeholder="Pad para.." />
                     <CustomFormInput value={price} label={Strings.price} onChange={(value) => setPrice(value)} prefix="$" placeholder="0.0" />
                     <CustomFormInput value={days} label={Strings.durationDays} onChange={(value) => setDays(value)} placeholder="365" />

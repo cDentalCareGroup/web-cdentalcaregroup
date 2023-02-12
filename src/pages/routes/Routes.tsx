@@ -71,7 +71,6 @@ const adminRegisterPatients = new Route('RegistroPacientes', 'patientsRegister',
 const adminPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/admin/patients/detail/:id', <PatientInfo rol={UserRoles.ADMIN} />, <RiUser3Line />);
 
 const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads />, <RiUserHeartLine />);
-const adminPadForm = new Route('PadForm', 'padform', '/admin/pad/reigster', <FormPad />, <RiUserHeartLine />);
 
 const adminPadCatalogue = new Route('Pad catalogos', 'padCatalogue', '/admin/pad/catalogs/', <PadCatalogues />, <RiUserHeartLine />);
 const adminPadCatalogueForm = new Route('Form pad catalogos', 'formPadCatalogue', '/admin/pad/catalogs/register', <FormPadCatalogue type={FormPadCatalogueType.REGISTER} />, <RiUserHeartLine />);
@@ -113,7 +112,6 @@ const adminRoutes: Route[] = [
     adminRegisterPatients,
     adminPatientsInfo,
     adminPad,
-    adminPadForm,
     adminPadCatalogue,
     adminPadCatalogueForm,
     adminPadCatalogueFormUpdate,

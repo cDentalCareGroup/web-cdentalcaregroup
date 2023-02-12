@@ -1,3 +1,9 @@
+import { Pad } from "../pad/pad";
+import { PadCatalogue } from "../pad/pad.catalogue";
+import { PadComponent } from "../pad/pad.component";
+import { PadComponentUsed } from "../pad/pad.component.used";
+import { Service } from "../service/service";
+
 export interface Patient {
     id: number;
     name: string;
@@ -38,4 +44,21 @@ export interface Patient {
     updatedAt: Date;
     city: string;
 
+  }
+
+
+  export interface PatientInfo {
+    patient: Patient;
+    pad?: PadData;
+  }
+
+  export interface PadData {
+    pad?: Pad;
+    padCatalog?: PadCatalogue;
+    component?: PadComponentService[]
+  }
+
+  export interface PadComponentService{
+    service: Service;
+    component: PadComponent;
   }

@@ -79,23 +79,23 @@ export const padService = apiSlice.injectEndpoints({
             transformResponse: (response: { data: PadCatalogueDetail }, _, __) => response.data,
         }),
 
-        getServices: builder.mutation<Service[], any>({
+        getAllServices: builder.mutation<Service[], any>({
             query: (_) => ({
-                url: 'services',
+                url: '/services/all',
                 method: "GET",
             }),
             transformResponse: (response: { data: Service[] }, _, __) => response.data,
         }),
         getServiceCategories: builder.mutation<ServiceCategory[], any>({
             query: (_) => ({
-                url: 'services/categories',
+                url: '/services/categories',
                 method: "GET",
             }),
             transformResponse: (response: { data: ServiceCategory[] }, _, __) => response.data,
         }),
         registerService: builder.mutation<Service, any>({
             query: (data) => ({
-                url: 'services/register',
+                url: '/services/register',
                 method: "POST",
                 body: { ...data }
             }),
@@ -103,7 +103,7 @@ export const padService = apiSlice.injectEndpoints({
         }),
         updateService: builder.mutation<Service, any>({
             query: (data) => ({
-                url: 'services/update',
+                url: '/services/update',
                 method: "POST",
                 body: { ...data }
             }),
@@ -119,7 +119,7 @@ export const {
     useDeletePadCatalogueComponentMutation,
     useGetPadCatalogDetailMutation,
     useUpdatePadCatalogueMutation,
-    useGetServicesMutation,
+    useGetAllServicesMutation,
     useGetServiceCategoriesMutation,
     useRegisterServiceMutation,
     useUpdateServiceMutation,

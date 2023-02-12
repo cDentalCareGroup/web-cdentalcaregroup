@@ -3,13 +3,12 @@ import SectionElement from "../../components/SectionElement";
 import { RiCalendar2Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
-import { Button, Form, Input, Radio, Row, Select, Tag } from "antd";
+import { Button, Form, Input, Modal, Radio, Row, Select, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
 import { GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
 import { useEffect, useRef, useState } from "react";
 import SelectItemOption from "../../../data/select/select.item.option";
 import { employeesToSelectItemOptions } from "../../../data/employee/employee.extentions";
-import Modal from "antd/es/modal/Modal";
 import SelectSearch from "../../components/SelectSearch";
 import { useGetPatientsMutation } from "../../../services/patientService";
 import { FilterEmployeesRequest } from "../../../data/filter/filters.request";
@@ -27,7 +26,6 @@ import { availableTimesToTimes } from "../../../data/appointment/available.times
 import { useGetBranchOfficesMutation } from "../../../services/branchOfficeService";
 import ScheduleAppointmentInfoCard from "./ScheduleAppointmentInfoCard";
 import { format, isToday, parseISO } from "date-fns";
-import Checkbox from "antd/es/checkbox/Checkbox";
 import useSessionStorage from "../../../core/sessionStorage";
 import Constants from "../../../utils/Constants";
 import { useNavigate } from "react-router-dom";
@@ -40,10 +38,10 @@ import RegisterCall from "../../callcenter/RegisterCall";
 import MultiSelectSearch from "../../components/MultiSelectSearch";
 import { useGetPadServicesMutation } from "../../../services/padService";
 import EditableTable from "./EditableTableService";
-import { PadComponent } from "../../../data/pad/pad.component";
 import { PadComponentUsed } from "../../../data/pad/pad.component.used";
 import { Service } from "../../../data/service/service";
 import Spinner from "../../components/Spinner";
+const { confirm } = Modal;
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -678,10 +676,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         if (padComponent != null && padComponent.components.length > 0) {
             const component = padComponent.components.find((value, _) => value.component.serviceId == service.id)
             if (component != null) {
-                discount = component.component.discount;
-                subTotal = ((1 * servicePrice) / 100) * discount;
-            } 
-        } 
+                discount = Math.round(component.component.discount);
+                subTotal = servicePrice - Math.round(((1 * servicePrice) / 100) * discount);
+            }
+        }
 
         tableInfo.push(
             {
@@ -734,7 +732,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
             </Card>
 
-            <Modal width={'85%'} title='Finalizar cita' confirmLoading={isActionLoading} onOk={() => handleUpdateAppointmentStatus('finalizada')} onCancel={() => setModalFinish(false)} open={modalFinish} okText='Finalizar' >
+            <Modal width={'85%'} title='Finalizar cita' confirmLoading={isActionLoading} onOk={() => {
+                confirm({
+                    content: <span>Deseas finalizar la cita?</span>,
+                    onOk() {
+                        handleUpdateAppointmentStatus('finalizada');
+                    },
+                    okText: 'Finalizar',
+                    cancelText: 'Cancelar',
+                });
+            }} onCancel={() => setModalFinish(false)} open={modalFinish} okText='Finalizar' >
                 <span className="flex mt-2">Método de pago</span>
                 <Select style={{ minWidth: '100%' }} size="large" placeholder='Método de pago' onChange={(event) => setPaymentMethodId(event)}>
                     {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
@@ -805,7 +812,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             </Modal>
 
 
-            <Modal title={`Agendar próxima cita para Paciente #${data?.patient?.id} ${getPatientName(data)}`} width={'50%'} confirmLoading={isActionLoading} onOk={() => handleOnRegisterNextAppointment()} okText='Aceptar' open={modalNextAppointment} onCancel={() => setModalNextAppointment(false)}>
+            <Modal title={`Agendar próxima cita para Paciente #${data?.patient?.id} ${getPatientName(data)}`} width={'50%'} confirmLoading={isActionLoading} onOk={() => handleOnRegisterNextAppointment()} okText='Aceptar' open={modalNextAppointment} onCancel={() => {
+                setIsActionLoading(false);
+                setModalNextAppointment(false)
+            }}>
                 <br />
 
                 <SelectSearch

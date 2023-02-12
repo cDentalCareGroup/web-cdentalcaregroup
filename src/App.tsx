@@ -30,7 +30,7 @@ const App = () => {
 
 
         <Route path="appointment">
-          <Route path="" element={<ScheduleAppointment />} />
+          <Route path=":referal?" element={<ScheduleAppointment />} />
           <Route path="detail/:folio" element={<SummaryAppointment />} />
           <Route path="cancel/:folio" element={<CancelAppointment />} />
           <Route path="reschedule/:folio" element={<RescheduleAppointment />} />
