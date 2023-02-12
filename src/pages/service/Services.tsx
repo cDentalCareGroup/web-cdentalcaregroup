@@ -7,7 +7,7 @@ import { serviceCategoriesToSelectItemOption } from "../../data/select/select.it
 import { Service } from "../../data/service/service";
 import { RegisterServiceRequest, UpdateServiceRequest } from "../../data/service/service.request";
 import { useGetServiceCategoriesMutation, useGetServicesMutation, useRegisterServiceMutation, useUpdateServiceMutation } from "../../services/padService";
-import { RESPONSIVE_LIST, RESPONSIVE_LIST_SMALL } from "../../utils/Extensions";
+import { RESPONSIVE_LIST, RESPONSIVE_LIST_LARGE, RESPONSIVE_LIST_SMALL } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";

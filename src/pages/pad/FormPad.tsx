@@ -14,7 +14,7 @@ import { useGetPadCatalogsMutation, useRegisterPadMutation } from "../../service
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { isAdmin } from "../../utils/Extensions";
-import { handleErrorNotification } from "../../utils/Notifications";
+import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
 import SelectSearch from "../components/SelectSearch";
@@ -27,7 +27,12 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-const FormPad = () => {
+
+interface FormPadProps {
+    onFinish: () => void;
+}
+
+const FormPad = (props: FormPadProps) => {
     const [getPadCatalogs] = useGetPadCatalogsMutation();
     const [getPatientsByBranchOffice] = useGetPatientsByBranchOfficeMutation();
     const [registerPad] = useRegisterPadMutation();
@@ -44,8 +49,10 @@ const FormPad = () => {
     const [selectedPadCatalogue, setSelectedPadCatalogue] = useState<PadCatalogueDetail>();
 
     const [isTableLoading, setIsTableLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [isOpenModal, setIsOpenModal] = useState(false);
+
 
     useEffect(() => {
         handleGetPadCatalogs();
@@ -163,27 +170,45 @@ const FormPad = () => {
 
 
     const handleOnRegisterPad = async () => {
-
-        console.log(padCatalogue)
-        console.log(data);
-
+        setIsLoading(true);
         try {
-            await registerPad({
-                'padCatalogueId': padCatalogue?.id,
-                'members': data.map((value, _) => value.id),
-                'adquisitionDate': format(new Date(), 'yyyy-MM-dd')
-            }).unwrap();
+            await registerPad(
+                new RegisterPadRequest(
+                    padCatalogue?.id ?? 0, data.map((value, _) => Number(value.id)),
+                    format(new Date(), 'yyyy-MM-dd'), Number(branchId)
+                )
+            ).unwrap();
+            setIsLoading(false);
+            setData([]);
+            setIsOpenModal(false);
+            handleSucccessNotification(NotificationSuccess.REGISTER);
+            props.onFinish();
         } catch (error) {
-            console.log(error);
+            setIsLoading(false);
+            setIsOpenModal(false);
+            handleErrorNotification(error);
         }
 
     }
 
 
-    //  class RegisterPadRequest {
-    //     padCatalogueId: number;
+    class RegisterPadRequest {
+        padCatalogueId: number;
+        members: number[];
+        adquisitionDate: string;
+        branchId: number;
 
-    // }
+        constructor(padCatalogueId: number,
+            members: number[],
+            adquisitionDate: string,
+            branchId: number) {
+            this.padCatalogueId = padCatalogueId;
+            this.members = members;
+            this.adquisitionDate = adquisitionDate;
+            this.branchId = branchId;
+        }
+
+    }
 
 
     const Row = (props: any) => {
@@ -203,18 +228,20 @@ const FormPad = () => {
 
     const onDragEnd = ({ active, over }: any) => {
         if (active.id !== over?.id) {
-          setData((prev) => {
-            const activeIndex = prev.findIndex((i) => i.key === active.id);
-            const overIndex = prev.findIndex((i) => i.key === over?.id);
-            return arrayMove(prev, activeIndex, overIndex);
-          });
+            setData((prev) => {
+                const activeIndex = prev.findIndex((i) => i.key === active.id);
+                const overIndex = prev.findIndex((i) => i.key === over?.id);
+                return arrayMove(prev, activeIndex, overIndex);
+            });
         }
-      };
+    };
 
     return (<LayoutCard isLoading={false} content={
-        <div>
-            <Button onClick={() => setIsOpenModal(true)}>Agregar PAD</Button>
-            <Modal width={'85%'} title='Registro de PAD' onCancel={() => setIsOpenModal(false)} onOk={() => setIsOpenModal(false)} open={isOpenModal} okText='Cerrar'>
+        <div className="flex flex-col">
+            <div className="flex w-full items-end justify-end"> 
+                <Button type="primary" onClick={() => setIsOpenModal(true)}>Registrar PAD</Button>
+            </div>
+            <Modal confirmLoading={isLoading} width={'85%'} title='Registro de PAD' onCancel={() => setIsOpenModal(false)} onOk={() => setIsOpenModal(false)} open={isOpenModal} okText='Cerrar'>
                 <div className="flex flex-col">
                     <div className="flex flex-row items-baseline gap-4 my-4">
                         <SelectSearch
@@ -241,7 +268,6 @@ const FormPad = () => {
 
                     <DndContext onDragEnd={onDragEnd}>
                         <SortableContext
-                            // rowKey array
                             items={data.map((i) => i.key)}
                             strategy={verticalListSortingStrategy}
                         >

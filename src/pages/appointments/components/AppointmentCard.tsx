@@ -38,6 +38,12 @@ import { PaymentMethod } from "../../../data/payment/payment.method";
 import { servicesToSelectItemOption } from "../../../data/service/service.extentions";
 import RegisterCall from "../../callcenter/RegisterCall";
 import MultiSelectSearch from "../../components/MultiSelectSearch";
+import { useGetPadServicesMutation } from "../../../services/padService";
+import EditableTable from "./EditableTableService";
+import { PadComponent } from "../../../data/pad/pad.component";
+import { PadComponentUsed } from "../../../data/pad/pad.component.used";
+import { Service } from "../../../data/service/service";
+import Spinner from "../../components/Spinner";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -63,12 +69,15 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [getPaymentMethods] = useGetPaymentMethodsMutation();
     const [getServices] = useGetServicesMutation();
     const [extendAppointment] = useExtendAppointmentMutation();
+    const [getPadServices] = useGetPadServicesMutation();
 
     const [paymentMethodList, setPaymentMethodList] = useState<PaymentMethod[]>([]);
     const [paymentMethodId, setPaymentMethodId] = useState(0);
 
     const [serviceList, setServiceList] = useState<SelectItemOption[]>([]);
     const [services, setServices] = useState<number[]>();
+    const [dataServices, setDataServices] = useState<Service[]>([]);
+    const [dataTable, setDataTable] = useState<any[]>([]);
 
 
     const [dentistList, setDentistList] = useState<SelectItemOption[]>([]);
@@ -107,6 +116,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const [modalFinish, setModalFinish] = useState(false);
     const [amount, setAmount] = useState('');
+    const [padComponent, setPadComponent] = useState<PadComponentUsed>();
+    const [isTableLoading, setIsTableLoading] = useState(false);
 
     const getStautsTag = (): JSX.Element => {
         if (data.appointment.status == 'activa') {
@@ -223,7 +234,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     handleErrorNotification(Constants.EMPTY_COST);
                     return;
                 }
-                if (services?.length == null || services.length == 0) {
+                if (dataTable?.length == null || dataTable.length == 0) {
                     handleErrorNotification(Constants.EMPTY_SERVICE);
                     return;
                 }
@@ -235,7 +246,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     status,
                     amount,
                     paymentMethodId,
-                    services ?? []
+                    dataTable,
+                    padComponent?.pad.id ?? 0
                 )).unwrap();
             setData(response);
             onStatusChange(status);
@@ -541,8 +553,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const canRegisterNextAppointment = (): boolean => {
-         return data.appointment.status == 'finalizada'
-         && (data.appointment.nextAppointmentId == null || data.appointment.nextAppointmentId == undefined)
+        return data.appointment.status == 'finalizada'
+            && (data.appointment.nextAppointmentId == null || data.appointment.nextAppointmentId == undefined)
     }
 
     const buildNextAppointmentText = (): string => {
@@ -556,15 +568,30 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return `-`;
     }
     const showNextAppointment = (): boolean => {
-        return data.appointment.nextAppointmentId != null && 
-        data.appointment.nextAppointmentId != 0
+        return data.appointment.nextAppointmentId != null &&
+            data.appointment.nextAppointmentId != 0
     }
 
     const handleSetModalFinish = async () => {
         await handleGetPaymentMethods();
         await handleGetServices();
+        await handleGetPadServices();
         setModalFinish(true)
     }
+
+    const handleGetPadServices = async () => {
+        try {
+            const response = await getPadServices(
+                { 'patientId': appointment.patient?.id }
+            ).unwrap();
+            setPadComponent(response);
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+
     const handleGetPaymentMethods = async () => {
         try {
             const response = await getPaymentMethods({}).unwrap();
@@ -577,6 +604,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleGetServices = async () => {
         try {
             const response = await getServices({}).unwrap();
+            setDataServices(response);
             setServiceList(servicesToSelectItemOption(response));
         } catch (error) {
             handleErrorNotification(error);
@@ -637,6 +665,47 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         }
     }
 
+
+    const handleOnServiceChange = (service: SelectItemOption) => {
+        setIsTableLoading(true);
+        const serviceItem = dataServices.find((value, _) => value.id == service.id);
+        let tableInfo = dataTable;
+        const servicePrice = serviceItem?.price ?? 0;
+        setDataTable([]);
+
+        let discount = 0;
+        let subTotal = 0;
+        if (padComponent != null && padComponent.components.length > 0) {
+            const component = padComponent.components.find((value, _) => value.component.serviceId == service.id)
+            if (component != null) {
+                discount = component.component.discount;
+                subTotal = ((1 * servicePrice) / 100) * discount;
+            } 
+        } 
+
+        tableInfo.push(
+            {
+                key: serviceItem?.id ?? 0,
+                description: serviceItem?.name ?? '',
+                quantity: 1,
+                unitPrice: servicePrice,
+                disscount: discount,
+                price: (1 * servicePrice),
+                subtotal: subTotal,
+                paid: 0
+            },
+        );
+        setTimeout(() => {
+            setDataTable(tableInfo);
+            setIsTableLoading(false);
+        }, 100)
+        //  }
+    }
+
+    const handleOnTableChange = (data: any) => {
+        setDataTable(data);
+    }
+
     return (
         <div className="m-2">
             <Card title={!hideContent ? getPatientName(data) : ''} bordered={!hideContent} actions={
@@ -665,7 +734,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
             </Card>
 
-            <Modal title='Finalizar cita' confirmLoading={isActionLoading} onOk={() => handleUpdateAppointmentStatus('finalizada')} onCancel={() => setModalFinish(false)} open={modalFinish} okText='Finalizar' >
+            <Modal width={'85%'} title='Finalizar cita' confirmLoading={isActionLoading} onOk={() => handleUpdateAppointmentStatus('finalizada')} onCancel={() => setModalFinish(false)} open={modalFinish} okText='Finalizar' >
                 <span className="flex mt-2">Método de pago</span>
                 <Select style={{ minWidth: '100%' }} size="large" placeholder='Método de pago' onChange={(event) => setPaymentMethodId(event)}>
                     {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
@@ -674,7 +743,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 <Input addonBefore="$" size="large" value={amount} onChange={((event) => setAmount(event.target.value))} prefix={<></>} placeholder='10.00' />
 
                 <span className="flex mt-2">Tipo de servicios</span>
-                <MultiSelectSearch icon={<></>} placeholder="Servicios" items={serviceList} onChange={(event) => setServices(event)} />
+                <SelectSearch icon={<></>} placeholder="Servicios" items={serviceList} onChange={(event) => handleOnServiceChange(event)} />
+                <br />
+
+                {!isTableLoading && <EditableTable onChange={handleOnTableChange} isLoading={isTableLoading} data={dataTable} />}
+                {isTableLoading && <Spinner />}
+
             </Modal>
 
             <Modal title={'Asignar dentista'} okText={'Guardar'} confirmLoading={isActionLoading} open={modalDentist} onOk={() => handleOnSaveDentist()} onCancel={() => {

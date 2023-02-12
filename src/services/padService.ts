@@ -1,11 +1,28 @@
 import { PadCatalogue } from "../data/pad/pad.catalogue";
 import { PadCatalogueDetail } from "../data/pad/pad.catalogue.detail";
+import { PadComponentUsed } from "../data/pad/pad.component.used";
+import { PadDetail } from "../data/pad/pad.detail";
 import { Service } from "../data/service/service";
 import { ServiceCategory } from "../data/service/service.category";
 import { apiSlice } from "./apiSlice";
 
 export const padService = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
+        getPads: builder.mutation<PadDetail[], any>({
+            query: (_) => ({
+                url: '/pad',
+                method: "GET",
+            }),
+            transformResponse: (response: { data: PadDetail[] }, _, __) => response.data,
+        }),
+        getPadServices: builder.mutation<PadComponentUsed, any>({
+            query: (data) => ({
+                url: '/pad/patient',
+                method: "POST",
+                body: { ...data }
+            }),
+            transformResponse: (response: { data: PadComponentUsed }, _, __) => response.data,
+        }),
         getPadCatalogs: builder.mutation<PadCatalogueDetail[], any>({
             query: (_) => ({
                 url: '/pad/catalogs',
@@ -80,7 +97,7 @@ export const padService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: 'services/register',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: Service }, _, __) => response.data,
         }),
@@ -88,7 +105,7 @@ export const padService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: 'services/update',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: Service }, _, __) => response.data,
         }),
@@ -106,5 +123,7 @@ export const {
     useGetServiceCategoriesMutation,
     useRegisterServiceMutation,
     useUpdateServiceMutation,
-    useRegisterPadMutation
+    useRegisterPadMutation,
+    useGetPadsMutation,
+    useGetPadServicesMutation
 } = padService;

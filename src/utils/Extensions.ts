@@ -160,6 +160,16 @@ const RESPONSIVE_LIST = {
   xl: 3,
   xxl: 4,
 };
+
+const RESPONSIVE_LIST_LARGE = {
+  gutter: 4,
+  xs: 1,
+  sm: 2,
+  md: 3,
+  lg: 4,
+  xl: 4,
+  xxl: 4,
+};
 const RESPONSIVE_LIST_SMALL = {
   gutter: 4,
   xs: 1,
@@ -190,6 +200,10 @@ const stringToDate = (data: string): Date => {
   return date;
 }
 
+const formatNumberToPercent = (num: any): string => {
+  return Number(num / 100).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 0 });
+}
+
 export {
   getInitRoute,
   getUserRol,
@@ -199,6 +213,8 @@ export {
   capitalizeFirstLetter,
   RESPONSIVE_LIST,
   RESPONSIVE_LIST_SMALL,
+  RESPONSIVE_LIST_LARGE,
   formatPrice,
-  stringToDate
+  stringToDate,
+  formatNumberToPercent
 }
