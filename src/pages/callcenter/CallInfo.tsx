@@ -14,7 +14,6 @@ import { handleErrorNotification, handleSucccessNotification, NotificationSucces
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
-import RegisterCall from "./RegisterCall";
 
 const CallInfo = () => {
 
@@ -47,7 +46,6 @@ const CallInfo = () => {
         try {
             setIsLoading(true);
             const response = await getCallDetailMutation({ 'patientId': call.patient?.id, 'prospectId': call.propspect?.id }).unwrap();
-            console.log(response);
             setInfo(response);
             setIsLoading(false);
         } catch (error) {
@@ -87,13 +85,6 @@ const CallInfo = () => {
 
 
     const buildCardTitle = (): string => {
-        if (data?.catalog.name.includes('pad vencido')) {
-            return `${data.appointment?.branchName} - Pad Vencido`
-        } else if (data?.catalog.name.includes('cita-no-show')) {
-            return `${data.appointment?.branchName} - Cita no atendida`
-        } else if (data?.catalog.name.includes('presupuesto')) {
-            return 'Presuperto'
-        }
         return `${data?.catalog.name}`;
     }
 
@@ -174,7 +165,6 @@ const CallInfo = () => {
                 showCount
                 rows={6}
                 maxLength={150}
-
                 style={{ height: 120, marginBottom: 5 }}
                 onChange={(event) => setComment(event.target.value)}
                 placeholder="Detalle de la llamada"
@@ -182,11 +172,7 @@ const CallInfo = () => {
             <div className="flex mt-6 w-full justify-end items-end">
                 <Button loading={isLoadingAction} disabled={data?.call.status != 'activa'} type="primary" onClick={() => handleUpdateCall()}>Guardar</Button>
             </div>
-            <Button type="dashed" onClick={() => {
-                 window.open(`https://cdentalcaregroup-fcdc9.web.app/appointment`, '_blank', 'noopener,noreferrer');
-            }}>Agendar cita</Button>
-            <RegisterCall patientId={data?.patient?.id} appointmentId={data?.appointment?.id} />
-           
+        
         </div>)
     }
 

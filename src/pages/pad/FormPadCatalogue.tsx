@@ -113,7 +113,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             key: 'quantityPad',
         },
         {
-            title: 'Cantidad maxima paciente',
+            title: 'Cantidad máxima por paciente',
             dataIndex: 'quantityPatient',
             key: 'quantityPatient',
         },
@@ -219,7 +219,6 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
     }
 
 
-
     const buildCardTitle = (): string => {
         if (props.type == FormPadCatalogueType.REGISTER) {
             return 'Registro Pad';
@@ -243,7 +242,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             title={buildCardTitle()}
             content={
                 <div className="flex flex-col">
-                    <CustomFormInput value={name} label={Strings.nameLabel} onChange={(value) => setName(value)} icon={<RiUser4Line />} placeholder="Nombre" />
+                    <CustomFormInput value={name} label={Strings.nameLabel} onChange={(value) => setName(value)} icon={<RiUser4Line />} placeholder={Strings.nameLabel} />
                     <CustomFormInput value={description} label={Strings.description} onChange={(value) => setDescription(value)} isArea={true} placeholder="Pad para.." />
                     <CustomFormInput value={price} label={Strings.price} onChange={(value) => setPrice(value)} prefix="$" placeholder="0.0" />
                     <CustomFormInput value={days} label={Strings.durationDays} onChange={(value) => setDays(value)} placeholder="365" />

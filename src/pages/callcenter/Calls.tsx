@@ -15,8 +15,11 @@ import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
+import FormAppointment from "../appointments/FormAppointment";
+import NoData from "../components/NoData";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
+import FormCall from "./FormCall";
 
 const Calls = () => {
     const [getCalls, { isLoading }] = useGetCallsMutation();
@@ -82,20 +85,31 @@ const Calls = () => {
             isLoading={isLoading}
             title={`Llamadas del día  ${data.length != 0 ? data.length : ''}`}
             content={
-                <div className="flex flex-row flex-wrap gap-2">
-                    {data.map((value, index) =>
-                        <Card key={index} title={capitalizeFirstLetter(value.catalog.name)}
-                            actions={[<span onClick={() => {
-                                setCall(value);
-                                navigate('/callcenter/call')
-                            }}>Atender</span>]}
-                        >
-                            {buildInfo(value)}
-                            {buildPriority(value.call)}
-                        </Card>
-                    )
-                    }
-                </div >
+                <div className="flex flex-col">
+                   
+                        <FormAppointment />
+                        <br />
+                        <FormCall showPatients={true} onFinish={() => handleGetCalls()} />
+              
+                    <div className="flex flex-row flex-wrap gap-2 mt-4">
+                        {data.map((value, index) =>
+                            <Card key={index} title={capitalizeFirstLetter(value.catalog.name)}
+                                actions={[<span onClick={() => {
+                                    setCall(value);
+                                    navigate('/callcenter/call')
+                                }}>Atender</span>]}
+                            >
+                                {buildInfo(value)}
+                                {buildPriority(value.call)}
+                            </Card>
+                        )
+                        }
+                        {data.length == 0 &&
+                            <div className="flex flex-col items-center justify-center w-full">
+                                <NoData />
+                            </div>}
+                    </div >
+                </div>
             }
         />
     );

@@ -56,11 +56,11 @@ const Pads = () => {
         if (query.length == 0 || query == "") {
             setPadList(data);
         }
-        const res = data?.filter((value) =>
-            value.catalogue.name
+        const res = data?.filter((value) => value.members.filter((member, _) =>
+            buildPatientName(member)
                 .toLowerCase()
                 .replace(/\s+/g, '')
-                .includes(query.toLowerCase().replace(/\s+/g, '')));
+                .includes(query.toLowerCase().replace(/\s+/g, ''))).length > 0);
         setPadList(res);
     }
 
@@ -69,7 +69,7 @@ const Pads = () => {
             isLoading={isLoading}
             content={
                 <div className="flex flex-col flex-wrap">
-                    <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={'Buscar pad'} onSearch={handleOnSearch} enterButton />
+                    <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={'Buscar por integrante del pad'} onSearch={handleOnSearch} enterButton />
                     <div className="flex w-full items-end justify-end mt-4 mb-12">
                         <FormPad onFinish={() => handleGetPads()} />
                     </div>

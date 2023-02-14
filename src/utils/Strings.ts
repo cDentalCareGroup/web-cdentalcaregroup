@@ -131,7 +131,7 @@ class Strings {
     static callTypes = "Tipos de llamada"
     static searchCallTypes = "'Buscar tipo de llamada'"
 
-    static appVersion = 'v.1.0.17';
+    static appVersion = 'v.1.0.19';
 }
 
 export default Strings;

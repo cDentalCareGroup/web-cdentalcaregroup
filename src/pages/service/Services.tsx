@@ -95,6 +95,7 @@ const Services = () => {
         setCategory(categoryValue);
         setIsEdit(true);
         setServiceId(service.id);
+        setStatus(service.status);
         setTimeout(() => {
             setIsOpenModal(true);
         }, 100)

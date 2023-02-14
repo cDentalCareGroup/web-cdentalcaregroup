@@ -46,18 +46,15 @@ export class RegisterCatalogRequest {
 export class RegisterCallRequest {
     patientId: number;
     description: string;
-    appointmentId: number;
     date: string;
     type: string;
 
     constructor(patientId: number,
         description: string,
-        appointmentId: number,
         date: string,
         type: string,) {
         this.patientId = patientId;
         this.description = description;
-        this.appointmentId = appointmentId;
         this.date = date;
         this.type = type;
     }

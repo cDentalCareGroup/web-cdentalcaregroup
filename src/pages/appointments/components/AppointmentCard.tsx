@@ -19,7 +19,7 @@ import { AppointmentAvailbilityByDentistRequest, ExtendAppointmentRequest, GetAp
 import { useAppSelector } from "../../../core/store";
 import { selectCurrentUser } from "../../../core/authReducer";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../../utils/Notifications";
-import { dayName, isAdmin, stringToDate } from "../../../utils/Extensions";
+import { dayName, formatPrice, isAdmin, stringToDate } from "../../../utils/Extensions";
 import Calendar from "../../components/Calendar";
 import { AvailableTime } from "../../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../../data/appointment/available.times.extensions";
@@ -34,13 +34,13 @@ import { extendedTimesToShow, filterExtendedAvailableTimes, getAppointmentStatus
 import { Employee } from "../../../data/employee/employee";
 import { PaymentMethod } from "../../../data/payment/payment.method";
 import { servicesToSelectItemOption } from "../../../data/service/service.extentions";
-import RegisterCall from "../../callcenter/RegisterCall";
 import MultiSelectSearch from "../../components/MultiSelectSearch";
 import { useGetPadServicesMutation } from "../../../services/padService";
 import EditableTable from "./EditableTableService";
 import { PadComponentUsed } from "../../../data/pad/pad.component.used";
 import { Service } from "../../../data/service/service";
 import Spinner from "../../components/Spinner";
+import FormCall from "../../callcenter/FormCall";
 const { confirm } = Modal;
 
 interface AppointmentCardProps {
@@ -113,7 +113,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     );
 
     const [modalFinish, setModalFinish] = useState(false);
-    const [amount, setAmount] = useState('');
+    const [amountReceived, setAmountReceived] = useState('0')
     const [padComponent, setPadComponent] = useState<PadComponentUsed>();
     const [isTableLoading, setIsTableLoading] = useState(false);
 
@@ -205,7 +205,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getPatients(
                 new FilterEmployeesRequest(DEFAULT_PATIENTS_ACTIVE)
             ).unwrap();
-            const filtered = response.filter((value, _) => value.originBranchOfficeId == Number(branchId))
+            const filtered = response.filter((value: any, _) => value.originBranchOfficeId == Number(branchId))
             setPatientList(patientsToSelectItemOption(filtered));
         } catch (error) {
             console.log(error);
@@ -228,10 +228,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     handleErrorNotification(Constants.EMPTY_PAYMENT_METHOD);
                     return;
                 }
-                if (amount == '' || amount == undefined) {
-                    handleErrorNotification(Constants.EMPTY_COST);
-                    return;
-                }
                 if (dataTable?.length == null || dataTable.length == 0) {
                     handleErrorNotification(Constants.EMPTY_SERVICE);
                     return;
@@ -242,7 +238,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 new UpdateAppointmentStatusRequest(
                     data.appointment.id,
                     status,
-                    amount,
+                    getTotalFromServices().toString(),
                     paymentMethodId,
                     dataTable,
                     padComponent?.pad.id ?? 0
@@ -583,7 +579,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 { 'patientId': appointment.patient?.id }
             ).unwrap();
             setPadComponent(response);
-            console.log(response);
         } catch (error) {
             console.log(error);
         }
@@ -678,7 +673,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             if (component != null) {
                 discount = Math.round(component.component.discount);
                 subTotal = servicePrice - Math.round(((1 * servicePrice) / 100) * discount);
+            } else {
+                subTotal = servicePrice;
             }
+        } else {
+            subTotal = servicePrice;
         }
 
         tableInfo.push(
@@ -704,6 +703,34 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         setDataTable(data);
     }
 
+
+    const getTotalFromServices = (): number => {
+        let total = 0;
+        for (const service of dataTable) {
+            total += Number(service.subtotal);
+        }
+        return total;
+    }
+
+    const getExchange = (): string => {
+        if (Number(amountReceived) == 0) {
+            return formatPrice(0);
+        } else {
+            const result = Number(amountReceived) - getTotalFromServices();
+            return formatPrice(result);
+        }
+    }
+
+    const validateExchange = (): string => {
+        if (Number(amountReceived) == 0) {
+            return 'Cambio :'
+        } else if (Number(amountReceived) < getTotalFromServices()) {
+            return 'Deuda :'
+        } else {
+            return 'Cambio :'
+        }
+    }
+
     return (
         <div className="m-2">
             <Card title={!hideContent ? getPatientName(data) : ''} bordered={!hideContent} actions={
@@ -726,7 +753,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     {canFinish() && <Button type="primary" loading={isActionLoading} onClick={() => { handleSetModalFinish() }} >Finalizar cita</Button>}
                     {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >Extender cita</Button>}
                     {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
-                    {canRegisterNextAppointment() && <RegisterCall patientId={data?.patient?.id} appointmentId={data?.appointment.id} />}
+                    {canRegisterNextAppointment() && <FormCall patientId={data.patient?.id} showPatients={false} onFinish={() => {}} />}
 
                 </Row>
 
@@ -746,8 +773,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 <Select style={{ minWidth: '100%' }} size="large" placeholder='Método de pago' onChange={(event) => setPaymentMethodId(event)}>
                     {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                 </Select>
-                <span className="flex mt-2 mb-1">Costo de la cita</span>
-                <Input addonBefore="$" size="large" value={amount} onChange={((event) => setAmount(event.target.value))} prefix={<></>} placeholder='10.00' />
+
 
                 <span className="flex mt-2">Tipo de servicios</span>
                 <SelectSearch icon={<></>} placeholder="Servicios" items={serviceList} onChange={(event) => handleOnServiceChange(event)} />
@@ -755,6 +781,41 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
                 {!isTableLoading && <EditableTable onChange={handleOnTableChange} isLoading={isTableLoading} data={dataTable} />}
                 {isTableLoading && <Spinner />}
+
+
+                <span className="flex mt-2 mb-1">Monto recibido</span>
+                <Input addonBefore="$"
+                    size="large"
+                    value={amountReceived}
+                    onChange={((event) => setAmountReceived(event.target.value))}
+                    prefix={<></>}
+                    placeholder='10.00' />
+
+                <div className="flex flex-row w-full items-end justify-end gap-2 mt-2">
+                    <span className="text font-bold text-base text-gray-600">
+                        Monto recibido:
+                    </span>
+                    <span className="text font-semibold text-base">
+                        {formatPrice(Number(amountReceived))}
+                    </span>
+                </div>
+
+                <div className="flex flex-row w-full items-end justify-end gap-2">
+                    <span className="text font-bold text-base text-gray-600">
+                        Total:
+                    </span>
+                    <span className="text font-semibold text-base">
+                        {formatPrice(getTotalFromServices())}
+                    </span>
+                </div>
+                <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
+                    <span className="text font-bold text-base text-gray-600">
+                        {validateExchange()}
+                    </span>
+                    <span className="text font-semibold text-base">
+                        {getExchange()}
+                    </span>
+                </div>
 
             </Modal>
 

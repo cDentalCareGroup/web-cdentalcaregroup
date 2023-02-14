@@ -11,10 +11,10 @@ const ErrorData = () => (
         subTitle="Ocurrio un error al procesar la información, por favor intente mas tarde."
     >
         <div className="desc">
-            
+
             <Paragraph>
-                <CloseCircleOutlined className="site-result-demo-error-icon" /> Si el error perisste por favor
-               <a> Contactar a soporte</a>
+                <CloseCircleOutlined className="site-result-demo-error-icon" /> Si el error continua por favor
+                <a href='https://cdentalcaregroup.com/contacto/' target={'_blank'}> Contacta a soporte</a>
             </Paragraph>
         </div>
     </Result>

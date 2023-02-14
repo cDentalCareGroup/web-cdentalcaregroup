@@ -38,7 +38,7 @@ const CancelAppointment = () => {
                         maxLength={150}
                         style={{ height: 120 }}
                         onChange={(event) => setReason(event.target.value)}
-                        placeholder="Motivo de cancelacion"
+                        placeholder="Motivo de cancelación"
                     />
                     <div className="flex w-full items-end justify-end mt-4 mb-6">
                         <Button type="primary" danger loading={isLoading} htmlType="submit" onClick={() => handleOnCancelAppointment()}  >

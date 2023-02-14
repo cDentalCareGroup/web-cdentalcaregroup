@@ -14,7 +14,7 @@ const getAppointmentFolio = (appointment: AppointmentDetail | undefined) => {
 
 const getAppointmentDentist = (appointment: AppointmentDetail | undefined) => {
     const name = appointment?.dentist?.name ?
-        `${appointment.dentist?.name} ${appointment.dentist?.lastname} ${appointment.dentist?.secondLastname}` : 'No asignado'
+        `${appointment.dentist?.name} ${appointment.dentist?.lastname} ${appointment.dentist?.secondLastname ?? ''}` : 'No asignado'
     return name;
 }
 
@@ -54,13 +54,13 @@ const sortAppointments = (response: AppointmentDetail[], status: string): Appoin
     //     });
     //     return dataSorted.map((value, _) => value.appointment);
     // } else {
-        const appointments = response.map((value, _) => new AppointmentDate(value, formatAppointmentDate(value)));
-        const dataSorted = appointments.sort((a: AppointmentDate, b: AppointmentDate) => {
-            return a.date.valueOf() - b.date.valueOf();
-        });
-        return dataSorted.map((value, _) => value.appointment);
+    const appointments = response.map((value, _) => new AppointmentDate(value, formatAppointmentDate(value)));
+    const dataSorted = appointments.sort((a: AppointmentDate, b: AppointmentDate) => {
+        return a.date.valueOf() - b.date.valueOf();
+    });
+    return dataSorted.map((value, _) => value.appointment);
     //}
-   // return [];
+    // return [];
 }
 
 export class AppointmentDate {
@@ -95,7 +95,9 @@ const filterExtendedAvailableTimes = (appointment: AppointmentDetail, response: 
     let appointmentTimeArray = appointment.appointment.time.split(":");
     for (const item of response) {
         const itemTimeArray = item.simpleTime.split(":");
-        if  (Number(itemTimeArray[0]) >= Number(appointmentTimeArray[0])) {
+        if (Number(itemTimeArray[0]) >= Number(appointmentTimeArray[0]) &&
+            Number(itemTimeArray[1]) >= Number(appointmentTimeArray[1]) &&
+            appointment.appointment.time != item.simpleTime) {
             availableTimes.push(item);
         }
     }

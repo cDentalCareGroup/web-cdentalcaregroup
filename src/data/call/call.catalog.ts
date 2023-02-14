@@ -4,4 +4,5 @@ export interface CallCatalog{
     description: string;
     script: string;
     goal: string;
+    type: string;
 }

@@ -185,7 +185,6 @@ export class UpdateHasCabinetAppointmentRequest {
   }
 }
 
-
 export class ExtendAppointmentRequest {
   id: number;
   times: string[];
@@ -196,5 +195,30 @@ export class ExtendAppointmentRequest {
     this.id = id;
     this.times = times;
     this.appointment = appointment;
+  }
+}
+
+
+
+export class RegisterCallCenterAppointmentRequest {
+  name?: string;
+  phone?: string;
+  date?: Date;
+  time?: AvailableTime;
+  email?: string;
+  branchId?: number;
+  patientId?: number;
+
+  constructor(
+    name?: string,
+    phone?: string,
+    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number) {
+    this.time = time;
+    this.name = name;
+    this.phone = phone;
+    this.date = date;
+    this.email = email;
+    this.branchId = branchId;
+    this.patientId = patientId;
   }
 }
