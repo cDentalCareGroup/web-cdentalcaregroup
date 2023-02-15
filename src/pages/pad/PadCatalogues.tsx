@@ -58,9 +58,9 @@ const PadCatalogues = () => {
     }
 
     return (
-        <LayoutCard isLoading={isLoading} content={
+        <LayoutCard title={Strings.padCatalogue} isLoading={isLoading} content={
             <div className="flex flex-col">
-                <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder='Buscar pad' onSearch={handleOnSearch} enterButton />
+                <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchPad} onSearch={handleOnSearch} enterButton />
                 <div className="flex w-full items-end justify-end mt-4 mb-12">
                     <Button type="primary" onClick={() => navigate('/admin/pad/catalogs/register')}>Registrar pad</Button>
                 </div>
@@ -72,7 +72,7 @@ const PadCatalogues = () => {
                             <Card actions={[
                                 <span
                                 onClick={() => navigate(`/admin/pad/catalogs/detail/${item.id}`)}
-                                >Editar</span>
+                                >{Strings.edit}</span>
                             ]} title={item.name}>
                                 <SectionElement icon={<RiTodoLine />} label={Strings.description} value={item.description} />
                                 <SectionElement icon={<RiMoneyDollarCircleLine />} label={Strings.price} value={formatPrice(Number(item.price))} />

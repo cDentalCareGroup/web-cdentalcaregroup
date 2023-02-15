@@ -1,11 +1,8 @@
 import { Button, Divider, Modal, Radio, Row, Space, Table } from "antd";
 import Checkbox from "antd/es/checkbox/Checkbox";
-import Input from "antd/es/input/Input";
-import TextArea from "antd/es/input/TextArea";
 import { useEffect, useState } from "react";
-import { RiDeleteBin7Line, RiMoneyDollarCircleLine, RiUser4Line } from "react-icons/ri";
+import { RiDeleteBin7Line, RiUser4Line } from "react-icons/ri";
 import { useParams } from "react-router-dom";
-import { PadCatalogue } from "../../data/pad/pad.catalogue";
 import { PadCatalogueDetail } from "../../data/pad/pad.catalogue.detail";
 import { padCatalogueDetailToDataTable } from "../../data/pad/pad.extensions";
 import { RegisterPadCatalogueRequest, RegisterPadComponentRequest, UpdatePadCatalogueRequest } from "../../data/pad/pad.request";
@@ -13,7 +10,6 @@ import SelectItemOption from "../../data/select/select.item.option";
 import { servicesToSelectItemOption } from "../../data/service/service.extentions";
 import { useGetServicesMutation } from "../../services/appointmentService";
 import { useDeletePadCatalogueComponentMutation, useGetPadCatalogDetailMutation, useRegisterPadCatalogueComponentMutation, useRegisterPadCatalogueMutation, useUpdatePadCatalogueMutation } from "../../services/padService";
-import Constants from "../../utils/Constants";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
@@ -70,7 +66,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             const response = await getPadCatalogDetail({ 'id': id }).unwrap();
             setType(response.type);
             let active = false;
-            if (response.status == 'activo') {
+            if (response.status == Strings.statusValueActive) {
                 active = true;
             }
             setName(response.name);
@@ -103,22 +99,22 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
 
     const columns = [
         {
-            title: 'Servicio',
+            title: Strings.service,
             dataIndex: 'service',
             key: 'service',
         },
         {
-            title: 'Cantidad por pad',
+            title: Strings.quantityPad,
             dataIndex: 'quantityPad',
             key: 'quantityPad',
         },
         {
-            title: 'Cantidad máxima por paciente',
+            title: Strings.maxPatientQuantity,
             dataIndex: 'quantityPatient',
             key: 'quantityPatient',
         },
         {
-            title: 'Descuento',
+            title: Strings.discount,
             dataIndex: 'discount',
             key: 'discount',
         },
@@ -221,9 +217,9 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
 
     const buildCardTitle = (): string => {
         if (props.type == FormPadCatalogueType.REGISTER) {
-            return 'Registro Pad';
+            return Strings.formPad;
         } else {
-            return 'Editar Pad';
+            return Strings.formPadUpdate;
         }
     }
 
@@ -247,26 +243,29 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                     <CustomFormInput value={price} label={Strings.price} onChange={(value) => setPrice(value)} prefix="$" placeholder="0.0" />
                     <CustomFormInput value={days} label={Strings.durationDays} onChange={(value) => setDays(value)} placeholder="365" />
                     {type == 'grupal' && <div>
-                        <CustomFormInput value={maxMembers} label={'Número de integrantes'} onChange={(value) => setMaxMembers(value)} placeholder="5" />
-                        <CustomFormInput value={maxAditionals} label={'Número de integrantes adicionales'} onChange={(value) => setMaxAditionals(value)} placeholder="5" />
+                        <CustomFormInput value={maxMembers} label={Strings.numberMembers} onChange={(value) => setMaxMembers(value)} placeholder="5" />
+                        <CustomFormInput value={maxAditionals} label={Strings.numberAditionalMembers} onChange={(value) => setMaxAditionals(value)} placeholder="5" />
                     </div>}
 
                     <br />
-                    <span>Estatus</span>
-                    <Checkbox className="ml-2 mt-2" checked={isActive} onChange={(event) => setIsActive(event.target.value)}>Activo</Checkbox>
+                    <span>{Strings.status}</span>
+                    <Checkbox 
+                    className="ml-2 mt-2" 
+                    checked={isActive} 
+                    onChange={(event) => setIsActive(event.target.value)}>{Strings.statusActive}</Checkbox>
                     <br />
 
-                    <span>Tipo</span>
+                    <span>{Strings.type}</span>
                     <Radio.Group className="ml-2 mt-2" onChange={(event) => setType(event.target.value)} value={type}>
                         <Space direction="vertical">
-                            <Radio value={'individual'}>{Strings.individual}</Radio>
-                            <Radio value={'grupal'}>{Strings.group}</Radio>
+                            <Radio value={Strings.individualValue}>{Strings.individual}</Radio>
+                            <Radio value={Strings.groupValue}>{Strings.group}</Radio>
                         </Space>
                     </Radio.Group>
 
                     <div className="flex flex-row items-end justify-end gap-4">
                         <Button disabled={padCatalogue == null} onClick={() => setIsModalOpen(true)} type="dashed">
-                            {props.type == FormPadCatalogueType.REGISTER ? 'Agregar componentes' : 'Editar componentes'}
+                            {props.type == FormPadCatalogueType.REGISTER ? Strings.addComponents : Strings.updateComponents }
                         </Button>
                         <Button loading={isLoadingAction} onClick={handleCheckForm} type="primary">
                             {props.type == FormPadCatalogueType.REGISTER ? Strings.save : Strings.update}
@@ -274,13 +273,13 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                     </div>
 
 
-                    <Modal width={'85%'} title='Componentes' open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => setIsModalOpen(false)}>
+                    <Modal width={'85%'} title={Strings.components} open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => setIsModalOpen(false)}>
                         <br />
-                        <SelectSearch icon={<></>} placeholder="Tipo de servicio" items={serviceList} onChange={(event) => setService(event)} />
+                        <SelectSearch icon={<></>} placeholder={Strings.serviceType} items={serviceList} onChange={(event) => setService(event)} />
                         <div className="flex flex-row  gap-4 mt-4">
-                            <CustomFormInput value={quantityPad} label="Cantidad por pad" onChange={(value) => setQuantityPad(value)} prefix="#" />
-                            <CustomFormInput value={quantityPatient} label="Cantidad maxima paciente" onChange={(value) => setQuantityPatient(value)} prefix="#" />
-                            <CustomFormInput value={discount} label="Descuento" onChange={(value) => setDiscount(value)} prefix="%" />
+                            <CustomFormInput value={quantityPad} label={Strings.quantityPad} onChange={(value) => setQuantityPad(value)} prefix="#" />
+                            <CustomFormInput value={quantityPatient} label={Strings.maxPatientQuantity} onChange={(value) => setQuantityPatient(value)} prefix="#" />
+                            <CustomFormInput value={discount} label={Strings.discount} onChange={(value) => setDiscount(value)} prefix="%" />
                             <Button className="mt-8" type="primary" onClick={handleAddComponent}>{Strings.save}</Button>
                         </div>
 

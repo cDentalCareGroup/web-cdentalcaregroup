@@ -10,10 +10,7 @@ import { FilterEmployeesRequest } from "../../data/filter/filters.request";
 import { Patient } from "../../data/patient/patient";
 import { buildPatientEmail, buildPatientName, buildPatientPhone } from "../../data/patient/patient.extensions";
 import { UpdatePatientStatusRequest } from "../../data/patient/patient.request";
-import SelectItemOption from "../../data/select/select.item.option";
-import { branchOfficesToSelectOptionItem } from "../../data/select/select.item.option.extensions";
 import User from "../../data/user/user";
-import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation, useUpdatePatientStatusMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { isAdmin, UserRoles } from "../../utils/Extensions";
@@ -76,7 +73,6 @@ const Patients = (props: PatientsProps) => {
             const response = await getPatients(new FilterEmployeesRequest([DEFAULT_FILTERS[3]])).unwrap();
             setPatientList(response);
             setData(response);
-            console.log(response);
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);
@@ -112,65 +108,69 @@ const Patients = (props: PatientsProps) => {
 
 
     const getStautsTag = (data: Patient): JSX.Element => {
-        if (data?.status == 'activo') {
+        if (data?.status == Strings.statusValueActive) {
             return <Tag color="success">{data.status}</Tag>
         }
-        if (data?.status == 'inactivo') {
+        if (data?.status == Strings.statusValueInactive) {
             return <Tag color="default">{data.status}</Tag>
         }
-        if (data?.status == 'deshabilitado') {
+        if (data?.status == Strings.statusValueDisabled) {
             return <Tag color="error">{data.status}</Tag>
         }
         return <></>;
     }
 
-    return (<LayoutCard title={Strings.patients} isLoading={isLoading} content={
-        <div className="flex flex-col">
-            <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchPatient} onSearch={handleOnSearch} enterButton />
-            <div className="flex w-full items-end justify-end mt-4 mb-12">
-                <Button type="primary" onClick={() => {
-                    if (props.rol == UserRoles.ADMIN) {
-                        navigate('/admin/patients/register')
-                    } else {
-                        navigate('/receptionist/patients/register')
-                    }
-                }}>{Strings.registerPatient}</Button>
-            </div>
-            <Row>
-                {patientList.map((value, index) =>
-                    <Card key={index} title={buildPatientName(value)} className="m-2 cursor-pointer" actions={[
-                        <Button type="dashed" onClick={() => {
-                            setPatient(value);
-                            setIsOpen(true);
-                        }} danger>{'Estatus'}</Button>,
-                        <Button type="dashed" onClick={() => {
+    return (
+        <LayoutCard
+            title={Strings.patients}
+            isLoading={isLoading}
+            content={
+                <div className="flex flex-col">
+                    <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchPatient} onSearch={handleOnSearch} enterButton />
+                    <div className="flex w-full items-end justify-end mt-4 mb-12">
+                        <Button type="primary" onClick={() => {
                             if (props.rol == UserRoles.ADMIN) {
-                                navigate(`/admin/patients/detail/${value.id}`)
+                                navigate('/admin/patients/register')
                             } else {
-                                navigate(`/receptionist/patients/detail/${value.id}`)
+                                navigate('/receptionist/patients/register')
                             }
-                        }}>{Strings.seeInfo}</Button>
+                        }}>{Strings.registerPatient}</Button>
+                    </div>
+                    <Row>
+                        {patientList.map((value, index) =>
+                            <Card key={index} title={buildPatientName(value)} className="m-2 cursor-pointer" actions={[
+                                <Button type="dashed" onClick={() => {
+                                    setPatient(value);
+                                    setIsOpen(true);
+                                }} danger>{Strings.status}</Button>,
+                                <Button type="dashed" onClick={() => {
+                                    if (props.rol == UserRoles.ADMIN) {
+                                        navigate(`/admin/patients/detail/${value.id}`)
+                                    } else {
+                                        navigate(`/receptionist/patients/detail/${value.id}`)
+                                    }
+                                }}>{Strings.seeInfo}</Button>
 
-                    ]}>
-                        <SectionElement label={Strings.patientId} value={`${value.id}`} icon={<RiHashtag />} />
-                        <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(value)} icon={<RiPhoneLine />} />
-                        <SectionElement label={Strings.email} value={buildPatientEmail(value)} icon={<RiMailLine />} />
-                        {getStautsTag(value)}
-                    </Card>
-                )}
-            </Row>
+                            ]}>
+                                <SectionElement label={Strings.patientId} value={`${value.id}`} icon={<RiHashtag />} />
+                                <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(value)} icon={<RiPhoneLine />} />
+                                <SectionElement label={Strings.email} value={buildPatientEmail(value)} icon={<RiMailLine />} />
+                                {getStautsTag(value)}
+                            </Card>
+                        )}
+                    </Row>
 
-            <Modal open={isOpen} onOk={() => handleUpdatePatientStatus()} onCancel={() => setIsOpen(false)} title={`Eliminar paciente ${buildPatientName(patient)}`} okText={Strings.save}>
-                <Radio.Group onChange={(event) => setStatus(event.target.value)} value={status}>
-                    <Space direction="vertical">
-                        {patient?.status != 'activo' && <Radio value={'activo'}>Activo</Radio>}
-                        <Radio value={'inactivo'}>Inactivo</Radio>
-                        <Radio value={'deshabilitado'}>Deshabilitado</Radio>
-                    </Space>
-                </Radio.Group>
-            </Modal>
-        </div>
-    } />);
+                    <Modal open={isOpen} onOk={() => handleUpdatePatientStatus()} onCancel={() => setIsOpen(false)} title={`${Strings.deletePatient} ${buildPatientName(patient)}`} okText={Strings.save}>
+                        <Radio.Group onChange={(event) => setStatus(event.target.value)} value={status}>
+                            <Space direction="vertical">
+                                {patient?.status != Strings.statusValueActive && <Radio value={Strings.statusValueActive}>{Strings.statusActive}</Radio>}
+                                <Radio value={Strings.statusValueInactive}>{Strings.statusInactive}</Radio>
+                                <Radio value={Strings.statusValueDisabled}>{Strings.statusDisabled}</Radio>
+                            </Space>
+                        </Radio.Group>
+                    </Modal>
+                </div>
+            } />);
 }
 
 export default Patients;

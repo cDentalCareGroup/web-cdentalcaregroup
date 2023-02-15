@@ -16,6 +16,7 @@ import { useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter, getUserRol, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
+import Strings from "../../utils/Strings";
 import SelectSearch from "../components/SelectSearch";
 import LayoutCard from "../layouts/LayoutCard";
 
@@ -117,25 +118,25 @@ const FormCall = (props: FormCallProps) => {
             content={
                 <div>
                     <div className="flex w-full items-end justify-end">
-                        <Button onClick={() => setIsOpen(true)} type="dashed">Registrar llamada</Button>
+                        <Button onClick={() => setIsOpen(true)} type="dashed">{Strings.registerCall}</Button>
                     </div>
 
-                    <Modal confirmLoading={false} okText='Guardar' open={isOpen} onCancel={() => setIsOpen(false)} title='Registrar nueva llamada' onOk={() => handleRegisterCall()}>
+                    <Modal confirmLoading={false} okText={Strings.save} open={isOpen} onCancel={() => setIsOpen(false)} title={Strings.registerNewCall} onOk={() => handleRegisterCall()}>
                         {props.showPatients && <SelectSearch
-                            placeholder="Selecciona un paciente"
+                            placeholder={Strings.selectPatient}
                             items={patientList}
                             onChange={(value) => setPatient(value)}
                             icon={<></>}
                         />}
 
                         <div className="flex flex-row gap-4 mb-4 mt-4">
-                            <Select style={{ minWidth: 220 }} size="large" placeholder='Tipo de llamada' onChange={(value) => setType(value)}>
+                            <Select style={{ minWidth: 220 }} size="large" placeholder={Strings.callType} onChange={(value) => setType(value)}>
                                 {catalogList?.map((value, _) => <Select.Option key={`${value.id}`} value={`${value.id}`}>{capitalizeFirstLetter(value.name)}</Select.Option>)}
                             </Select>
 
                             <DatePicker
                                 onChange={(event: any) => setDate(format(new Date(event), 'yyyy-MM-dd'))}
-                                size="large" placeholder="Fecha" style={{ minWidth: 220 }} />
+                                size="large" placeholder={Strings.date} style={{ minWidth: 220 }} />
                         </div>
                         <TextArea
                             showCount
@@ -143,7 +144,7 @@ const FormCall = (props: FormCallProps) => {
                             maxLength={150}
                             style={{ height: 120, marginBottom: 5 }}
                             onChange={(event) => setComment(event.target.value)}
-                            placeholder="Detalle de la llamada"
+                            placeholder={Strings.callDetail}
                         />
                         <br />
                     </Modal>

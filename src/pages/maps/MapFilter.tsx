@@ -14,7 +14,6 @@ import { handleErrorNotification, handleSucccessNotification, NotificationSucces
 import Filters from "../components/Filters";
 import Map from "../components/Map";
 import {
-    RiCalendarCheckFill,
     RiGiftLine,
     RiMailLine,
     RiPhoneLine,
@@ -146,7 +145,6 @@ const MapFilter = () => {
                     <Modal title={Strings.patientInformation} okText={Strings.accept} open={isOpen} onOk={() => setIsOpen(false)} onCancel={() => setIsOpen(false)}>
                         <div className="flex flex-col flex-wrap">
                             <SectionElement label={Strings.patientName} value={buildPatientName(selectedPatient)} icon={<RiUserLine className="text-gray-500" />} />
-                            <SectionElement label={Strings.nextAppointment} value={buildPatientName(selectedPatient)} icon={<RiCalendarCheckFill className="text-gray-500" />} />
                             <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(selectedPatient)} icon={<RiPhoneLine className="text-gray-500" />} />
                             <SectionElement label={Strings.email} value={buildPatientEmail(selectedPatient)} icon={<RiMailLine className="text-gray-500" />} />
                             <SectionElement label={Strings.birthday} value={buildPatientBirthday(selectedPatient)} icon={<RiGiftLine className="text-gray-500" />} />
@@ -162,20 +160,20 @@ const MapFilter = () => {
                                             '_blank', 'noopener,noreferrer');
                                         e.preventDefault();
                                     }}>
-                                    <Button type="link" size="small">Ver dirección del paciente</Button>
+                                    <Button type="link" size="small">{Strings.seePatientAddress}</Button>
                                 </Link>
                             </div>
                             <br />
-                            <span className="text text-base font-bold text-gray-500">Actualizar coordenadas</span>
+                            <span className="text text-base font-bold text-gray-500">{Strings.updateLatLng}</span>
                             <br />
-                            <span className="text text-base text-gray-500">Latitud</span>
+                            <span className="text text-base text-gray-500">{Strings.latitude}</span>
                             <Input onChange={(event) => setLatitude(Number(event.target.value))} size="large" />
                             <br />
-                            <span className="text text-base text-gray-500">Longitud</span>
+                            <span className="text text-base text-gray-500">{Strings.longitude}</span>
                             <Input onChange={(event) => setLongitude(Number(event.target.value))} size="large" />
                             <br />
                             <div className="flex">
-                                <Button onClick={() => handleUpdateLatLng()} loading={isActionLoading} type="primary">Actualizar cordenadas</Button>
+                                <Button onClick={() => handleUpdateLatLng()} loading={isActionLoading} type="primary">{Strings.update} </Button>
                             </div>
                         </div>
                     </Modal>

@@ -5,7 +5,7 @@ const UnAuthorized: React.FC = () => (
     <Result
         status="403"
         title="403"
-        subTitle="Lo sentimos no tienes permisos para esta pagina"
+        subTitle="Lo sentimos no tienes permisos para esta página"
         extra={
             <Link to={'/'}>
                 <Button type="primary">Regresar</Button>

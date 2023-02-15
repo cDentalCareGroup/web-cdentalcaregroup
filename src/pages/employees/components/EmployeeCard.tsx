@@ -15,13 +15,13 @@ const EmployeeCard = ({ data }: EmployeeCardProps) => {
     
     const getStauts = (): JSX.Element => {
         if (data.employee.status == 1) {
-            return <Tag color="success">Activo</Tag>
+            return <Tag color="success">{Strings.statusActive}</Tag>
         }
         if (data.employee.status == 2) {
-            return <Tag color="blue">Inactivo</Tag>
+            return <Tag color="blue">{Strings.statusInactive}</Tag>
         }
         if (data.employee.status == 3) {
-            return <Tag color="default">Deshabilitado</Tag>
+            return <Tag color="default">{Strings.statusDisabled}</Tag>
         }
         return <></>;
     }

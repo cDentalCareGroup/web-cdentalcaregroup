@@ -1,18 +1,19 @@
 import { Button, Card, List, Tag } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { PadDetail } from "../../data/pad/pad.detail";
 import { buildPatientName } from "../../data/patient/patient.extensions";
 import { useGetPadsMutation } from "../../services/padService";
 import { handleErrorNotification } from "../../utils/Notifications";
+import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormPad from "./FormPad";
 
+
+
 const Pads = () => {
     const [getPads, { isLoading }] = useGetPadsMutation();
-    const navigate = useNavigate();
     const [data, setData] = useState<PadDetail[]>([]);
     const [padList, setPadList] = useState<PadDetail[]>([]);
 
@@ -43,10 +44,10 @@ const Pads = () => {
     }
 
     const getStautsTag = (value: PadDetail): JSX.Element => {
-        if (value.pad.status != null && value.pad.status == 'activo') {
+        if (value.pad.status != null && value.pad.status == Strings.statusValueActive) {
             return <Tag color="success">{value.pad.status}</Tag>
         }
-        if (value.pad.status != null && value.pad.status == 'inactivo') {
+        if (value.pad.status != null && value.pad.status == Strings.statusValueInactive) {
             return <Tag color="error">{value.pad.status}</Tag>
         }
         return <></>;
@@ -66,10 +67,11 @@ const Pads = () => {
 
     return (
         <LayoutCard
+        title={Strings.pads}
             isLoading={isLoading}
             content={
                 <div className="flex flex-col flex-wrap">
-                    <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={'Buscar por integrante del pad'} onSearch={handleOnSearch} enterButton />
+                    <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchPadMember} onSearch={handleOnSearch} enterButton />
                     <div className="flex w-full items-end justify-end mt-4 mb-12">
                         <FormPad onFinish={() => handleGetPads()} />
                     </div>
@@ -79,9 +81,9 @@ const Pads = () => {
                             <Card key={index} title={value.catalogue.name} className="m-2 cursor-pointer" actions={[
 
                             ]}>
-                                <SectionElement label="Precio" icon={<></>} value={`$${value.pad.padPrice}`} />
-                                <SectionElement label="Validez" icon={<></>} value={`De ${value.pad.padAdquisitionDate} al  ${value.pad.padDueDate}`} />
-                                <SectionElement label="Miembros" icon={<></>} value={buildPadMembers(value)} />
+                                <SectionElement label={Strings.price} icon={<></>} value={`$${value.pad.padPrice}`} />
+                                <SectionElement label={Strings.validity} icon={<></>} value={`De ${value.pad.padAdquisitionDate} al  ${value.pad.padDueDate}`} />
+                                <SectionElement label={Strings.members} icon={<></>} value={buildPadMembers(value)} />
                                 {getStautsTag(value)}
                             </Card>)}
                     </div>

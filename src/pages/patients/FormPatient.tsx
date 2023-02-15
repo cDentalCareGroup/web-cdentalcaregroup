@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { RiHashtag, RiHospitalLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
-import { Colonies, Colony } from "../../data/address/colonies";
+import {  Colony } from "../../data/address/colonies";
 import { Latitudes } from "../../data/maps/latitudes";
 import { Patient } from "../../data/patient/patient";
 import { PatientOrganization } from "../../data/patient/patient.organization";
@@ -11,7 +11,6 @@ import { PatientOrigin } from "../../data/patient/patient.origin";
 import { RegisterPatientRequest, UpdatePatientRequest } from "../../data/patient/patient.request";
 import SelectItemOption from "../../data/select/select.item.option";
 import { branchOfficesToSelectOptionItem } from "../../data/select/select.item.option.extensions";
-import User from "../../data/user/user";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetColoniesFromZipCodeMutation, useGetPatientOrganizationsMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
@@ -70,7 +69,6 @@ const FormPatient = (props: FormPatientProps) => {
         try {
             const response = await getBranchOffices({}).unwrap();
             setBranchoOfficeList(branchOfficesToSelectOptionItem(response));
-            console.log('aqui')
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -430,7 +428,7 @@ const FormPatient = (props: FormPatientProps) => {
 
                     <Form.Item
                         name="origin"
-                        label='Origen'
+                        label={Strings.origin}
                         style={{ minWidth: 200, padding: 10 }}
                         rules={[{ required: true, message: Strings.requiredField }]}
                     >
@@ -441,7 +439,7 @@ const FormPatient = (props: FormPatientProps) => {
 
                     <Form.Item
                         name="organization"
-                        label='Organización'
+                        label={Strings.organization}
                         style={{ minWidth: 200, padding: 10 }}
                     >
                         <Select size="large" placeholder='Organización' >
@@ -471,7 +469,7 @@ const FormPatient = (props: FormPatientProps) => {
 
                     {props.type == FormPatientType.UPDATE && <Form.Item
                         name="startDate"
-                        label='Fecha de registro'
+                        label={Strings.registerDate}
                         style={{ minWidth: 200, padding: 10 }}
                     >
                         <DatePicker
@@ -480,7 +478,7 @@ const FormPatient = (props: FormPatientProps) => {
 
                 <Form.Item>
                     <Button loading={isLoading} type="primary" htmlType="submit">
-                        {props.type == FormPatientType.REGISTER ? 'Guardar' : 'Actualizar'}
+                        {props.type == FormPatientType.REGISTER ? Strings.save : Strings.update}
                     </Button>
                 </Form.Item>
             </Form>

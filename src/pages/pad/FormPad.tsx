@@ -13,7 +13,7 @@ import User from "../../data/user/user";
 import { useGetPadCatalogsMutation, useRegisterPadMutation } from "../../services/padService";
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { isAdmin } from "../../utils/Extensions";
+import { isAdmin, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
@@ -31,6 +31,7 @@ import {
 interface FormPadProps {
     onFinish: () => void;
 }
+
 
 const FormPad = (props: FormPadProps) => {
     const [getPadCatalogs] = useGetPadCatalogsMutation();
@@ -138,7 +139,7 @@ const FormPad = (props: FormPadProps) => {
             key: 'id',
         },
         {
-            title: 'Nombre completo',
+            title: Strings.completeName,
             dataIndex: 'fullname',
             key: 'fullname',
         },
@@ -241,11 +242,11 @@ const FormPad = (props: FormPadProps) => {
             <div className="flex w-full items-end justify-end">
                 <Button type="primary" onClick={() => setIsOpenModal(true)}>Registrar PAD</Button>
             </div>
-            <Modal confirmLoading={isLoading} width={'85%'} title='Registro de PAD' onCancel={() => setIsOpenModal(false)} onOk={() => setIsOpenModal(false)} open={isOpenModal} okText='Cerrar'>
+            <Modal confirmLoading={isLoading} width={'85%'} title={Strings.formPad} onCancel={() => setIsOpenModal(false)} onOk={() => setIsOpenModal(false)} open={isOpenModal} okText={Strings.close}>
                 <div className="flex flex-col">
                     <div className="flex flex-row items-baseline gap-4 my-4">
                         <SelectSearch
-                            placeholder="Selecciona un tipo de pad"
+                            placeholder={Strings.selectPadType}
                             items={padCatalogList}
                             disabled={disabledSelect()}
                             onChange={(event) => {
@@ -255,12 +256,12 @@ const FormPad = (props: FormPadProps) => {
                             icon={<RiCouponLine />}
                         />
                         <SelectSearch
-                            placeholder="Selecciona un paciente"
+                            placeholder={Strings.selectPatient}
                             items={patientList}
                             onChange={(event) => setPatient(event)}
                             icon={<RiMentalHealthLine />}
                         />
-                        <Button onClick={() => handleOnAddPatientToPad()}>Agregar</Button>
+                        <Button onClick={() => handleOnAddPatientToPad()}>{Strings.add}</Button>
                     </div>
 
 
@@ -283,10 +284,10 @@ const FormPad = (props: FormPadProps) => {
                         <Popover placement="leftTop" content={
                             <div className="flex flex-col flex-wrap">
                                 <span className="text text-xs text-gray-600 mt-2 mb-4">Una vez guardado no se permitiran cambios. Estas seguro que deseas continuar?</span>
-                                <Button type="primary" onClick={() => handleOnRegisterPad()}>Continuar</Button>
+                                <Button type="primary" onClick={() => handleOnRegisterPad()}>{Strings.continue}</Button>
                             </div>
                         } title="Confirmación" trigger="hover">
-                            <Button type="primary">Guardar</Button>
+                            <Button type="primary">{Strings.save}</Button>
                         </Popover>
                     </div>
                 </div>

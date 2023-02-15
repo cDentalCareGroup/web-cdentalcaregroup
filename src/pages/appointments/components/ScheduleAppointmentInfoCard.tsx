@@ -1,6 +1,7 @@
 import { dayName, monthName } from "../../../utils/Extensions";
 import SectionElement from "../../components/SectionElement";
 import { RiCalendar2Line, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiPhoneLine } from "react-icons/ri";
+import Strings from "../../../utils/Strings";
 
 interface ScheduleAppointmentInfoCardProps {
     name: string | undefined;
@@ -22,13 +23,13 @@ const ScheduleAppointmentInfoCard = ({ name, primaryContact, email, date, time, 
     return (
         <div className="flex transition-all flex-col bg-gray-50 rounded-md p-2 text-gray-500">
             <span className="text-gray-700 text-2xl font-semibold flex">Resumen de la cita</span>
-            <SectionElement label="Nombre del paciente" value={`${name}`} icon={<RiMentalHealthLine />} />
-            <SectionElement label="Teléfono" value={`${primaryContact}`} icon={<RiPhoneLine />} />
-            {email && <SectionElement label="Correo electrónico" value={email} icon={<RiMailLine />} />}
-            <SectionElement label="Fecha y Hora"
+            <SectionElement label={Strings.patientName} value={`${name}`} icon={<RiMentalHealthLine />} />
+            <SectionElement label={Strings.phoneNumber} value={`${primaryContact}`} icon={<RiPhoneLine />} />
+            {email && <SectionElement label={Strings.email} value={email} icon={<RiMailLine />} />}
+            <SectionElement label={Strings.dateAndTime}
                 value={`${dayName(date)} ${date.getDate()} ${monthName(date)} ${date.getFullYear()}, ${getTime()}`}
                 icon={<RiCalendar2Line />} />
-            <SectionElement label="Sucursal" value={`${branchOfficeName}`} icon={<RiHospitalLine />} />
+            <SectionElement label={Strings.branchOffice} value={`${branchOfficeName}`} icon={<RiHospitalLine />} />
             {dentist && <SectionElement label="Dentista / Especialista" value={dentist} icon={<RiHospitalLine />} />
             }
         </div>

@@ -188,7 +188,7 @@ const ScheduleAppointment = () => {
 
                                 >
                                     <Checkbox>
-                                        Acepto los terminos y condiciones, la <Link to={'/'} target='_blank'>politica de privacidad </Link>
+                                        Acepto los términos y condiciones, la <Link to={'/'} target='_blank'>politica de privacidad </Link>
                                         y el tratamiento de mis datos.
                                     </Checkbox>
                                 </Form.Item>}

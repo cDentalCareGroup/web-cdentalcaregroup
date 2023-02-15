@@ -4,7 +4,7 @@ const PROD = "https://service-c-dental-care-group-production.up.railway.app";
 const DEV_PROD = "https://service-c-dental-care-group-development.up.railway.app";
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: DEV,
+    baseUrl: DEV_PROD,
     credentials: 'same-origin',
     prepareHeaders: (headers, { getState }) => {
         const { auth }: any = getState();
@@ -18,6 +18,6 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
     baseQuery: baseQuery,
-    tagTypes: ['User','BranchOffice','Patient','AppointmentDetail','AvailableTime'],
+    tagTypes: ['User','BranchOffice','Patient','AppointmentDetail','AvailableTime','Prospect'],
     endpoints: builder => ({})
 });

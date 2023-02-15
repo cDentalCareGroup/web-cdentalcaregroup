@@ -138,7 +138,7 @@ const FormAppointment = () => {
                     <div className="flex flex-col items-end justify-end">
                         <Button type="primary" onClick={() => setIsOpen(true)}>Registrar cita</Button>
                     </div>
-                    <Modal confirmLoading={isActionLoading} okText='Guardar' onOk={() => handleOnRegisterAppointment()} width={'85%'} open={isOpen} onCancel={() => handleResetParams()} title='Agendar nueva cita'>
+                    <Modal confirmLoading={isActionLoading} okText={Strings.save} onOk={() => handleOnRegisterAppointment()} width={'85%'} open={isOpen} onCancel={() => handleResetParams()} title={Strings.scheduleNewAppointment}>
                         <SelectSearch
                             placeholder={Strings.selectBranchOffice}
                             items={branchOffices}
@@ -149,7 +149,7 @@ const FormAppointment = () => {
 
                         <br />
                         {(time != '' && isProspect == false) && <SelectSearch
-                            placeholder="Selecciona un paciente"
+                            placeholder={Strings.selectPatient}
                             items={patientList}
                             onChange={(value) => setPatient(value)}
                             icon={<RiUser3Line />}
@@ -178,7 +178,7 @@ const FormAppointment = () => {
                         }
                         {!isProspect && time != '' && patient &&
                             <div className="flex transition-all flex-col bg-gray-50 rounded-md p-2 text-gray-500">
-                                <span className="text-gray-700 text-2xl font-semibold flex">Resumen de la cita</span>
+                                <span className="text-gray-700 text-2xl font-semibold flex">{Strings.appointmentSummary}</span>
                                 <SectionElement label={Strings.patientName} value={`${patient?.label}`} icon={<RiMentalHealthLine />} />
                                 <SectionElement label={Strings.dateAndTime}
                                     value={`${dayName(date)} ${date.getDate()} ${monthName(date)} ${date.getFullYear()}, ${getTime()}`}

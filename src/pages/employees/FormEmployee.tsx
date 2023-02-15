@@ -203,7 +203,7 @@ const FormEmployee = (props: FormEmployeeProps) => {
     }
 
     const buildCardTitle = (): string => {
-        return props.type == FormEmployeeType.REGISTER ? "Registro de empleados" : ''
+        return props.type == FormEmployeeType.REGISTER ? Strings.formEmployees : ''
     }
 
     const handleCheckForm = (values: any) => {
@@ -250,7 +250,7 @@ const FormEmployee = (props: FormEmployeeProps) => {
         <div className="flex flex-col">
             <Form form={form} layout="vertical" onFinish={handleCheckForm}>
                 <Divider orientation="left" orientationMargin="0">
-                    Informacion del empleado
+                    {Strings.employeeInfo}
                 </Divider>
                 <Form.Item
                     name='branchOffice'
@@ -386,7 +386,7 @@ const FormEmployee = (props: FormEmployeeProps) => {
                 </Form.Item>
 
                 <Divider orientation="left" orientationMargin="0">
-                    Informacion laboral
+                    {Strings.workInfo}
                 </Divider>
 
                 <Form.Item
@@ -396,7 +396,7 @@ const FormEmployee = (props: FormEmployeeProps) => {
                 >
                     <Select size="large" placeholder={Strings.contractType}>
                         <Select.Option value={1}>Contrato laboral</Select.Option>
-                        <Select.Option value={2}>Prestacion de servicio</Select.Option>
+                        <Select.Option value={2}>Prestación de servicio</Select.Option>
                     </Select>
                 </Form.Item>
 
@@ -434,10 +434,10 @@ const FormEmployee = (props: FormEmployeeProps) => {
 
                 {props.type == FormEmployeeType.REGISTER && <Form.Item
                     name="role"
-                    label='Rol de usuario'
+                    label={Strings.userRol}
                     rules={[{ required: true, message: Strings.requiredField }]}
                 >
-                    <Select size="large" placeholder='Selecciona un rol'>
+                    <Select size="large" placeholder={Strings.selectUserRol}>
                         {roleList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                     </Select>
                 </Form.Item>}
@@ -484,7 +484,7 @@ const FormEmployee = (props: FormEmployeeProps) => {
 
                 <Form.Item>
                     <Button loading={isLoading} type="primary" htmlType="submit">
-                        {props.type == FormEmployeeType.REGISTER ? 'Guardar' : 'Actualizar'}
+                        {props.type == FormEmployeeType.REGISTER ? Strings.save : Strings.update}
                     </Button>
                 </Form.Item>
             </Form>

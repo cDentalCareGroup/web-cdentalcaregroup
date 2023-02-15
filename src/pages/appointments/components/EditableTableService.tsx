@@ -4,6 +4,7 @@ import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { RiDeleteBin7Line } from 'react-icons/ri';
 import { formatNumberToPercent } from '../../../utils/Extensions';
+import Strings from '../../../utils/Strings';
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
 
@@ -130,11 +131,11 @@ const EditableTable = (props: EditableTableCustomProps) => {
 
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean; dataIndex: string })[] = [
         {
-            title: 'Descripcion',
+            title: Strings.description,
             dataIndex: 'description',
         },
         {
-            title: 'Cantidad',
+            title: Strings.quantity,
             dataIndex: 'quantity',
             editable: true,
             render: (_: any, value: any) => (
@@ -144,11 +145,11 @@ const EditableTable = (props: EditableTableCustomProps) => {
             ),
         },
         {
-            title: 'Precio unitario',
+            title: Strings.unitPrice,
             dataIndex: 'unitPrice',
         },
         {
-            title: 'Descuento',
+            title: Strings.discount,
             dataIndex: 'disscount',
             render: (_: any, value: any) => (
                 <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
@@ -157,15 +158,15 @@ const EditableTable = (props: EditableTableCustomProps) => {
             ),
         },
         {
-            title: 'Precio',
+            title: Strings.price,
             dataIndex: 'price',
         },
         {
-            title: 'Sub total',
+            title: Strings.subTotal,
             dataIndex: 'subtotal',
         },
         {
-            title: 'Pagado',
+            title: Strings.paid,
             dataIndex: 'paid',
             editable: true,
             render: (_: any, value: any) => (
@@ -175,7 +176,7 @@ const EditableTable = (props: EditableTableCustomProps) => {
             ),
         },
         {
-            title: 'Acciones',
+            title: Strings.actions,
             dataIndex: 'actions',
             render: (_: any, value: any) => (
                 <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">

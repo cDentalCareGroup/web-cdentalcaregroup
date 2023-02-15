@@ -1,13 +1,13 @@
 import { Button, Card, List, Modal, Radio, Space, Tag } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
-import { RiMentalHealthLine, RiMoneyDollarCircleLine, RiServiceLine } from "react-icons/ri";
+import {  RiMoneyDollarCircleLine, RiServiceLine } from "react-icons/ri";
 import SelectItemOption from "../../data/select/select.item.option";
 import { serviceCategoriesToSelectItemOption } from "../../data/select/select.item.option.extensions";
 import { Service } from "../../data/service/service";
 import { RegisterServiceRequest, UpdateServiceRequest } from "../../data/service/service.request";
 import { useGetAllServicesMutation, useGetServiceCategoriesMutation, useRegisterServiceMutation, useUpdateServiceMutation } from "../../services/padService";
-import { RESPONSIVE_LIST, RESPONSIVE_LIST_LARGE, RESPONSIVE_LIST_SMALL } from "../../utils/Extensions";
+import { RESPONSIVE_LIST } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
@@ -129,7 +129,7 @@ const Services = () => {
 
 
     const getStautsTag = (service: Service): JSX.Element => {
-        if (service.status != null && service.status == 'activo') {
+        if (service.status != null && service.status == Strings.statusValueActive) {
             return <Tag color="success">{service.status}</Tag>
         } else {
             return <Tag color="error">Inactivo</Tag>
@@ -138,12 +138,13 @@ const Services = () => {
 
     return (
         <LayoutCard
+        title={Strings.services}
             isLoading={isLoading}
             content={
                 <div className="flex flex-col">
-                    <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={'Buscar servicios'} onSearch={handleOnSearch} enterButton />
+                    <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchService} onSearch={handleOnSearch} enterButton />
                     <div className="flex w-full items-end justify-end mt-4 mb-12">
-                        <Button type="primary" onClick={() => setIsOpenModal(true)}>{'Registrar servicio'}</Button>
+                        <Button type="primary" onClick={() => setIsOpenModal(true)}>{Strings.registerService}</Button>
                     </div>
                     <List
                         grid={RESPONSIVE_LIST}
@@ -163,27 +164,27 @@ const Services = () => {
 
                     <Modal
                         onOk={() => validateForm()}
-                        title={isEdit ? 'Actualizar servicio' : 'Registro de serivicio'}
-                        okText={isEdit ? 'Actualizar' : 'Guardar'}
+                        title={isEdit ? Strings.formServiceUpdate : Strings.formService}
+                        okText={isEdit ? Strings.update : Strings.save}
                         open={isOpenModal}
                         onCancel={() => setIsOpenModal(false)}>
-                        <CustomFormInput value={name} label={Strings.nameLabel} onChange={(value) => setName(value)} placeholder="Consulta general" />
+                        <CustomFormInput value={name} label={Strings.nameLabel} onChange={(value) => setName(value)} placeholder={Strings.generalInquiry} />
                         <CustomFormInput value={price} label={Strings.price} onChange={(value) => setPrice(value)} prefix="$" placeholder="0.0" />
 
-                        <span className="flex mt-2 mb-2">Selecciona una categoria</span>
+                        <span className="flex mt-2 mb-2">{Strings.selectCategory}</span>
                         <SelectSearch
-                            placeholder="Selecciona una categoria"
+                            placeholder={Strings.selectCategory}
                             items={categories}
                             onChange={(event) => setCategory(event)}
                             icon={<></>}
                             defaultValue={category?.id}
                         />
                         {isEdit && <div>
-                            <span className="flex mt-2 mb-2">Estatus</span>
+                            <span className="flex mt-2 mb-2">{Strings.status}</span>
                             <Radio.Group className="ml-2 mt-2" onChange={(event) => setStatus(event.target.value)} value={status}>
                                 <Space direction="vertical">
-                                    <Radio value={'activo'}>Activo</Radio>
-                                    <Radio value={'inactivo'}>Inactivo</Radio>
+                                    <Radio value={Strings.statusValueActive}>{Strings.statusActive}</Radio>
+                                    <Radio value={Strings.statusValueInactive}>{Strings.statusInactive}</Radio>
                                 </Space>
                             </Radio.Group>
                         </div>}

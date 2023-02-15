@@ -133,6 +133,21 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return <></>;
     }
 
+    const checkDueDate = (): JSX.Element => {
+        const date = new Date(data.appointment.appointment);
+        date.setDate(date.getDate() + 1);
+        if (isToday(date)) {
+            const arrayTime = data.appointment.time.split(":");
+            const hour = Number(arrayTime[0]);
+            const minutes = Number(arrayTime[1]);
+            const today = new Date();
+            if (hour <= today.getHours() && minutes <= today.getMinutes()) {
+                return <Tag color="red">{Strings.notAttendedAppointment}</Tag>
+            }
+        }
+        return <></>;
+    }
+
     const handleOnSetDentist = async () => {
         await handleGetDentist();
         if (data.dentist != null && data.dentist != undefined) {
@@ -540,6 +555,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 </div>
             }
             {getStautsTag()}
+            {checkDueDate()}
             {showNextAppointment() &&
                 <SectionElement label={'Siguiente cita'} value={buildNextAppointmentText()} icon={<RiCalendar2Line />} />
             }
@@ -741,49 +757,49 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                         } else {
                             navigate(`/receptionist/appointments/detail/${data?.appointment.folio}`)
                         }
-                    }}>Detalles</span>
+                    }}>{Strings.details}</span>
                 ]}>
                 {!hideContent && CardContent()}
                 <Row className="mt-4 gap-2">
                     {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >
-                        {!data.dentist ? 'Asignar dentista' : 'Cambiar dentista'}
+                        {!data.dentist ? Strings.assignDentist : Strings.changeDentist}
                     </Button>}
-                    {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >Iniciar cita</Button>}
-                    {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >Reagendar</Button>}
-                    {canFinish() && <Button type="primary" loading={isActionLoading} onClick={() => { handleSetModalFinish() }} >Finalizar cita</Button>}
-                    {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >Extender cita</Button>}
-                    {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >Agendar siguiente cita</Button>}
-                    {canRegisterNextAppointment() && <FormCall patientId={data.patient?.id} showPatients={false} onFinish={() => {}} />}
+                    {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >{Strings.startAppointment}</Button>}
+                    {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >{Strings.rescheduleAppointment}</Button>}
+                    {canFinish() && <Button type="primary" loading={isActionLoading} onClick={() => { handleSetModalFinish() }} >{Strings.finishAppointment}</Button>}
+                    {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >{Strings.extendAppointment}</Button>}
+                    {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >{Strings.scheduleNextAppointment}</Button>}
+                    {canRegisterNextAppointment() && <FormCall patientId={data.patient?.id} showPatients={false} onFinish={() => { }} />}
 
                 </Row>
 
             </Card>
 
-            <Modal width={'85%'} title='Finalizar cita' confirmLoading={isActionLoading} onOk={() => {
+            <Modal width={'85%'} title={Strings.finishAppointment} confirmLoading={isActionLoading} onOk={() => {
                 confirm({
-                    content: <span>Deseas finalizar la cita?</span>,
+                    content: <span>{Strings.askFinishAppointment}</span>,
                     onOk() {
                         handleUpdateAppointmentStatus('finalizada');
                     },
-                    okText: 'Finalizar',
-                    cancelText: 'Cancelar',
+                    okText: Strings.finish,
+                    cancelText: Strings.cancel,
                 });
-            }} onCancel={() => setModalFinish(false)} open={modalFinish} okText='Finalizar' >
-                <span className="flex mt-2">Método de pago</span>
-                <Select style={{ minWidth: '100%' }} size="large" placeholder='Método de pago' onChange={(event) => setPaymentMethodId(event)}>
+            }} onCancel={() => setModalFinish(false)} open={modalFinish} okText={Strings.finish} >
+                <span className="flex mt-2">{Strings.paymentMethod}</span>
+                <Select style={{ minWidth: '100%' }} size="large" placeholder={Strings.paymentMethod} onChange={(event) => setPaymentMethodId(event)}>
                     {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                 </Select>
 
 
-                <span className="flex mt-2">Tipo de servicios</span>
-                <SelectSearch icon={<></>} placeholder="Servicios" items={serviceList} onChange={(event) => handleOnServiceChange(event)} />
+                <span className="flex mt-2">{Strings.serviceType}</span>
+                <SelectSearch icon={<></>} placeholder={Strings.services} items={serviceList} onChange={(event) => handleOnServiceChange(event)} />
                 <br />
 
                 {!isTableLoading && <EditableTable onChange={handleOnTableChange} isLoading={isTableLoading} data={dataTable} />}
                 {isTableLoading && <Spinner />}
 
 
-                <span className="flex mt-2 mb-1">Monto recibido</span>
+                <span className="flex mt-2 mb-1">{Strings.receivedAmount}</span>
                 <Input addonBefore="$"
                     size="large"
                     value={amountReceived}
@@ -793,7 +809,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
                 <div className="flex flex-row w-full items-end justify-end gap-2 mt-2">
                     <span className="text font-bold text-base text-gray-600">
-                        Monto recibido:
+                        {Strings.receivedAmount}:
                     </span>
                     <span className="text font-semibold text-base">
                         {formatPrice(Number(amountReceived))}
@@ -802,7 +818,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
                 <div className="flex flex-row w-full items-end justify-end gap-2">
                     <span className="text font-bold text-base text-gray-600">
-                        Total:
+                        {Strings.total}:
                     </span>
                     <span className="text font-semibold text-base">
                         {formatPrice(getTotalFromServices())}
@@ -819,13 +835,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
             </Modal>
 
-            <Modal title={'Asignar dentista'} okText={'Guardar'} confirmLoading={isActionLoading} open={modalDentist} onOk={() => handleOnSaveDentist()} onCancel={() => {
+            <Modal title={Strings.assignDentist} okText={Strings.save} confirmLoading={isActionLoading} open={modalDentist} onOk={() => handleOnSaveDentist()} onCancel={() => {
                 resetSetDentistParams();
                 setModalDentist(false)
             }}>
                 <br />
                 <SelectSearch
-                    placeholder="Selecciona un paciente"
+                    placeholder={Strings.selectPatient}
                     items={patientList}
                     onChange={(value) => setPatient(value)}
                     icon={<RiUser3Line />}
@@ -836,7 +852,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 </div>
                 <br />
                 <SelectSearch
-                    placeholder="Selecciona un dentista"
+                    placeholder={Strings.selectDentist}
                     defaultValue={dentist?.id}
                     items={dentistList}
                     onChange={(value) => setDentist(value)}
@@ -844,12 +860,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
             </Modal>
 
-            <Modal width={'85%'} title={'Reagendar cita'} okText={'Actualizar cita'} confirmLoading={isActionLoading} open={modalReschedule} onOk={() => handleOnRescheduleAppointment()} onCancel={() => {
+            <Modal width={'85%'} title={Strings.rescheduleAppointment} okText={Strings.updateAppointment} confirmLoading={isActionLoading} open={modalReschedule} onOk={() => handleOnRescheduleAppointment()} onCancel={() => {
                 resetRescheduleAppointmentParams();
                 setModalReschedule(false)
             }}>
                 <SelectSearch
-                    placeholder="Selecciona un sucursal"
+                    placeholder={Strings.selectBranchOffice}
                     items={branchOfficeList}
                     onChange={handleOnBranchOfficeChange}
                     icon={<RiHospitalLine />}
@@ -873,14 +889,14 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             </Modal>
 
 
-            <Modal title={`Agendar próxima cita para Paciente #${data?.patient?.id} ${getPatientName(data)}`} width={'50%'} confirmLoading={isActionLoading} onOk={() => handleOnRegisterNextAppointment()} okText='Aceptar' open={modalNextAppointment} onCancel={() => {
+            <Modal title={`${Strings.scheduleNextAppointmentPatient} #${data?.patient?.id} ${getPatientName(data)}`} width={'50%'} confirmLoading={isActionLoading} onOk={() => handleOnRegisterNextAppointment()} okText={Strings.accept} open={modalNextAppointment} onCancel={() => {
                 setIsActionLoading(false);
                 setModalNextAppointment(false)
             }}>
                 <br />
 
                 <SelectSearch
-                    placeholder="Selecciona un sucursal"
+                    placeholder={Strings.selectBranchOffice}
                     items={branchOfficeList}
                     onChange={(event) => handleOnBranchOfficeDentistChange(event, true)}
                     icon={<RiHospitalLine />}
@@ -888,7 +904,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 />
                 <br />
                 <SelectSearch
-                    placeholder="Selecciona un dentista"
+                    placeholder={Strings.selectDentist}
                     items={dentistList}
                     onChange={(event) => handleOnBranchOfficeDentistChange(event, false)}
                     icon={<RiMentalHealthLine />}
@@ -897,24 +913,24 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
                 <div className="ml-5">
                     <div className="flex flex-col gap-2 mb-4 mt-6">
-                        <span >Laboratorios: </span>
+                        <span >{Strings.labs}: </span>
                         <Radio.Group onChange={(event) => setHasLabs(event.target.value)} value={hasLabs}>
-                            <Radio value={1}>Si necesita</Radio>
-                            <Radio value={0}>No necesita</Radio>
-                            <Radio value={2}>Ya tiene</Radio>
+                            <Radio value={1}>{Strings.optionNeeds}</Radio>
+                            <Radio value={0}>{Strings.optionNoNeeds}</Radio>
+                            <Radio value={2}>{Strings.optionAlreadyHas}</Radio>
                         </Radio.Group>
                     </div>
                     <div className="flex flex-col gap-2 mb-4 mt-6">
-                        <span >Estudios: </span>
+                        <span >{Strings.cabinets}: </span>
                         <Radio.Group onChange={(event) => setHasCabinet(event.target.value)} value={hasCabinet}>
-                            <Radio value={1}>Si necesita</Radio>
-                            <Radio value={0}>No necesita</Radio>
-                            <Radio value={2}>Ya tiene</Radio>
+                            <Radio value={1}>{Strings.optionNeeds}</Radio>
+                            <Radio value={0}>{Strings.optionNoNeeds}</Radio>
+                            <Radio value={2}>{Strings.optionAlreadyHas}</Radio>
                         </Radio.Group>
                     </div>
 
-                    <span className="flex mt-2">Tipo de servicios</span>
-                    <MultiSelectSearch icon={<></>} placeholder="Servicios" items={serviceList} onChange={(event) => setServices(event)} />
+                    <span className="flex mt-2">{Strings.serviceType}</span>
+                    <MultiSelectSearch icon={<></>} placeholder={Strings.services} items={serviceList} onChange={(event) => setServices(event)} />
                 </div>
 
                 <br />
@@ -940,13 +956,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             </Modal>
 
 
-            <Modal confirmLoading={isExtendTimesLoading} title='Extender cita' onOk={() => handleExtendAppointment()} open={modalExtendAppointment} onCancel={() => setModalExtendAppointment(false)} okText='Guardar'>
-                <span className="flex mt-2">Selecciona los horarios</span>
-                <MultiSelectSearch icon={<></>} placeholder="Horarios" items={extendedTimesList} onChange={(event) => setExtendedAvailableTimes(event)} />
+            <Modal confirmLoading={isExtendTimesLoading} title={Strings.extendAppointment} onOk={() => handleExtendAppointment()} open={modalExtendAppointment} onCancel={() => setModalExtendAppointment(false)} okText={Strings.save}>
+                <span className="flex mt-2">{Strings.selectSchedule}</span>
+                <MultiSelectSearch icon={<></>} placeholder={Strings.schedule} items={extendedTimesList} onChange={(event) => setExtendedAvailableTimes(event)} />
             </Modal>
-
-
-        </div >
+        </div>
     );
 }
 

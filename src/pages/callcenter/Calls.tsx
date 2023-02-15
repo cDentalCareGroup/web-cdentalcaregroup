@@ -83,21 +83,20 @@ const Calls = () => {
     return (
         <LayoutCard
             isLoading={isLoading}
-            title={`Llamadas del día  ${data.length != 0 ? data.length : ''}`}
+            title={`${Strings.callsDay} ${data.length != 0 ? data.length : ''}`}
             content={
                 <div className="flex flex-col">
-                   
-                        <FormAppointment />
-                        <br />
-                        <FormCall showPatients={true} onFinish={() => handleGetCalls()} />
-              
+                    <FormAppointment />
+                    <br />
+                    <FormCall showPatients={true} onFinish={() => handleGetCalls()} />
+
                     <div className="flex flex-row flex-wrap gap-2 mt-4">
                         {data.map((value, index) =>
                             <Card key={index} title={capitalizeFirstLetter(value.catalog.name)}
                                 actions={[<span onClick={() => {
                                     setCall(value);
                                     navigate('/callcenter/call')
-                                }}>Atender</span>]}
+                                }}>{Strings.attend}</span>]}
                             >
                                 {buildInfo(value)}
                                 {buildPriority(value.call)}

@@ -61,7 +61,7 @@ const BranchOffices = (props: BranchOfficesProps) => {
                 <Link onClick={() => {
                     setBranchId(value.id);
                 }} to={'/admin/branchoffice/appointments'}>
-                    Ver citas
+                    {Strings.seeAppointments}
                 </Link>
             ]
         } else {
@@ -75,10 +75,10 @@ const BranchOffices = (props: BranchOfficesProps) => {
     const buildAppointmentStatus = (value: BranchOffice): JSX.Element => {
         return (
             <div className="flex flex-row gap-2 flex-wrap">
-                <Tag color="success">{`Citas activas ${value.appointment?.active ?? ''}`}</Tag>
-                <Tag color="processing">{`Citas en proceso ${value.appointment?.proccess ?? ''}`}</Tag>
-                <Tag color="default">{`Citas finalizadas ${value.appointment?.finshed ?? ''}`}</Tag>
-                <Tag color="error">{`Citas no atendidas ${value.appointment?.noAttended ?? ''}`}</Tag>
+                <Tag color="success">{`${Strings.activeAppointments} ${value.appointment?.active ?? ''}`}</Tag>
+                <Tag color="processing">{`${Strings.proccessAppointments} ${value.appointment?.proccess ?? ''}`}</Tag>
+                <Tag color="default">{`${Strings.finishedAppointments} ${value.appointment?.finshed ?? ''}`}</Tag>
+                <Tag color="error">{`${Strings.notAttendedAppointments} ${value.appointment?.noAttended ?? ''}`}</Tag>
             </div>
         );
     }

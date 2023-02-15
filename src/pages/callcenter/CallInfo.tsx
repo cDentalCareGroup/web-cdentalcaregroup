@@ -66,9 +66,9 @@ const CallInfo = () => {
         return (<div >
             <SectionElement label={Strings.patientName} value={buildPatientName(data?.patient)} icon={<RiUser3Line />} size='sm' />
             <SectionElement label={Strings.pad} value={data?.patient?.pad ? 'Si' : 'No'} icon={<RiUserHeartLine />} size='sm' />
-            <SectionElement label={'Fecha de adquisicion'} value={data?.patient?.padAcquisitionDate ?? ''} icon={<RiUserHeartLine />} size='sm' />
-            <SectionElement label={'Fecha de vencimiento'} value={data?.patient?.padExpirationDate ?? ''} icon={<RiUserHeartLine />} size='sm' />
-            <SectionElement label={'Dias vencido'} value={buildDifferenceInDays()} icon={<RiUserHeartLine />} size='sm' />
+            <SectionElement label={Strings.adquisitionDate} value={data?.patient?.padAcquisitionDate ?? ''} icon={<RiUserHeartLine />} size='sm' />
+            <SectionElement label={Strings.dueDate} value={data?.patient?.padExpirationDate ?? ''} icon={<RiUserHeartLine />} size='sm' />
+            <SectionElement label={Strings.daysDueDate} value={buildDifferenceInDays()} icon={<RiUserHeartLine />} size='sm' />
         </div>)
     }
 
@@ -101,34 +101,34 @@ const CallInfo = () => {
                     style={{ backgroundColor: '#fff' }}
                     expandIcon={({ isActive }) => isActive ? <RiArrowDownSLine /> : <RiArrowRightSLine />} >
 
-                    <Collapse.Panel header="Información de la llamada" key="1" className="text font-semibold">
+                    <Collapse.Panel header={Strings.callInfo} key="1" className="text font-semibold">
                         <div className="flex mx-6">
                             <span className="text text-sm font-normal">{data?.call.description ?? '-'}</span>
                         </div>
                     </Collapse.Panel>
 
-                    {isPad && <Collapse.Panel header="Información del PAD" key="2" className="text font-semibold">
+                    {isPad && <Collapse.Panel header={Strings.padInfo} key="2" className="text font-semibold">
                         <div className="flex mx-6">
                             {padInfoContent()}
                         </div>
                     </Collapse.Panel>}
 
-                    {isNotShow && <Collapse.Panel header="Información del la cita" key="2" className="text font-semibold">
+                    {isNotShow && <Collapse.Panel header={Strings.appointmentInfo} key="2" className="text font-semibold">
                         <div className="flex mx-6">
                             {notAttendedInfoContent()}
                         </div>
                     </Collapse.Panel>}
 
-                    {data?.patient && <Collapse.Panel header="Información del paciente" key="3" className="text font-semibold">
+                    {data?.patient && <Collapse.Panel header={Strings.patientInformation} key="3" className="text font-semibold">
                         {patientiInfo()}
                     </Collapse.Panel>}
-                    <Collapse.Panel header="Historial de llamadas" key="4" className="text font-semibold">
+                    <Collapse.Panel header={Strings.callHistory} key="4" className="text font-semibold">
                         <List
                             bordered={false}
                             dataSource={info}
                             renderItem={(item: any) => (
                                 <List.Item>
-                                    <span className="text text-sm font-normal">{`Fecha ${item?.callDueDate ?? 'Sin fecha'} - Motivo ${item?.catalogName}`}</span>
+                                    <span className="text text-sm font-normal">{`${Strings.date} ${item?.callDueDate ?? 'Sin fecha'} - Motivo ${item?.catalogName}`}</span>
                                 </List.Item>
                             )}
                         />
@@ -149,8 +149,8 @@ const CallInfo = () => {
             <div>
                 {call.patient && <SectionElement label={Strings.patientName} value={buildPatientName(call?.patient)} icon={<RiUser3Line />} size='sm' />}
                 {call.propspect && <SectionElement label={Strings.patientName} value={call?.propspect?.name} icon={<RiUser3Line />} size='sm' />}
-                <SectionElement label={'Hora y Fecha de la cita'} value={call?.appointment?.scheduledAt.toString() ?? ''} icon={<RiUserHeartLine />} size='sm' />
-                <SectionElement label={'Dias vencida'} value={buildNotAttendedDate()} icon={<RiUserHeartLine />} size='sm' />
+                <SectionElement label={Strings.dateTimeAppointent} value={call?.appointment?.scheduledAt.toString() ?? ''} icon={<RiUserHeartLine />} size='sm' />
+                <SectionElement label={Strings.daysDue} value={buildNotAttendedDate()} icon={<RiUserHeartLine />} size='sm' />
             </div>
         );
     }
@@ -158,7 +158,7 @@ const CallInfo = () => {
     const callActions = (): JSX.Element => {
         return (<div className="w-full flex-1">
             <span className="flex flex-col flex-wrap w-full p-2 text-gray-600">
-                <span className="text text-base text-gray-500">Dialogo: </span>
+                <span className="text text-base text-gray-500">{Strings.dialog} </span>
                 <div className="p-2" dangerouslySetInnerHTML={{ __html: call?.catalog.script ?? '' }} />
             </span>
             <TextArea
@@ -167,10 +167,10 @@ const CallInfo = () => {
                 maxLength={150}
                 style={{ height: 120, marginBottom: 5 }}
                 onChange={(event) => setComment(event.target.value)}
-                placeholder="Detalle de la llamada"
+                placeholder={Strings.callDetail}
             />
             <div className="flex mt-6 w-full justify-end items-end">
-                <Button loading={isLoadingAction} disabled={data?.call.status != 'activa'} type="primary" onClick={() => handleUpdateCall()}>Guardar</Button>
+                <Button loading={isLoadingAction} disabled={data?.call.status != 'activa'} type="primary" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
             </div>
         
         </div>)

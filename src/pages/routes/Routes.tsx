@@ -39,6 +39,7 @@ import FormPadCatalogue, { FormPadCatalogueType } from "../pad/FormPadCatalogue"
 import Pads from "../pad/Pads";
 import FormPad from "../pad/FormPad";
 import Services from "../service/Services";
+import Prospects from "../prospect/Prospects";
 
 export class Route {
     label: string;
@@ -69,8 +70,9 @@ const adminEmployeesInfo = new Route('Employees', 'employeesinfo', '/admin/emplo
 const adminPatients = new Route('Pacientes', 'patients', '/admin/patients', <Patients rol={UserRoles.ADMIN} />, <RiUserHeartLine />);
 const adminRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/admin/patients/register', <FormPatient type={FormPatientType.REGISTER} rol={UserRoles.ADMIN} />, <RiUser3Line />);
 const adminPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/admin/patients/detail/:id', <PatientInfo rol={UserRoles.ADMIN} />, <RiUser3Line />);
+const adminProspects = new Route('Prospectos', 'prospects', '/admin/prospects', <Prospects />, <RiUser3Line />);
 
-const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads />, <RiUserHeartLine />);
+const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads  />, <RiUserHeartLine />);
 
 const adminPadCatalogue = new Route('Pad catalogos', 'padCatalogue', '/admin/pad/catalogs/', <PadCatalogues />, <RiUserHeartLine />);
 const adminPadCatalogueForm = new Route('Form pad catalogos', 'formPadCatalogue', '/admin/pad/catalogs/register', <FormPadCatalogue type={FormPadCatalogueType.REGISTER} />, <RiUserHeartLine />);
@@ -91,6 +93,7 @@ const receptionistRegisterPatients = new Route('RegistroPacientes', 'patientsReg
 const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/patients', <Patients rol={UserRoles.RECEPTIONIST} />, <RiUserHeartLine />);
 const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/receptionist/patients/detail/:id', <PatientInfo rol={UserRoles.RECEPTIONIST} />, <RiUser3Line />);
 const receptionistService = new Route('Servicios', 'services', '/receptionist/services/', <Services />, <RiServiceLine />);
+const receptionistPad = new Route('Pads', 'pad', '/receptionist/pad/', <Pads  />, <RiUserHeartLine />);
 
 
 const callCenter = new Route('Llamadas', 'callCenter', '/callcenter', <Calls />, <RiUser3Line />);
@@ -109,6 +112,7 @@ const adminRoutes: Route[] = [
     adminRegistrerEmployees,
     adminEmployeesInfo,
     adminPatients,
+    adminProspects,
     adminRegisterPatients,
     adminPatientsInfo,
     adminPad,
@@ -126,6 +130,7 @@ const receptionistRoutes: Route[] = [
     receptionistRegisterPatients,
     receptionistPatientsInfo,
     receptionistService,
+    receptionistPad,
     logout
 ];
 
@@ -168,8 +173,8 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
                 getItem(adminBranchOfficesAppointments.label, adminBranchOfficesAppointments.fullPath, adminBranchOfficesAppointments.icon),
                 getItem(adminBranchOfficesSchedules.label, adminBranchOfficesSchedules.fullPath, adminBranchOfficesSchedules.icon),
                 getItem(adminEmployees.label, adminEmployees.fullPath, adminEmployees.icon),
-                getItem(adminPatients.label, adminPatients.fullPath, adminPatients.icon)
-
+                getItem(adminPatients.label, adminPatients.fullPath, adminPatients.icon),
+                getItem(adminProspects.label, adminProspects.fullPath, adminProspects.icon)
             ],
             'group'),
         getItem(
@@ -210,6 +215,14 @@ const receptionistRoutesToMenuOptions = (): ItemType[] => {
             [
                 getItem(receptionistAppointments.label, receptionistAppointments.fullPath, receptionistAppointments.icon),
                 getItem(receptionistPatients.label, receptionistPatients.fullPath, receptionistPatients.icon),
+            ],
+            'group'),
+        getItem(
+            'Pads',
+            'pads',
+            null,
+            [
+                getItem(receptionistPad.label, receptionistPad.fullPath, receptionistPad.icon),
             ],
             'group'),
         getItem(

@@ -3,11 +3,10 @@ import { differenceInDays } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiCalendar2Line, RiFileList3Line, RiFunctionLine, RiHeartPulseLine, RiMailLine, RiPhoneLine, RiUser3Line, RiUserHeartLine, RiVipDiamondLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
-import { padCatalogueDetailToDataTable } from "../../data/pad/pad.extensions";
 import { PadData, Patient } from "../../data/patient/patient";
-import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPatientGender, buildPatientName, buildPatientPad, buildPatientPhone, buildPatientStartedAt, padComponentsToDataTable } from "../../data/patient/patient.extensions";
+import {  padComponentsToDataTable } from "../../data/patient/patient.extensions";
 import { useGetPatientMutation } from "../../services/patientService";
-import { capitalizeFirstLetter, formatNumberToPercent, UserRoles } from "../../utils/Extensions";
+import { formatNumberToPercent, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import NoData from "../components/NoData";
@@ -48,12 +47,12 @@ const PatientInfo = (props: PatientInfoProps) => {
 
     const columns = [
         {
-            title: 'Servicio',
+            title: Strings.service,
             dataIndex: 'service',
             key: 'service',
         },
         {
-            title: 'Descuento',
+            title: Strings.discount,
             dataIndex: 'discount',
             key: 'discount',
             render: (_: any, value: any) => (
@@ -63,7 +62,7 @@ const PatientInfo = (props: PatientInfoProps) => {
             ),
         },
         {
-            title: 'Cantidad máxima',
+            title: Strings.maxQuantity,
             dataIndex: 'quantity',
             key: 'quantity',
         },
@@ -72,27 +71,27 @@ const PatientInfo = (props: PatientInfoProps) => {
 
     const PatientPadCard = () => {
         return (<>
-            <SectionElement label={'Nombre del PAD'} value={
+            <SectionElement label={Strings.padName} value={
                 `${pad?.padCatalog?.name}`
             } icon={<RiUserHeartLine />} />
-            <SectionElement label={'Tipo de PAD'} value={
+            <SectionElement label={Strings.padType} value={
                 `${pad?.padCatalog?.type}`
             } icon={<RiUserHeartLine />} />
-            <SectionElement label={'Fecha de adquisición'} value={
+            <SectionElement label={Strings.adquisitionDate} value={
                 `${pad?.pad?.padAdquisitionDate}`
             } icon={<RiUserHeartLine />} />
-            <SectionElement label={'Fecha de vencimiento'} value={
+            <SectionElement label={Strings.dueDate} value={
                 `${pad?.pad?.padDueDate}`
             } icon={<RiUserHeartLine />} />
-            <SectionElement label={'Días válido'} value={
+            <SectionElement label={Strings.validDays} value={
                 `${pad?.padCatalog?.day}`
             } icon={<RiUserHeartLine />} />
-            <SectionElement label={'Días para el vencimiento del PAD'} value={
+            <SectionElement label={Strings.daysDueDate} value={
                 `${differenceInDays(new Date(pad?.pad?.padDueDate ?? ''), new Date(pad?.pad?.padAdquisitionDate ?? ''))}`
             } icon={<RiUserHeartLine />} />
             {getStautsTag()}
 
-            <Divider >Beneficios del PAD</Divider>
+            <Divider> {Strings.padBenefits}</Divider>
             <Table dataSource={dataTable} columns={columns} />;
 
         </>);
@@ -100,7 +99,7 @@ const PatientInfo = (props: PatientInfoProps) => {
 
 
     const getStautsTag = (): JSX.Element => {
-        if (pad?.pad?.status == 'activo') {
+        if (pad?.pad?.status == Strings.statusValueActive) {
             return <Tag color="success">{pad?.pad?.status}</Tag>
         } else {
             return <Tag color="error">Inactivo</Tag>
