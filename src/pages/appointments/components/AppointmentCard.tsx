@@ -41,6 +41,7 @@ import { PadComponentUsed } from "../../../data/pad/pad.component.used";
 import { Service } from "../../../data/service/service";
 import Spinner from "../../components/Spinner";
 import FormCall from "../../callcenter/FormCall";
+import EditableSortableTable from "./Test";
 const { confirm } = Modal;
 
 interface AppointmentCardProps {
@@ -717,6 +718,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const handleOnTableChange = (data: any) => {
         setDataTable(data);
+        updateServiceTable(data);
     }
 
 
@@ -741,10 +743,39 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         if (Number(amountReceived) == 0) {
             return 'Cambio :'
         } else if (Number(amountReceived) < getTotalFromServices()) {
-            return 'Deuda :'
+            return 'Saldo pendiente :'
         } else {
             return 'Cambio :'
         }
+    }
+
+
+    const handleOnPriceChange = (event: any) => {
+        setAmountReceived(event.target.value);
+    }
+
+    const updateServiceTable = (pastData: any) => {
+        setIsTableLoading(true);
+        setDataTable([]);
+        const amount = Number(amountReceived);
+        const newData = [];
+        let totalAmount = amount;
+        for (const item of pastData) {
+            if (Number(item.subtotal) > 0 && totalAmount > 0) {
+                if (totalAmount >= Number(item.subtotal)) {
+                    totalAmount = totalAmount - Number(item.subtotal);
+                    item.paid = Number(item.subtotal);
+                } else {
+                    item.paid = totalAmount;
+                    totalAmount = 0;
+                }
+            } else {
+                item.paid = 0;
+            }
+            newData.push(item);
+        }
+        setDataTable(newData);
+        setIsTableLoading(false);
     }
 
     return (
@@ -769,7 +800,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     {canFinish() && <Button type="primary" loading={isActionLoading} onClick={() => { handleSetModalFinish() }} >{Strings.finishAppointment}</Button>}
                     {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >{Strings.extendAppointment}</Button>}
                     {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >{Strings.scheduleNextAppointment}</Button>}
-                    {canRegisterNextAppointment() && <FormCall patientId={data.patient?.id} showPatients={false} onFinish={() => { }} />}
+                    {canRegisterNextAppointment() && <FormCall patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange('finalizada')} />}
 
                 </Row>
 
@@ -799,11 +830,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 {isTableLoading && <Spinner />}
 
 
+
                 <span className="flex mt-2 mb-1">{Strings.receivedAmount}</span>
                 <Input addonBefore="$"
                     size="large"
                     value={amountReceived}
-                    onChange={((event) => setAmountReceived(event.target.value))}
+                    onChange={((event) => handleOnPriceChange(event))}
+                    onPressEnter={() => updateServiceTable(dataTable)}
                     prefix={<></>}
                     placeholder='10.00' />
 

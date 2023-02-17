@@ -236,6 +236,7 @@ class Strings {
     static appointmentInfo = "Información del la cita"
     static callHistory = "Historial de llamadas"
     static seeAppointments = "Ver citas"
+    static history = "Historial"
 
     static activeAppointments = "Citas activas"
     static proccessAppointments = "Citas en proceso "
@@ -278,7 +279,7 @@ class Strings {
     static optionAlreadyHas = "Ya tiene"
 
     static selectSchedule = "Selecciona los horarios"
-
+    static registerProspect = "Agregar prospecto"
 
     static appVersion = 'v.1.0.20';
 }

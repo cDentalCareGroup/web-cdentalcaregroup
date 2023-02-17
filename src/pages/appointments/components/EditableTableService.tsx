@@ -191,10 +191,6 @@ const EditableTable = (props: EditableTableCustomProps) => {
         const newData = [...dataSource];
         const index = newData.findIndex((item) => row.key === item.key);
         const item = newData[index];
-        console.log(item);
-        console.log(row);
-
-
         row.unitPrice = item.unitPrice;
         row.disscount = Math.round(item.disscount);
         row.price = Number(row.quantity) * Number(item.unitPrice);

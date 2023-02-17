@@ -43,15 +43,15 @@ const FormAppointment = () => {
     const [isActionLoading, setIsActionLoading] = useState(false);
     useEffect(() => {
         handleGetBranchOffices();
-        handleGetPatients();
+      //  handleGetPatients();
     }, []);
 
-    const handleGetPatients = async () => {
+    const handleGetPatients = async (branchId: Number) => {
         try {
             const response = await getPatients(
                 new FilterEmployeesRequest(DEFAULT_PATIENTS_ACTIVE)
             ).unwrap();
-            setPatientList(patientsToSelectItemOption(response));
+            setPatientList(patientsToSelectItemOption(response.filter((value, _) => value.originBranchOfficeId == branchId)));
         } catch (error) {
             console.log(error);
             handleErrorNotification(error);
@@ -70,6 +70,7 @@ const FormAppointment = () => {
     const handleOnBranchOffice = async (event: SelectItemOption) => {
         setBranchOffice(event);
         handleGetAppointmentAvailability(date, event.label);
+        handleGetPatients(event.id)
     }
 
     const handleGetAppointmentAvailability = async (date: Date, branchOffice: string) => {
@@ -148,7 +149,7 @@ const FormAppointment = () => {
                         {branchOffice != null && <Calendar validateTime={true} availableHours={times} handleOnSelectDate={handleOnDate} isLoading={isLoading} handleOnSelectTime={(value) => setTime(value)} />}
 
                         <br />
-                        {(time != '' && isProspect == false) && <SelectSearch
+                        {(time != '' && isProspect == false && branchOffice != null) && <SelectSearch
                             placeholder={Strings.selectPatient}
                             items={patientList}
                             onChange={(value) => setPatient(value)}
@@ -163,7 +164,7 @@ const FormAppointment = () => {
                             </div>}
                         {(time != '' && !isProspect) &&
                             <div className="flex flex-col items-end justify-end">
-                                <Button onClick={() => setIsProspect(true)} type="link">Agregar prospecto</Button>
+                                <Button onClick={() => setIsProspect(true)} type="link">{Strings.registerProspect}</Button>
                             </div>
                         }
 

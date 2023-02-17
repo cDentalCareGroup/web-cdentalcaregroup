@@ -1,13 +1,15 @@
-import { Button, Collapse, DatePicker, Divider, List, Modal, Row, Select, Tag } from "antd";
+import { Button, Card, Collapse, DatePicker, Divider, List, Modal, Row, Select, Tag } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { differenceInDays } from "date-fns";
 import { useEffect, useState } from "react";
-import { RiArrowDownSLine, RiArrowRightSLine, RiArrowUpSLine, RiCalendar2Line, RiFunctionLine, RiMailLine, RiPhoneLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { RiArrowDownSLine, RiArrowRightSLine, RiArrowUpSLine, RiCalendar2Line, RiFunctionLine, RiMailLine, RiMentalHealthLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { Navigate, useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
+import { AppointmentDetail } from "../../data/appointment/appointment.detail";
+import { getBranchOfficeName } from "../../data/branchoffice/branchoffice.extensions";
 import { UpdateCallRequest } from "../../data/call/call.request";
-import { GetCalls } from "../../data/call/call.response";
-import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPatientGender, buildPatientName, buildPatientPhone, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
+import { CallCatalogDetail, GetCallDetail, GetCalls } from "../../data/call/call.response";
+import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPatientGender, buildPatientName, buildPatientPhone, getDentist, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
 import { useGetCallDetailMutation, useGetCatalogsMutation, useUpdateCallMutation } from "../../services/callService";
 import Constants from "../../utils/Constants";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
@@ -29,7 +31,7 @@ const CallInfo = () => {
     const [comment, setComment] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingAction, setIsLoadingAction] = useState(false);
-    const [info, setInfo] = useState<any>();
+    const [info, setInfo] = useState<GetCallDetail>();
 
     useEffect(() => {
         handleSetupValues();
@@ -89,7 +91,6 @@ const CallInfo = () => {
     }
 
     const cardInfoContent = (): JSX.Element => {
-
         let isPad = data?.catalog.name.includes('pad vencido');
         let isNotShow = data?.catalog.name.includes('no-show')
 
@@ -122,19 +123,68 @@ const CallInfo = () => {
                     {data?.patient && <Collapse.Panel header={Strings.patientInformation} key="3" className="text font-semibold">
                         {patientiInfo()}
                     </Collapse.Panel>}
-                    <Collapse.Panel header={Strings.callHistory} key="4" className="text font-semibold">
+                    {(info?.appointments != null && info.appointments.length > 0) && <Collapse.Panel header={Strings.appointments} key="4" className="text font-semibold">
                         <List
                             bordered={false}
-                            dataSource={info}
-                            renderItem={(item: any) => (
+                            dataSource={info?.appointments}
+                            renderItem={(item: AppointmentDetail) => (
                                 <List.Item>
-                                    <span className="text text-sm font-normal">{`${Strings.date} ${item?.callDueDate ?? 'Sin fecha'} - Motivo ${item?.catalogName}`}</span>
+                                    <Card title={`${item.appointment.appointment} ${item.appointment.time}`} >
+                                        <div className="flex flex-col">
+                                            <SectionElement label={Strings.branchOffice} value={item.branchOffice.name} icon={<RiMentalHealthLine />} />
+                                            <SectionElement label={Strings.dentist} value={getDentist(item)} icon={<RiMentalHealthLine />} />
+                                            <SectionElement label={Strings.services} value={buildServices(item)} icon={<RiServiceLine />} />
+                                            {getAppointmentStatusTag(item)}
+                                        </div>
+                                    </Card>
+                                </List.Item>
+                            )}
+                        />
+                    </Collapse.Panel>}
+                    <Collapse.Panel header={Strings.history} key="5" className="text font-semibold">
+                        <List
+                            bordered={false}
+                            dataSource={info?.calls}
+                            renderItem={(item: CallCatalogDetail) => (
+                                <List.Item>
+                                    <div className="flex flex-col">
+                                        <span className="text text-sm font-semibold">{`${Strings.date} ${item?.callDueDate ?? 'Sin fecha'} - Motivo ${item?.catalogName}`}</span>
+                                        <span className="text text-sm font-normal">{`${Strings.description} - ${item.description}`}</span>
+                                    </div>
                                 </List.Item>
                             )}
                         />
                     </Collapse.Panel>
                 </Collapse>
             </div>);
+    }
+
+
+    const buildServices = (appointment: AppointmentDetail): string | JSX.Element[] => {
+        if (appointment.services != null && appointment.services.length > 0) {
+            const services = appointment.services?.map((value, index) => <span key={index}>{value.name}</span>);
+            return services;
+        }
+        return `-`
+    }
+
+    const getAppointmentStatusTag = (appointment: AppointmentDetail): JSX.Element => {
+        if (appointment.appointment.status == 'activa') {
+            return <Tag color="success">{getAppointmentStatus(appointment)}</Tag>
+        }
+        if (appointment.appointment.status == 'proceso') {
+            return <Tag color="blue">{getAppointmentStatus(appointment)}</Tag>
+        }
+        if (appointment.appointment.status == 'finalizada') {
+            return <Tag color="default">{getAppointmentStatus(appointment)}</Tag>
+        }
+        if (appointment.appointment.status == 'no-atendida') {
+            return <Tag color="red">{getAppointmentStatus(appointment)}</Tag>
+        }
+        return <></>;
+    }
+    const getAppointmentStatus = (appointment: AppointmentDetail | undefined) => {
+        return `${appointment?.appointment.status.toUpperCase() ?? ''}`;
     }
 
     const buildNotAttendedDate = () => {
@@ -172,7 +222,7 @@ const CallInfo = () => {
             <div className="flex mt-6 w-full justify-end items-end">
                 <Button loading={isLoadingAction} disabled={data?.call.status != 'activa'} type="primary" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
             </div>
-        
+
         </div>)
     }
 

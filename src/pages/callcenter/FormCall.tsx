@@ -17,6 +17,7 @@ import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter, getUserRol, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
+import CustomFormInput from "../components/CustomFormInput";
 import SelectSearch from "../components/SelectSearch";
 import LayoutCard from "../layouts/LayoutCard";
 
@@ -47,6 +48,10 @@ const FormCall = (props: FormCallProps) => {
         Constants.SESSION_AUTH,
         null
     );
+    const [isProspect, setIsProspect] = useState(false);
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
 
     useEffect(() => {
         handleGetCallCatalogs();
@@ -97,12 +102,16 @@ const FormCall = (props: FormCallProps) => {
                     patientId,
                     comment,
                     date,
-                    type
+                    type,
+                    name, phone, email
                 )
             ).unwrap();
             setComment('');
             setDate('');
             setType('');
+            setName('');
+            setEmail('');
+            setPhone('');
             setPatient(undefined);
             setIsOpen(false);
             handleSucccessNotification(NotificationSuccess.REGISTER);
@@ -122,12 +131,26 @@ const FormCall = (props: FormCallProps) => {
                     </div>
 
                     <Modal confirmLoading={false} okText={Strings.save} open={isOpen} onCancel={() => setIsOpen(false)} title={Strings.registerNewCall} onOk={() => handleRegisterCall()}>
-                        {props.showPatients && <SelectSearch
+                        {(props.showPatients && !isProspect) && <SelectSearch
                             placeholder={Strings.selectPatient}
                             items={patientList}
                             onChange={(value) => setPatient(value)}
                             icon={<></>}
                         />}
+
+                        {(props.showPatients && isProspect) &&
+                            <div className="flex flex-col">
+                                <CustomFormInput label={Strings.patientName} value={name} onChange={(value) => setName(value)} />
+                                <CustomFormInput label={Strings.phoneNumber} value={phone} onChange={(value) => setPhone(value)} />
+                                <CustomFormInput label={Strings.email} value={email} onChange={(value) => setEmail(value)} />
+                            </div>}
+
+
+                        <div className="flex flex-col items-end justify-end">
+                            <Button onClick={() => setIsProspect(!isProspect)} type="link">
+                                {`${isProspect ? Strings.selectPatient : Strings.registerProspect}`}
+                            </Button>
+                        </div>
 
                         <div className="flex flex-row gap-4 mb-4 mt-4">
                             <Select style={{ minWidth: 220 }} size="large" placeholder={Strings.callType} onChange={(value) => setType(value)}>

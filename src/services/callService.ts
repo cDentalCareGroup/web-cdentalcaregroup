@@ -1,5 +1,5 @@
 import { CallCatalog } from "../data/call/call.catalog";
-import { GetCalls } from "../data/call/call.response";
+import { GetCallDetail, GetCalls } from "../data/call/call.response";
 import { apiSlice } from "./apiSlice";
 
 export const callService = apiSlice.injectEndpoints({
@@ -50,13 +50,13 @@ export const callService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: any }, _, __) => response.data,
         }),
-        getCallDetail: builder.mutation<any, any>({
+        getCallDetail: builder.mutation<GetCallDetail, any>({
             query: (data) => ({
                 url: '/calls/detail',
                 method: "POST",
                 body:{...data}
             }),
-            transformResponse: (response: { data: any }, _, __) => response.data,
+            transformResponse: (response: { data: GetCallDetail }, _, __) => response.data,
         }),
     }),
 });

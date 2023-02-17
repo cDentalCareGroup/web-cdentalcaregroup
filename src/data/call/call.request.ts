@@ -48,14 +48,23 @@ export class RegisterCallRequest {
     description: string;
     date: string;
     type: string;
+    name?:string;
+    phone?:string;
+    email?:string;
 
     constructor(patientId: number,
         description: string,
         date: string,
-        type: string,) {
+        type: string, name?:string,
+        phone?:string,
+        email?:string
+    ) {
         this.patientId = patientId;
         this.description = description;
         this.date = date;
         this.type = type;
+        this.name = name;
+        this.phone = phone;
+        this.email = email;
     }
 }
