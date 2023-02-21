@@ -81,8 +81,6 @@ const BaseLayout: React.FC = () => {
   });
 
   const handleNavigateToAppointmentDetail = (folio: String) => {
-    console.log(folio);
-    //navigation(`/admin/appointment/detail/${folio }`);
     const user = session as User;
      const role = getUserRol(user);
     if (role == UserRoles.ADMIN) {

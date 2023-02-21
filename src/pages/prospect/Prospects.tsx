@@ -8,6 +8,8 @@ import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
+import FormProspect from "./FormProspect";
+
 
 const Prospects = () => {
 
@@ -39,7 +41,7 @@ const Prospects = () => {
                 .toLowerCase()
                 .replace(/\s+/g, '')
                 .includes(query.toLowerCase().replace(/\s+/g, '')));
-                setProspectList(res);
+        setProspectList(res);
     }
 
 
@@ -50,7 +52,9 @@ const Prospects = () => {
             content={
                 <div className="flex flex-col">
                     <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchProspect} onSearch={handleOnSearch} enterButton />
-
+                    <div className="flex w-full items-end justify-end mt-4 mb-12">
+                        <FormProspect onFinish={() => handleGetProspects()} />
+                    </div>
                     <Row>
                         {prospectList.map((value, index) =>
                             <Card key={index} title={value.name} className="m-2 cursor-pointer" actions={[

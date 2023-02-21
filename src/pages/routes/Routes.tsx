@@ -40,6 +40,7 @@ import Pads from "../pad/Pads";
 import FormPad from "../pad/FormPad";
 import Services from "../service/Services";
 import Prospects from "../prospect/Prospects";
+import Test from "../components/Test";
 
 export class Route {
     label: string;
@@ -83,6 +84,7 @@ const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/br
 
 const adminService = new Route('Servicios', 'services', '/admin/services/', <Services />, <RiServiceLine />);
 
+const test = new Route('Test', 'test', '/admin/test/', <Test  />, <RiUserHeartLine />);
 
 
 const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLogoutBoxLine />);
@@ -120,6 +122,7 @@ const adminRoutes: Route[] = [
     adminPadCatalogueForm,
     adminPadCatalogueFormUpdate,
     adminService,
+    test,
     logout
 ];
 
@@ -199,7 +202,8 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             'cng',
             null,
             [
-                getItem(logout.label, logout.fullPath, logout.icon)
+                getItem(logout.label, logout.fullPath, logout.icon),
+                getItem(test.label, test.fullPath, test.icon)
             ],
             'group'),
     ];

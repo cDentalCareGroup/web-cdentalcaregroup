@@ -11,9 +11,19 @@ export const prospectService = apiSlice.injectEndpoints({
             transformResponse: (response: { data: Prospect[] }, meta, arg) => response.data,
             invalidatesTags: ['Prospect']
         }),
+        registerProspect: builder.mutation<Prospect, any>({
+            query: (data) => ({
+                url: '/prospect/register',
+                method: "POST",
+                body:{...data}
+            }),
+            transformResponse: (response: { data: Prospect }, meta, arg) => response.data,
+            invalidatesTags: ['Prospect']
+        }),
     })
 });
 
 export const {
-    useGetProspectsMutation
+    useGetProspectsMutation,
+    useRegisterProspectMutation
 } = prospectService;

@@ -192,6 +192,8 @@ class Strings {
     static formPad = "Registro Pad"
     static formPadUpdate = "Actualizar Pad"
 
+    static formProspect = "Registro de prospectos"
+
     static numberMembers = "Número de integrantes"
     static numberAditionalMembers = "Número de integrantes adicionales"
 
@@ -281,7 +283,7 @@ class Strings {
     static selectSchedule = "Selecciona los horarios"
     static registerProspect = "Agregar prospecto"
 
-    static appVersion = 'v.1.0.20';
+    static appVersion = 'v.1.0.21';
 }
 
 export default Strings;
