@@ -166,16 +166,6 @@ const EditableTable = (props: EditableTableCustomProps) => {
             dataIndex: 'subtotal',
         },
         {
-            title: Strings.paid,
-            dataIndex: 'paid',
-            editable: true,
-            render: (_: any, value: any) => (
-                <div key={value.key} className="flex cursor-pointer flex-wrap justify-center items-center">
-                    <span className='text-blue-800'>{value.paid}</span>
-                </div>
-            ),
-        },
-        {
             title: Strings.actions,
             dataIndex: 'actions',
             render: (_: any, value: any) => (
@@ -193,13 +183,15 @@ const EditableTable = (props: EditableTableCustomProps) => {
         const item = newData[index];
         row.unitPrice = item.unitPrice;
         row.disscount = Math.round(item.disscount);
-        row.price = Number(row.quantity) * Number(item.unitPrice);
 
-        if (item.disscount != null && item.disscount != 0 && item.disscount != '0') {
-            row.subtotal = row.price - Math.round((Number(row.price) / 100) * Math.round(Number(item.disscount)));
-        } else {
-            row.subtotal = Math.round(Number(row.price));
-        }
+        row.subtotal = Number(row.quantity) * Number(item.unitPrice);
+      //  row.price = Number(row.quantity) * Number(item.unitPrice);
+
+        // if (item.disscount != null && item.disscount != 0 && item.disscount != '0') {
+        //     row.subtotal = row.price - Math.round((Number(row.price) / 100) * Math.round(Number(item.disscount)));
+        // } else {
+        //     row.subtotal = Math.round(Number(row.price));
+        // }
         newData.splice(index, 1, {
             ...item,
             ...row,

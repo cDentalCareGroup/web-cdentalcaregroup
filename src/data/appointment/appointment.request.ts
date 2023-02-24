@@ -20,16 +20,19 @@ export class UpdateAppointmentStatusRequest {
   id: number;
   status: string;
   amount: string;
-  paymentMethod: number;
+  paid: string;
   services: any[];
   padId?: number;
-  constructor(id: number, status: string, amount: string, paymentMethod: number, services: any[], padId?: number) {
+  payments: any[];
+
+  constructor(id: number, status: string, amount: string, paid: string, services: any[],payments: any[], padId?: number) {
     this.id = id;
     this.status = status;
     this.amount = amount;
-    this.paymentMethod = paymentMethod;
+    this.paid = paid;
     this.services = services;
     this.padId = padId;
+    this.payments = payments;
   }
 }
 export class GetAppointmentAvailabilityRequest {

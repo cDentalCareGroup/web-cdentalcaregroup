@@ -1,9 +1,9 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
-import { RiCalendar2Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { RiCalendar2Line, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
-import { Button, Form, Input, Modal, Radio, Row, Select, Tag } from "antd";
+import { Button, Form, Input, Modal, Radio, Row, Select, Table, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
 import { GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
 import { useEffect, useRef, useState } from "react";
@@ -74,6 +74,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [paymentMethodId, setPaymentMethodId] = useState(0);
 
     const [serviceList, setServiceList] = useState<SelectItemOption[]>([]);
+    const [paymentDataTable, setPaymentDataTable] = useState<any[]>([]);
+
     const [services, setServices] = useState<number[]>();
     const [dataServices, setDataServices] = useState<Service[]>([]);
     const [dataTable, setDataTable] = useState<any[]>([]);
@@ -221,7 +223,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getPatients(
                 new FilterEmployeesRequest(DEFAULT_PATIENTS_ACTIVE)
             ).unwrap();
-            const filtered = response.filter((value: any, _) => value.originBranchOfficeId == Number(branchId))
+            const filtered = response.filter((value: any, _: any) => value.originBranchOfficeId == Number(branchId))
             setPatientList(patientsToSelectItemOption(filtered));
         } catch (error) {
             console.log(error);
@@ -255,16 +257,18 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     data.appointment.id,
                     status,
                     getTotalFromServices().toString(),
-                    paymentMethodId,
+                    getTotalFromPaymentMethod().toString(),
                     dataTable,
+                    paymentDataTable,
                     padComponent?.pad.id ?? 0
                 )).unwrap();
-            setData(response);
-            onStatusChange(status);
+          //  setData(response);
+         //   onStatusChange(status);
             setIsActionLoading(false);
             handleSucccessNotification(NotificationSuccess.UPDATE);
-            onAppointmentChange?.(response);
+          //  onAppointmentChange?.(response);
         } catch (error) {
+            setIsActionLoading(false);
             handleErrorNotification(error);
         }
     }
@@ -586,7 +590,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleSetModalFinish = async () => {
         await handleGetPaymentMethods();
         await handleGetServices();
-        await handleGetPadServices();
+        // await handleGetPadServices();
         setModalFinish(true)
     }
 
@@ -685,28 +689,35 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
         let discount = 0;
         let subTotal = 0;
-        if (padComponent != null && padComponent.components.length > 0) {
-            const component = padComponent.components.find((value, _) => value.component.serviceId == service.id)
-            if (component != null) {
-                discount = Math.round(component.component.discount);
-                subTotal = servicePrice - Math.round(((1 * servicePrice) / 100) * discount);
-            } else {
-                subTotal = servicePrice;
-            }
+        let price = 0;
+        // if (padComponent != null && padComponent.components.length > 0) {
+        //     const component = padComponent.components.find((value, _) => value.component.serviceId == service.id)
+        //     if (component != null) {
+        //         discount = Math.round(component.component.discount);
+        //         subTotal = servicePrice - Math.round(((1 * servicePrice) / 100) * discount);
+        //     } else {
+        //         subTotal = servicePrice;
+        //     }
+        // } else {
+        //     subTotal = servicePrice;
+        // }
+
+        if (discount > 0) {
+            console.log('pad')
         } else {
-            subTotal = servicePrice;
+            price = servicePrice;
         }
+        subTotal = price * 1;
 
         tableInfo.push(
             {
-                key: serviceItem?.id ?? 0,
+                key: tableInfo.length + 1,
                 description: serviceItem?.name ?? '',
                 quantity: 1,
                 unitPrice: servicePrice,
                 disscount: discount,
-                price: (1 * servicePrice),
+                price: price,
                 subtotal: subTotal,
-                paid: 0
             },
         );
         setTimeout(() => {
@@ -718,64 +729,120 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const handleOnTableChange = (data: any) => {
         setDataTable(data);
-        updateServiceTable(data);
+        //  updateServiceTable(data);
     }
 
 
     const getTotalFromServices = (): number => {
         let total = 0;
         for (const service of dataTable) {
-            total += Number(service.subtotal);
+             total += Number(service.subtotal);
+        }
+        return total;
+    }
+
+    const getTotalFromPaymentMethod = (): number => {
+        let total = 0;
+        for (const payment of paymentDataTable) {
+             total += Number(payment.amount);
         }
         return total;
     }
 
     const getExchange = (): string => {
-        if (Number(amountReceived) == 0) {
-            return formatPrice(0);
-        } else {
-            const result = Number(amountReceived) - getTotalFromServices();
-            return formatPrice(result);
-        }
+        let res = getTotalFromPaymentMethod() - getTotalFromServices();
+        return formatPrice(res);
     }
 
     const validateExchange = (): string => {
-        if (Number(amountReceived) == 0) {
-            return 'Cambio :'
-        } else if (Number(amountReceived) < getTotalFromServices()) {
+        if (getTotalFromPaymentMethod() == 0) {
+            return 'Saldo pendiente :'
+        } else if (getTotalFromPaymentMethod() < getTotalFromServices()) {
             return 'Saldo pendiente :'
         } else {
             return 'Cambio :'
         }
     }
 
+    // const updateServiceTable = (pastData: any) => {
+    //     setIsTableLoading(true);
+    //     setDataTable([]);
+    //     const amount = Number(amountReceived);
+    //     const newData = [];
+    //     let totalAmount = amount;
+    //     for (const item of pastData) {
+    //         if (Number(item.subtotal) > 0 && totalAmount > 0) {
+    //             if (totalAmount >= Number(item.subtotal)) {
+    //                 totalAmount = totalAmount - Number(item.subtotal);
+    //                 item.paid = Number(item.subtotal);
+    //             } else {
+    //                 item.paid = totalAmount;
+    //                 totalAmount = 0;
+    //             }
+    //         } else {
+    //             item.paid = 0;
+    //         }
+    //         newData.push(item);
+    //     }
+    //     setDataTable(newData);
+    //     setIsTableLoading(false);
+    // }
 
-    const handleOnPriceChange = (event: any) => {
-        setAmountReceived(event.target.value);
+
+    const serviceTableColums = [
+        {
+            title: Strings.paymentMethod,
+            dataIndex: 'paymentmethod',
+        },
+        {
+            title: Strings.receivedAmount,
+            dataIndex: 'amount',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span>{formatPrice(value.amount)}</span>
+                </div>
+            ),
+        },
+        {
+            title: Strings.actions,
+            dataIndex: 'actions',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <RiDeleteBin7Line size={20} onClick={() => handleOnDeletePaymentMethod(value.key)} className="text text-red-600" />
+                </div>
+            ),
+        },
+    ];
+
+    const handleOnPaymentAdd = () => {
+        if (amountReceived == '' || amountReceived == null || amountReceived == '0') {
+            return
+        }
+        const payment = paymentMethodList.find((value, _) => value.id == paymentMethodId);
+        const data = paymentDataTable;
+        setPaymentDataTable([]);
+        data.push({
+            key: paymentMethodId,
+            paymentmethod: payment?.name ?? '',
+            amount: amountReceived
+        });
+        setTimeout(() => {
+            setPaymentDataTable(data);
+        }, 100)
     }
 
-    const updateServiceTable = (pastData: any) => {
-        setIsTableLoading(true);
-        setDataTable([]);
-        const amount = Number(amountReceived);
-        const newData = [];
-        let totalAmount = amount;
-        for (const item of pastData) {
-            if (Number(item.subtotal) > 0 && totalAmount > 0) {
-                if (totalAmount >= Number(item.subtotal)) {
-                    totalAmount = totalAmount - Number(item.subtotal);
-                    item.paid = Number(item.subtotal);
-                } else {
-                    item.paid = totalAmount;
-                    totalAmount = 0;
-                }
-            } else {
-                item.paid = 0;
-            }
-            newData.push(item);
-        }
-        setDataTable(newData);
-        setIsTableLoading(false);
+    const handleOnDeletePaymentMethod = (key: any) => {
+        const data = paymentDataTable.filter((value, _) => value.key != key);
+        setPaymentDataTable([]);
+        setTimeout(() => {
+            setPaymentDataTable(data);
+        }, 100)
+    }
+
+    const getReceivedAmount = (): number => {
+        let total = 0;
+        paymentDataTable.forEach((value, _) => total += Number(value.amount));
+        return total;
     }
 
     return (
@@ -816,11 +883,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     cancelText: Strings.cancel,
                 });
             }} onCancel={() => setModalFinish(false)} open={modalFinish} okText={Strings.finish} >
-                <span className="flex mt-2">{Strings.paymentMethod}</span>
-                <Select style={{ minWidth: '100%' }} size="large" placeholder={Strings.paymentMethod} onChange={(event) => setPaymentMethodId(event)}>
-                    {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
-                </Select>
-
 
                 <span className="flex mt-2">{Strings.serviceType}</span>
                 <SelectSearch icon={<></>} placeholder={Strings.services} items={serviceList} onChange={(event) => handleOnServiceChange(event)} />
@@ -830,22 +892,38 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 {isTableLoading && <Spinner />}
 
 
+                <div className="flex flex-row gap-6">
+                    <div className="flex flex-col">
+                        <span className="flex mt-2">{Strings.paymentMethod}</span>
+                        <Select style={{ minWidth: 250 }} size="large" placeholder={Strings.paymentMethod} onChange={(event) => setPaymentMethodId(event)}>
+                            {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
+                        </Select>
+                    </div>
 
-                <span className="flex mt-2 mb-1">{Strings.receivedAmount}</span>
-                <Input addonBefore="$"
-                    size="large"
-                    value={amountReceived}
-                    onChange={((event) => handleOnPriceChange(event))}
-                    onPressEnter={() => updateServiceTable(dataTable)}
-                    prefix={<></>}
-                    placeholder='10.00' />
+                    <div className="flex flex-col">
+                        <span className="flex mt-2">{Strings.receivedAmount}</span>
+                        <Input addonBefore="$"
+                            size="large"
+                            value={amountReceived}
+                            onChange={((event) => setAmountReceived(event.target.value))}
+                            prefix={<></>}
+                            placeholder='10.00' />
+                    </div>
+                    <div className="flex flex-col mt-8">
+                        <Button onClick={() => handleOnPaymentAdd()}>Agregar</Button>
+                    </div>
+                </div>
+
+                <Table className="mt-4" columns={serviceTableColums} dataSource={paymentDataTable} />
+
+
 
                 <div className="flex flex-row w-full items-end justify-end gap-2 mt-2">
                     <span className="text font-bold text-base text-gray-600">
                         {Strings.receivedAmount}:
                     </span>
                     <span className="text font-semibold text-base">
-                        {formatPrice(Number(amountReceived))}
+                        {formatPrice(getReceivedAmount())}
                     </span>
                 </div>
 
@@ -857,6 +935,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                         {formatPrice(getTotalFromServices())}
                     </span>
                 </div>
+
+                
                 <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
                     <span className="text font-bold text-base text-gray-600">
                         {validateExchange()}

@@ -12,6 +12,7 @@ import { getInitRoute, getUserRol, UserRoles } from '../../utils/Extensions';
 import User from "../../data/user/user";
 import { useAppDispatch } from "../../core/store";
 import { setCredentials } from "../../core/authReducer";
+import { detect } from 'detect-browser';
 
 const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
@@ -34,10 +35,32 @@ const Login = () => {
         }
     }, []);
 
+
+    const handleGetLoginInfo = async () => {
+        try {
+            const browser = detect();
+
+            const response = await fetch('https://api.ipgeolocation.io/ipgeo?apiKey=bf92e52952144618a1f20a33d9682430')
+                .then((data) => data.json())
+                .catch((e) => console.log(`Error `, e));
+            return {
+                login: response,
+                browser: browser
+            };
+        } catch (error) {
+            const browser = detect();
+            return {
+                login: error,
+                browser: browser
+            }
+        }
+    }
+
     const onFinish = async (values: any) => {
         try {
-            const data = await login(new LoginRequest(values.username, values.password)).unwrap();
-            
+            const loginInfo = await handleGetLoginInfo()
+            const data = await login(new LoginRequest(values.username, values.password, loginInfo)).unwrap();
+
             const role = getUserRol(data);
             if (role == UserRoles.RECEPTIONIST) {
                 setBranchId(data.branchId);

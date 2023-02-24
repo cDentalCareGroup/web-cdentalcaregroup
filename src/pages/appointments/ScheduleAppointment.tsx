@@ -19,7 +19,7 @@ import SelectSearch from "../components/SelectSearch";
 import TopBarHeader from "../components/TopBarHeader";
 import LayoutCard from "../layouts/LayoutCard";
 import ScheduleAppointmentInfoCard from "./components/ScheduleAppointmentInfoCard";
-
+import crypto from 'crypto';
 const ScheduleAppointment = () => {
 
     const [getBranchOffices] = useGetBranchOfficesMutation();

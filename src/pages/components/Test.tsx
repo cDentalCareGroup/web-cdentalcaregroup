@@ -1,4 +1,5 @@
 import LayoutCard from "../layouts/LayoutCard";
+import FormPayment from "../payments/FormPayment";
 
 const Test = () => {
 
@@ -8,6 +9,8 @@ const Test = () => {
             content={
                 <div>
                     <span>testing</span>
+
+                    <FormPayment />
                 </div>
             }
         />
