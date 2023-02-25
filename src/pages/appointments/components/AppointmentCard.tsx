@@ -120,6 +120,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [padComponent, setPadComponent] = useState<PadComponentUsed>();
     const [isTableLoading, setIsTableLoading] = useState(false);
 
+    const [showExchange, setShowExchange] = useState(false);
+
     const getStautsTag = (): JSX.Element => {
         if (data.appointment.status == 'activa') {
             return <Tag color="success">{getAppointmentStatus(data)}</Tag>
@@ -262,11 +264,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     paymentDataTable,
                     padComponent?.pad.id ?? 0
                 )).unwrap();
-          //  setData(response);
-         //   onStatusChange(status);
+            setData(response);
+            onStatusChange(status);
             setIsActionLoading(false);
             handleSucccessNotification(NotificationSuccess.UPDATE);
-          //  onAppointmentChange?.(response);
+            onAppointmentChange?.(response);
         } catch (error) {
             setIsActionLoading(false);
             handleErrorNotification(error);
@@ -736,7 +738,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const getTotalFromServices = (): number => {
         let total = 0;
         for (const service of dataTable) {
-             total += Number(service.subtotal);
+            total += Number(service.subtotal);
         }
         return total;
     }
@@ -744,7 +746,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const getTotalFromPaymentMethod = (): number => {
         let total = 0;
         for (const payment of paymentDataTable) {
-             total += Number(payment.amount);
+            total += Number(payment.amount);
         }
         return total;
     }
@@ -815,17 +817,23 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     ];
 
     const handleOnPaymentAdd = () => {
-        if (amountReceived == '' || amountReceived == null || amountReceived == '0') {
-            return
-        }
+        // if (amountReceived == '' || amountReceived == null || amountReceived == '0') {
+        //     handleErrorNotification(Constants.EMPTY_AMOUNT);
+        //     return
+        // }
         const payment = paymentMethodList.find((value, _) => value.id == paymentMethodId);
         const data = paymentDataTable;
+        if (data.find((value, _) => value.key == paymentMethodId)) {
+            handleErrorNotification(Constants.EXISTING_PAYMENT_METHOD);
+            return;
+        }
         setPaymentDataTable([]);
         data.push({
             key: paymentMethodId,
             paymentmethod: payment?.name ?? '',
             amount: amountReceived
         });
+        validateShowExchange();
         setTimeout(() => {
             setPaymentDataTable(data);
         }, 100)
@@ -843,6 +851,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         let total = 0;
         paymentDataTable.forEach((value, _) => total += Number(value.amount));
         return total;
+    }
+
+    const validateShowExchange = () => {
+        const value = paymentDataTable.find((value, _) => (value.paymentmethod as String).includes('Efectivo'));
+        setShowExchange(value != null);
     }
 
     return (
@@ -936,15 +949,15 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     </span>
                 </div>
 
-                
-                <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
+
+                {showExchange && <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
                     <span className="text font-bold text-base text-gray-600">
                         {validateExchange()}
                     </span>
                     <span className="text font-semibold text-base">
                         {getExchange()}
                     </span>
-                </div>
+                </div>}
 
             </Modal>
 

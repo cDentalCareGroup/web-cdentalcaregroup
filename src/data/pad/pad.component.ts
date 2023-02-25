@@ -6,5 +6,6 @@ export interface PadComponent {
     globalQuantity: number;
     maxPatientQuantity: number;
     discount: number;
+    discountTwo: number;
     serviceName: string;
 }

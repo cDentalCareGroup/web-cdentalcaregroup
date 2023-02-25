@@ -176,6 +176,7 @@ class Strings {
     static selectPatient = "Selecciona un paciente"
 
     static discount = "Descuento"
+    static discountTwo = "Segundo descuento"
     static maxQuantity = "Cantidad máxima"
 
     static origin = "Origen"
@@ -283,7 +284,7 @@ class Strings {
     static selectSchedule = "Selecciona los horarios"
     static registerProspect = "Agregar prospecto"
 
-    static appVersion = 'v.1.0.22';
+    static appVersion = 'v.1.0.23';
 }
 
 export default Strings;

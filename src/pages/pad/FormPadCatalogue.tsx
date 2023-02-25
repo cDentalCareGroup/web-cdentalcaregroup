@@ -37,6 +37,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
     const [quantityPad, setQuantityPad] = useState('');
     const [quantityPatient, setQuantityPatient] = useState('');
     const [discount, setDiscount] = useState('');
+    const [discountTwo, setDiscountTwo] = useState('');
     const [days, setDays] = useState('');
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -119,6 +120,11 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             key: 'discount',
         },
         {
+            title: Strings.discountTwo,
+            dataIndex: 'discountTwo',
+            key: 'discountTwo',
+        },
+        {
             title: Strings.actions,
             dataIndex: 'action',
             key: 'action',
@@ -140,7 +146,8 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                     service?.id ?? 0,
                     Number(quantityPad),
                     Number(quantityPatient),
-                    Number(discount)
+                    Number(discount),
+                    Number(discountTwo)
                 )
             ).unwrap();
             setDiscount('');
@@ -280,6 +287,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                             <CustomFormInput value={quantityPad} label={Strings.quantityPad} onChange={(value) => setQuantityPad(value)} prefix="#" />
                             <CustomFormInput value={quantityPatient} label={Strings.maxPatientQuantity} onChange={(value) => setQuantityPatient(value)} prefix="#" />
                             <CustomFormInput value={discount} label={Strings.discount} onChange={(value) => setDiscount(value)} prefix="%" />
+                            <CustomFormInput value={discountTwo} label={Strings.discountTwo} onChange={(value) => setDiscountTwo(value)} prefix="%" />
                             <Button className="mt-8" type="primary" onClick={handleAddComponent}>{Strings.save}</Button>
                         </div>
 

@@ -96,5 +96,12 @@ const getErrorMessage = (message: string): string => {
         return 'Has llegado al número máximo de miembros permitidos para el PAD';
     }
 
+    if (message == Constants.EXISTING_PAYMENT_METHOD) {
+        return 'Ya has registrado ese método de pago';
+    }
+    if (message == Constants.EMPTY_AMOUNT) {
+        return 'El monto recibido debe ser mayor a cero';
+    }
+
     return 'Ocurrio un error, intenta mas tarde';
 }

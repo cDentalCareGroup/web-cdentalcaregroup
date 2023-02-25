@@ -151,9 +151,10 @@ const EditableTable = (props: EditableTableCustomProps) => {
         {
             title: Strings.discount,
             dataIndex: 'disscount',
+            editable: true,
             render: (_: any, value: any) => (
                 <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
-                    <span>{formatNumberToPercent(value.disscount)}</span>
+                    <span className='text-blue-800'>{formatNumberToPercent(value.disscount)}</span>
                 </div>
             ),
         },
@@ -181,17 +182,18 @@ const EditableTable = (props: EditableTableCustomProps) => {
         const newData = [...dataSource];
         const index = newData.findIndex((item) => row.key === item.key);
         const item = newData[index];
-        row.unitPrice = item.unitPrice;
-        row.disscount = Math.round(item.disscount);
+        row.unitPrice = row.unitPrice;
+        row.disscount = Math.round(row.disscount);
 
-        row.subtotal = Number(row.quantity) * Number(item.unitPrice);
+        row.subtotal = Number(row.quantity) * Number(row.unitPrice);
       //  row.price = Number(row.quantity) * Number(item.unitPrice);
 
-        // if (item.disscount != null && item.disscount != 0 && item.disscount != '0') {
-        //     row.subtotal = row.price - Math.round((Number(row.price) / 100) * Math.round(Number(item.disscount)));
-        // } else {
-        //     row.subtotal = Math.round(Number(row.price));
-        // }
+        if (row.disscount != null && row.disscount != 0 && row.disscount != '0') {
+            row.price = row.unitPrice - Math.round((Number(row.unitPrice) / 100) * Math.round(Number(row.disscount)));
+            row.subtotal = Number(row.quantity) * Number(row.price);
+        } else {
+            row.price = row.subtotal;
+        }
         newData.splice(index, 1, {
             ...item,
             ...row,

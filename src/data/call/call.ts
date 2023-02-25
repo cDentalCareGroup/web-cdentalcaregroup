@@ -9,4 +9,5 @@ export interface Call {
     effectiveDate: Date;
     comments: string;
     result: string;
+    callComments: string;
 }

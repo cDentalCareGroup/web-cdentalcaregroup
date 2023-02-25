@@ -80,7 +80,8 @@ const FormPad = (props: FormPadProps) => {
     const handleGetPatients = async () => {
         try {
             const response = await getPatientsByBranchOffice(Number(branchId)).unwrap();
-            setPatientList(patientsToSelectItemOption(response));
+            const filterData = response.filter((value, _) => (value.pad == 0 || value.pad == null));
+            setPatientList(patientsToSelectItemOption(filterData));
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -90,7 +91,8 @@ const FormPad = (props: FormPadProps) => {
         try {
             const response = await getPatients(new FilterEmployeesRequest([DEFAULT_FILTERS[3]])).unwrap();
             console.log(response);
-            setPatientList(patientsToSelectItemOption(response));
+            const filterData = response.filter((value, _) => (value.pad == 0 || value.pad == null));
+            setPatientList(patientsToSelectItemOption(filterData));
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -246,6 +248,7 @@ const FormPad = (props: FormPadProps) => {
                 <div className="flex flex-col">
                     <div className="flex flex-row items-baseline gap-4 my-4">
                         <SelectSearch
+                        
                             placeholder={Strings.selectPadType}
                             items={padCatalogList}
                             disabled={disabledSelect()}

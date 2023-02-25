@@ -1,6 +1,6 @@
 import { Button, Card, Collapse, DatePicker, Divider, List, Modal, Row, Select, Tag } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, format } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiArrowRightSLine, RiArrowUpSLine, RiCalendar2Line, RiFunctionLine, RiMailLine, RiMentalHealthLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -10,18 +10,21 @@ import { getBranchOfficeName } from "../../data/branchoffice/branchoffice.extens
 import { UpdateCallRequest } from "../../data/call/call.request";
 import { CallCatalogDetail, GetCallDetail, GetCalls } from "../../data/call/call.response";
 import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPatientGender, buildPatientName, buildPatientPhone, getDentist, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
-import { useGetCallDetailMutation, useGetCatalogsMutation, useUpdateCallMutation } from "../../services/callService";
+import { useGetCallDetailMutation, useGetCatalogsMutation, useNotAttendedCallMutation, useUpdateCallMutation } from "../../services/callService";
 import Constants from "../../utils/Constants";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
+import FormAppointment from "../appointments/FormAppointment";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
+import FormCall from "./FormCall";
 
 const CallInfo = () => {
 
     const [updateCall] = useUpdateCallMutation();
     const navigate = useNavigate();
     const [getCallDetailMutation] = useGetCallDetailMutation();
+    const [notAttendedCall] = useNotAttendedCallMutation();
 
     const [call, setCall] = useSessionStorage(
         Constants.CALL,
@@ -103,8 +106,12 @@ const CallInfo = () => {
                     expandIcon={({ isActive }) => isActive ? <RiArrowDownSLine /> : <RiArrowRightSLine />} >
 
                     <Collapse.Panel header={Strings.callInfo} key="1" className="text font-semibold">
-                        <div className="flex mx-6">
+                        <div className="flex flex-col mx-6">
                             <span className="text text-sm font-normal">{data?.call.description ?? '-'}</span>
+                        </div>
+                        <div className="flex flex-col mx-6 mt-4">
+                            <span className="text text-sm font-normal">Notas: </span>
+                            <span className="text text-sm font-normal">{data?.call.callComments ?? '-'}</span>
                         </div>
                     </Collapse.Panel>
 
@@ -220,7 +227,16 @@ const CallInfo = () => {
                 placeholder={Strings.callDetail}
             />
             <div className="flex mt-6 w-full justify-end items-end">
-                <Button loading={isLoadingAction} disabled={data?.call.status != 'activa'} type="primary" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
+                <Button loading={isLoadingAction} disabled={data?.call.status != 'activa'} type="dashed" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
+            </div>
+
+            <div className="flex flex-row items-center justify-evenly mt-6 w-full">
+                <FormCall callId={data?.call.id} patientId={data?.patient?.id} prospectId={data?.propspect?.id} showPatients={false} onFinish={() => navigate(-1)} />
+                <div className="flex w-full items-end justify-end">
+                    <Button onClick={() => handleCallNotAttended()} type="dashed">Llamada no contestada</Button>
+                </div>
+                <FormAppointment callId={data?.call.id} patient={data?.patient} prospect={data?.propspect} onFinish={() => navigate(-1)} />
+
             </div>
 
         </div>)
@@ -235,6 +251,19 @@ const CallInfo = () => {
             navigate(-1);
         } catch (error) {
             setIsLoadingAction(false);
+            handleErrorNotification(error);
+        }
+    }
+
+
+    const handleCallNotAttended = async () => {
+        try {
+            await notAttendedCall(
+                new UpdateCallRequest(data?.call.id ?? 0, `Llamada no contestada ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`)
+            ).unwrap();
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+            navigate(-1);
+        } catch (error) {
             handleErrorNotification(error);
         }
     }

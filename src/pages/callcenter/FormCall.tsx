@@ -26,6 +26,8 @@ interface FormCallProps {
     onFinish: () => void;
     showPatients: boolean;
     patientId?: number;
+    prospectId?: number;
+    callId?: number;
 }
 
 const FormCall = (props: FormCallProps) => {
@@ -103,7 +105,7 @@ const FormCall = (props: FormCallProps) => {
                     comment,
                     date,
                     type,
-                    name, phone, email
+                    name, phone, email, props?.prospectId ?? 0, props?.callId ?? 0
                 )
             ).unwrap();
             setComment('');
@@ -146,11 +148,11 @@ const FormCall = (props: FormCallProps) => {
                             </div>}
 
 
-                        <div className="flex flex-col items-end justify-end">
+                        {props.showPatients && <div className="flex flex-col items-end justify-end">
                             <Button onClick={() => setIsProspect(!isProspect)} type="link">
                                 {`${isProspect ? Strings.selectPatient : Strings.registerProspect}`}
                             </Button>
-                        </div>
+                        </div>}
 
                         <div className="flex flex-row gap-4 mb-4 mt-4">
                             <Select style={{ minWidth: 220 }} size="large" placeholder={Strings.callType} onChange={(value) => setType(value)}>

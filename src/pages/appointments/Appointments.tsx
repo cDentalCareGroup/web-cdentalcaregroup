@@ -92,16 +92,17 @@ const Appointments = (props: AppointmentsProps) => {
         }
     }
     const onStatusChange = (value: string) => {
-        if (value == 'proceso') {
-            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[1]);
-        } else if (value == 'finalizada-cita') {
-            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[3]);
-        } else if (value == 'activa'){
-            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[0]);
-        }else {
-            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[2]);
-        }
-        handleGetAppointmentsByBranchOffice(value);
+        // if (value == 'proceso') {
+        //     setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[1]);
+        // } else if (value == 'finalizada-cita') {
+        //     setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[3]);
+        // } else if (value == 'activa'){
+        //     setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[0]);
+        // }else {
+        //     setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[2]);
+        // }
+        setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[0]);
+        handleGetAppointmentsByBranchOffice('activa');
     }
 
     return (

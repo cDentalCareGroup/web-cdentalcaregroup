@@ -19,7 +19,6 @@ import SelectSearch from "../components/SelectSearch";
 import TopBarHeader from "../components/TopBarHeader";
 import LayoutCard from "../layouts/LayoutCard";
 import ScheduleAppointmentInfoCard from "./components/ScheduleAppointmentInfoCard";
-import crypto from 'crypto';
 const ScheduleAppointment = () => {
 
     const [getBranchOffices] = useGetBranchOfficesMutation();
@@ -42,7 +41,6 @@ const ScheduleAppointment = () => {
     const { referal } = useParams();
 
 
-    console.log(referal);
     useEffect(() => {
         handleGetBranchOffices();
     }, []);
@@ -113,10 +111,7 @@ const ScheduleAppointment = () => {
                             />
                         </div>
 
-                        {branchOffice && <Calendar validateTime={true} availableHours={times} handleOnSelectDate={handleOnDate} isLoading={isLoading} handleOnSelectTime={(value) => {
-                            setTime(value);
-                            window.scrollTo({ behavior: 'smooth', top: scrollRef.current.offsetTop })
-                        }} />}
+                        {branchOffice && <Calendar validateTime={true} availableHours={times} handleOnSelectDate={handleOnDate} isLoading={isLoading} handleOnSelectTime={(value) => setTime(value)} />}
 
                         {(branchOffice && time) && <div className="flex lg:w-1/3 w-full px-6 mb-12 flex-wrap mt-12">
                             <Form

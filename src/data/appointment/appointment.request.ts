@@ -25,7 +25,7 @@ export class UpdateAppointmentStatusRequest {
   padId?: number;
   payments: any[];
 
-  constructor(id: number, status: string, amount: string, paid: string, services: any[],payments: any[], padId?: number) {
+  constructor(id: number, status: string, amount: string, paid: string, services: any[], payments: any[], padId?: number) {
     this.id = id;
     this.status = status;
     this.amount = amount;
@@ -211,11 +211,12 @@ export class RegisterCallCenterAppointmentRequest {
   email?: string;
   branchId?: number;
   patientId?: number;
-
+  prospectId?: number;
+  callId?: number;
   constructor(
     name?: string,
     phone?: string,
-    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number) {
+    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number, prospectId?: number, callId?: number) {
     this.time = time;
     this.name = name;
     this.phone = phone;
@@ -223,5 +224,7 @@ export class RegisterCallCenterAppointmentRequest {
     this.email = email;
     this.branchId = branchId;
     this.patientId = patientId;
+    this.prospectId = prospectId;
+    this.callId = callId;
   }
 }
