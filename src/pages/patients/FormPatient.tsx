@@ -57,14 +57,18 @@ const FormPatient = (props: FormPatientProps) => {
     useEffect(() => {
         if (props.type == FormPatientType.UPDATE) {
             handleSetupValues();
+        } else {
+            handleGetBranchOffices()
         }
         handleGetPatientOrigins();
         handleGetPatientOrganizations();
     }, []);
 
-    const handleGetBranchOffices = async (defaultBranchOfficeId: number) => {
+    const handleGetBranchOffices = async (defaultBranchOfficeId?: number) => {
         try {
-            setBranchoOfficeId(defaultBranchOfficeId);
+            if (defaultBranchOfficeId != null) {
+                setBranchoOfficeId(defaultBranchOfficeId);
+            }
             const response = await getBranchOffices({}).unwrap();
             setBranchoOfficeList(branchOfficesToSelectOptionItem(response));
             setIsLoadingContent(false);

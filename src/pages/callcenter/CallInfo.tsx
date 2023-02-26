@@ -12,6 +12,7 @@ import { CallCatalogDetail, GetCallDetail, GetCalls } from "../../data/call/call
 import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPatientGender, buildPatientName, buildPatientPhone, getDentist, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
 import { useGetCallDetailMutation, useGetCatalogsMutation, useNotAttendedCallMutation, useUpdateCallMutation } from "../../services/callService";
 import Constants from "../../utils/Constants";
+import { UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import FormAppointment from "../appointments/FormAppointment";
@@ -35,6 +36,8 @@ const CallInfo = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingAction, setIsLoadingAction] = useState(false);
     const [info, setInfo] = useState<GetCallDetail>();
+
+    const [lastBaranchOffice, setLastBranchOffice] = useState('');
 
     useEffect(() => {
         handleSetupValues();
@@ -212,6 +215,15 @@ const CallInfo = () => {
         );
     }
 
+    const buildTitle = (): string => {
+        if(info?.appointments != null && info.appointments.length > 0) {
+            const res = info.appointments[info.appointments.length - 1];
+            return `Agendar nueva cita - Sucursal del paciente: ${res.branchOffice.name}`;
+        } else {
+            return ''
+        }
+    }
+
     const callActions = (): JSX.Element => {
         return (<div className="w-full flex-1">
             <span className="flex flex-col flex-wrap w-full p-2 text-gray-600">
@@ -232,10 +244,10 @@ const CallInfo = () => {
 
             <div className="flex flex-row items-center justify-evenly mt-6 w-full">
                 <FormCall callId={data?.call.id} patientId={data?.patient?.id} prospectId={data?.propspect?.id} showPatients={false} onFinish={() => navigate(-1)} />
-                <div className="flex w-full items-end justify-end">
+                <div className="flex w-full items-end justify-end mx-4">
                     <Button onClick={() => handleCallNotAttended()} type="dashed">Llamada no contestada</Button>
                 </div>
-                <FormAppointment callId={data?.call.id} patient={data?.patient} prospect={data?.propspect} onFinish={() => navigate(-1)} />
+                <FormAppointment title={buildTitle()} rol={UserRoles.CALL_CENTER} callId={data?.call.id} patient={data?.patient} prospect={data?.propspect} onFinish={() => navigate(-1)} />
 
             </div>
 
@@ -282,7 +294,7 @@ const CallInfo = () => {
         <LayoutCard
             isLoading={isLoading}
             title={buildCardTitle()}
-            showBack={true}
+            showBack={false}
             content={
                 <div className="flex flex-col">
                     <div className="flex">

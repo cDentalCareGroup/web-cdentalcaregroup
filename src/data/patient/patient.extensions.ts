@@ -26,7 +26,11 @@ const buildPatientBirthday = (patient: Patient | undefined): string => {
   return `${patient?.birthDay?.toString()}`
 }
 const buildPatientPad = (patient: Patient | undefined): string => {
-  return `${patient?.padAcquisitionBranch ?? ''}  ${patient?.padType ?? ''}  ${patient?.padAcquisitionDate?.toString() ?? 'Sin pad'}`
+  if (patient?.pad != null && patient.pad != undefined && patient.pad > 0) {
+    return `PAD ${patient?.padType ?? ''}  ${patient?.padAcquisitionDate?.toString()}`
+  } else {
+    return 'Sin PAD'
+  }
 }
 
 const buildPatientStartedAt = (patient: Patient | undefined): string => {
@@ -35,13 +39,13 @@ const buildPatientStartedAt = (patient: Patient | undefined): string => {
 
 const buildPatientGender = (patient: Patient | undefined): string => {
   if (patient != null) {
-    if(patient.gender == 'male') {
+    if (patient.gender == 'male') {
       return 'Masculino';
     }
-    if(patient.gender == 'male') {
+    if (patient.gender == 'male') {
       return 'Femenino';
     }
-    if(patient.gender == 'other') {
+    if (patient.gender == 'other') {
       return 'Otro';
     }
   }
@@ -148,15 +152,15 @@ const padComponentsToDataTable = (components: PadComponentService[]): any[] => {
   let data: any[] = [];
   let index = 0;
   for (const item of components) {
-      data.push({
-          key: index,
-          service: item.service.name,
-          discount: item.component.discount,
-          discountTwo: item.component.discountTwo,
-          quantity: item.component.maxPatientQuantity,
-          quantityPatient: item.component.maxPatientQuantity
-      })
-      index++;
+    data.push({
+      key: index,
+      service: item.service.name,
+      discount: item.component.discount,
+      discountTwo: item.component.discountTwo,
+      quantity: item.component.maxPatientQuantity,
+      quantityPatient: item.component.maxPatientQuantity
+    })
+    index++;
   }
   return data;
 }

@@ -10,7 +10,7 @@ import { Call } from "../../data/call/call";
 import { CallCatalog } from "../../data/call/call.catalog";
 import { GetCalls } from "../../data/call/call.response";
 import { buildPatientEmail, buildPatientName, buildPatientPad, buildPatientPhone } from "../../data/patient/patient.extensions";
-import { useGetCallsMutation } from "../../services/callService";
+import { useGetCallsMutation, useRegisterCallLogMutation } from "../../services/callService";
 import Constants from "../../utils/Constants";
 import { capitalizeFirstLetter } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
@@ -24,6 +24,7 @@ import { UserRoles } from "../../utils/Extensions";
 
 const Calls = () => {
     const [getCalls, { isLoading }] = useGetCallsMutation();
+    const [registerCallLog] = useRegisterCallLogMutation();
     const [data, setData] = useState<GetCalls[]>([]);
     const navigate = useNavigate();
 
@@ -81,6 +82,15 @@ const Calls = () => {
         }
     }
 
+    const handleRegisterCallLog = async (id: number) => {
+        try {
+            const response = await registerCallLog({ 'id': id }).unwrap();
+            console.log(response);
+        } catch (error) {
+            console.log(`handleRegisterCallLog`, error);
+        }
+    }
+
     return (
         <LayoutCard
             isLoading={isLoading}
@@ -95,6 +105,7 @@ const Calls = () => {
                         {data.map((value, index) =>
                             <Card key={index} title={capitalizeFirstLetter(value.catalog.name)}
                                 actions={[<span onClick={() => {
+                                    handleRegisterCallLog(value.call.id);
                                     setCall(value);
                                     navigate('/callcenter/call')
                                 }}>{Strings.attend}</span>]}

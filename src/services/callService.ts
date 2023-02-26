@@ -66,6 +66,14 @@ export const callService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: GetCallDetail }, _, __) => response.data,
         }),
+        registerCallLog: builder.mutation<any, any>({
+            query: (data) => ({
+                url: '/calls/log',
+                method: "POST",
+                body:{...data}
+            }),
+            transformResponse: (response: { data: any }, _, __) => response.data,
+        }),
     }),
 });
 
@@ -77,5 +85,6 @@ export const {
    useRegisterCatalogMutation,
    useRegisterCallMutation,
    useGetCallDetailMutation,
-   useNotAttendedCallMutation
+   useNotAttendedCallMutation,
+   useRegisterCallLogMutation
 } = callService;

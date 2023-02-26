@@ -32,6 +32,7 @@ interface FormAppointmentProps {
     callId?: number;
     onFinish?: () => void;
     rol: UserRoles;
+    title?: string;
 }
 
 const FormAppointment = (props: FormAppointmentProps) => {
@@ -162,6 +163,14 @@ const FormAppointment = (props: FormAppointmentProps) => {
             handleErrorNotification(error);
         }
     }
+
+    const buildTitle = (): string => {
+        if (props.title != null && props.title != undefined && props.title != '') {
+            return props.title;
+        } else {
+            return Strings.scheduleNewAppointment
+        }
+    }
     return (
         <LayoutCard
             isLoading={false}
@@ -170,7 +179,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
                     <div className="flex flex-col items-end justify-end">
                         <Button type="primary" onClick={() => setIsOpen(true)}>Registrar cita</Button>
                     </div>
-                    <Modal confirmLoading={isActionLoading} okText={Strings.save} onOk={() => handleOnRegisterAppointment()} width={'85%'} open={isOpen} onCancel={() => handleResetParams()} title={Strings.scheduleNewAppointment}>
+                    <Modal confirmLoading={isActionLoading} okText={Strings.save} onOk={() => handleOnRegisterAppointment()} width={'85%'} open={isOpen} onCancel={() => handleResetParams()} title={buildTitle()}>
                         <SelectSearch
                             placeholder={Strings.selectBranchOffice}
                             items={branchOffices}

@@ -1,7 +1,7 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
 import { RiCalendar2Line, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
-import { getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
+import { buildPatientName, buildPatientPad, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
 import { Button, Form, Input, Modal, Radio, Row, Select, Table, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
@@ -530,6 +530,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return `-`
     }
 
+    const buildCall = () => {
+        return `${data.appointment.call?.dueDate ?? ''}`;
+    }
+
     const CardContent = (): JSX.Element => {
         return <>
             {data.patient && <SectionElement label={Strings.patientId} value={`${data.patient?.id}`} icon={<RiHashtag />} />}
@@ -547,18 +551,18 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     <div className="ml-2 flex flex-col items-baseline gap-2 mb-2">
                         <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
                         <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={data.appointment.hasLabs}>
-                            <Radio value={1}>Si necesita</Radio>
-                            <Radio value={0}>No necesita</Radio>
-                            <Radio value={2}>Ya tiene</Radio>
+                            <Radio value={1}>{Strings.optionNeeds}</Radio>
+                            <Radio value={0}>{Strings.optionNoNeeds}</Radio>
+                            <Radio value={2}>{Strings.optionAlreadyHas}</Radio>
                         </Radio.Group>
                     </div>
 
                     <div className="ml-2 flex flex-col items-baseline gap-2 mb-2">
                         <span className="text text-base text-gray-500">{Strings.hasCabinet}</span>
                         <Radio.Group onChange={(event) => handleOnHasCabinet(event.target.value)} value={data.appointment.hasCabinet}>
-                            <Radio value={1}>Si necesita</Radio>
-                            <Radio value={0}>No necesita</Radio>
-                            <Radio value={2}>Ya tiene</Radio>
+                            <Radio value={1}>{Strings.optionNeeds}</Radio>
+                            <Radio value={0}>{Strings.optionNoNeeds}</Radio>
+                            <Radio value={2}>{Strings.optionAlreadyHas}</Radio>
                         </Radio.Group>
                     </div>
                 </div>
@@ -566,14 +570,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             {getStautsTag()}
             {checkDueDate()}
             {showNextAppointment() &&
-                <SectionElement label={'Siguiente cita'} value={buildNextAppointmentText()} icon={<RiCalendar2Line />} />
+                <SectionElement label={Strings.followAppointment} value={buildNextAppointmentText()} icon={<RiCalendar2Line />} />
+            }
+            {showNextCall() && <SectionElement label={'Llamada agendada'} value={buildCall()} icon={<RiPhoneLine />} />
             }
         </>
     }
 
     const canRegisterNextAppointment = (): boolean => {
         return data.appointment.status == 'finalizada'
-            && (data.appointment.nextAppointmentId == null || data.appointment.nextAppointmentId == undefined)
+            && ((data.appointment?.call == null || data.appointment?.call == undefined) && (data.appointment.nextAppointmentId == null || data.appointment.nextAppointmentId == undefined))
     }
 
     const buildNextAppointmentText = (): string => {
@@ -589,6 +595,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const showNextAppointment = (): boolean => {
         return data.appointment.nextAppointmentId != null &&
             data.appointment.nextAppointmentId != 0
+    }
+
+    const showNextCall = (): boolean => {
+        return data.appointment.call != null && data.appointment.call != undefined
     }
 
     const handleSetModalFinish = async () => {
@@ -874,7 +884,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     }}>{Strings.details}</span>
                 ]}>
                 {!hideContent && CardContent()}
-               {(onlyRead == false) && <Row className="mt-4 gap-2">
+                {(onlyRead == false) && <Row className="mt-4 gap-2">
                     {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >
                         {!data.dentist ? Strings.assignDentist : Strings.changeDentist}
                     </Button>}
@@ -883,12 +893,14 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     {canFinish() && <Button type="primary" loading={isActionLoading} onClick={() => { handleSetModalFinish() }} >{Strings.finishAppointment}</Button>}
                     {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >{Strings.extendAppointment}</Button>}
                     {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >{Strings.scheduleNextAppointment}</Button>}
-                    {canRegisterNextAppointment() && <FormCall patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange('finalizada')} />}
+                    {canRegisterNextAppointment() && <FormCall appointmentId={data.appointment.id} patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange('finalizada')} />}
                 </Row>}
 
             </Card>
 
-            <Modal width={'85%'} title={Strings.finishAppointment} confirmLoading={isActionLoading} onOk={() => {
+            <Modal width={'85%'} title={
+                `${Strings.finishAppointment} - ${buildPatientName(data.patient)} - ${buildPatientPad(data.patient)}`
+            } confirmLoading={isActionLoading} onOk={() => {
                 confirm({
                     content: <span>{Strings.askFinishAppointment}</span>,
                     onOk() {

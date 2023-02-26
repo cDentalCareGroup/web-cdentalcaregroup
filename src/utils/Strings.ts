@@ -33,6 +33,9 @@ class Strings {
     static branchOfficeInformacion = "Información de la clínica"
     static patientName = "Nombre del paciente";
     static nextAppointment = "Fecha proxima visita";
+
+    static followAppointment = "Siguiente cita";
+
     static address = "Dirección";
     static phoneNumber = "Número de teléfono";
     static secondPhoneNumber = "Numero de teléfono secundario";
@@ -284,7 +287,7 @@ class Strings {
     static selectSchedule = "Selecciona los horarios"
     static registerProspect = "Agregar prospecto"
 
-    static appVersion = 'v.1.0.24';
+    static appVersion = 'v.1.0.26';
 }
 
 export default Strings;

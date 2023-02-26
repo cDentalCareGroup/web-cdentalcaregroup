@@ -1,3 +1,4 @@
+import { Call } from "../call/call";
 
 export interface Appointment {
     id: number;
@@ -22,4 +23,5 @@ export interface Appointment {
     hasCabinet?: number;
     nextAppointmentId: number;
     nextAppointmentDate: string;
+    call?: Call;
 }

@@ -28,6 +28,7 @@ interface FormCallProps {
     patientId?: number;
     prospectId?: number;
     callId?: number;
+    appointmentId?: number;
 }
 
 const FormCall = (props: FormCallProps) => {
@@ -105,7 +106,7 @@ const FormCall = (props: FormCallProps) => {
                     comment,
                     date,
                     type,
-                    name, phone, email, props?.prospectId ?? 0, props?.callId ?? 0
+                    name, phone, email, props?.prospectId ?? 0, props?.callId ?? 0, props?.appointmentId ?? 0 
                 )
             ).unwrap();
             setComment('');
