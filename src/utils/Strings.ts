@@ -284,7 +284,7 @@ class Strings {
     static selectSchedule = "Selecciona los horarios"
     static registerProspect = "Agregar prospecto"
 
-    static appVersion = 'v.1.0.23';
+    static appVersion = 'v.1.0.24';
 }
 
 export default Strings;
