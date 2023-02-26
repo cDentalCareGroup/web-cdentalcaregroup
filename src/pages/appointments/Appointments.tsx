@@ -18,6 +18,7 @@ import NoData from "../components/NoData";
 import { UserRoles } from "../../utils/Extensions";
 import DataLoading from "../components/DataLoading";
 import { sortAppointments } from "../../data/appointment/appointment.extensions";
+import FormAppointment from "./FormAppointment";
 
 interface AppointmentsProps {
     rol: UserRoles
@@ -91,7 +92,7 @@ const Appointments = (props: AppointmentsProps) => {
             handleGetAppointmentsByBranchOffice('no-atendida');
         }
     }
-    const onStatusChange = (value: string) => {
+    const onStatusChange = (value?: string) => {
         // if (value == 'proceso') {
         //     setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[1]);
         // } else if (value == 'finalizada-cita') {
@@ -109,12 +110,12 @@ const Appointments = (props: AppointmentsProps) => {
         <LayoutCard title={Strings.appointments} isLoading={isLoading} content={
 
             <div className="flex flex-col">
-                {props.rol == UserRoles.ADMIN && <BackArrow />}
+                {(props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) && <BackArrow />}
                 <Search onChange={(event) => handleOnSearch(event.target.value, false)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={(event) => handleOnSearch(event, true)} enterButton />
                 <SingleFilters data={DEFAULT_APPOINTMENTS_FILTERS} onFilterChange={handleOnFilterChange} defaultOption={defaultFilter} />
-
+                {props.rol != UserRoles.CALL_CENTER && <FormAppointment rol={props.rol} onFinish={() => onStatusChange()} />}
                 {!isFiltering && <Row>
-                    {appointments?.map((value, index) => <AppointmentCard hideContent={false} appointment={value} key={index} onStatusChange={onStatusChange} />
+                    {appointments?.map((value, index) => <AppointmentCard onlyRead={props.rol == UserRoles.CALL_CENTER} hideContent={false} appointment={value} key={index} onStatusChange={onStatusChange} />
                     )}
                 </Row>}
                 {isFiltering && <DataLoading />}

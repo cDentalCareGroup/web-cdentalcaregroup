@@ -62,9 +62,24 @@ const PatientInfo = (props: PatientInfoProps) => {
             ),
         },
         {
+            title: Strings.discountTwo,
+            dataIndex: 'discountTwo',
+            key: 'discountTwo',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span>{formatNumberToPercent(value.discount)}</span>
+                </div>
+            ),
+        },
+        {
             title: Strings.maxQuantity,
             dataIndex: 'quantity',
             key: 'quantity',
+        },
+        {
+            title: Strings.maxPatientQuantity,
+            dataIndex: 'quantityPatient',
+            key: 'quantityPatient',
         },
     ];
 

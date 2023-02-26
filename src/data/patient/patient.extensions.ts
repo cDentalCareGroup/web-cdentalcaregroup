@@ -152,7 +152,9 @@ const padComponentsToDataTable = (components: PadComponentService[]): any[] => {
           key: index,
           service: item.service.name,
           discount: item.component.discount,
+          discountTwo: item.component.discountTwo,
           quantity: item.component.maxPatientQuantity,
+          quantityPatient: item.component.maxPatientQuantity
       })
       index++;
   }

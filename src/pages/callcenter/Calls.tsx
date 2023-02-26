@@ -20,6 +20,7 @@ import NoData from "../components/NoData";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormCall from "./FormCall";
+import { UserRoles } from "../../utils/Extensions";
 
 const Calls = () => {
     const [getCalls, { isLoading }] = useGetCallsMutation();
@@ -86,7 +87,7 @@ const Calls = () => {
             title={`${Strings.callsDay} ${data.length != 0 ? data.length : ''}`}
             content={
                 <div className="flex flex-col">
-                    <FormAppointment />
+                    <FormAppointment rol={UserRoles.CALL_CENTER} />
                     <br />
                     <FormCall showPatients={true} onFinish={() => handleGetCalls()} />
 

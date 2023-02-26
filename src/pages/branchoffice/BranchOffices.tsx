@@ -13,11 +13,12 @@ import {
 import Constants from "../../utils/Constants";
 import useSessionStorage from "../../core/sessionStorage";
 import Strings from "../../utils/Strings";
-import { RESPONSIVE_LIST, RESPONSIVE_LIST_SMALL } from "../../utils/Extensions";
+import { RESPONSIVE_LIST, RESPONSIVE_LIST_SMALL, UserRoles } from "../../utils/Extensions";
 
 
 interface BranchOfficesProps {
     type: BranchOfficeType;
+    rol: UserRoles;
 }
 
 export enum BranchOfficeType {
@@ -56,11 +57,19 @@ const BranchOffices = (props: BranchOfficesProps) => {
 
 
     const buildActions = (value: BranchOffice) => {
-        if (props.type == BranchOfficeType.APPOINTMENTS) {
+        if (props.type == BranchOfficeType.APPOINTMENTS && props.rol == UserRoles.ADMIN) {
             return [
                 <Link onClick={() => {
                     setBranchId(value.id);
                 }} to={'/admin/branchoffice/appointments'}>
+                    {Strings.seeAppointments}
+                </Link>
+            ]
+        } else if (props.type == BranchOfficeType.APPOINTMENTS && props.rol == UserRoles.CALL_CENTER) {
+            return [
+                <Link onClick={() => {
+                    setBranchId(value.id);
+                }} to={'/callcenter/branchoffice/appointments'}>
                     {Strings.seeAppointments}
                 </Link>
             ]

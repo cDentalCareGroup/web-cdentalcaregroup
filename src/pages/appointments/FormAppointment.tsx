@@ -1,6 +1,7 @@
 import { Button, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { RiCalendar2Line, RiHospitalLine, RiMentalHealthLine, RiUser2Fill, RiUser3Line } from "react-icons/ri";
+import useSessionStorage from "../../core/sessionStorage";
 import { GetAppointmentAvailabilityRequest, RegisterCallCenterAppointmentRequest } from "../../data/appointment/appointment.request";
 import { AvailableTime } from "../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../data/appointment/available.times.extensions";
@@ -14,7 +15,8 @@ import { branchOfficesToSelectOptionItem, patientsToSelectItemOption } from "../
 import { useGetAppointmentAvailabilityMutation, useRegisterCallCenterAppointmentMutation } from "../../services/appointmentService";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetPatientsMutation } from "../../services/patientService";
-import { dayName, monthName } from "../../utils/Extensions";
+import Constants from "../../utils/Constants";
+import { dayName, monthName, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import Calendar from "../components/Calendar";
@@ -29,6 +31,7 @@ interface FormAppointmentProps {
     prospect?: Prospect;
     callId?: number;
     onFinish?: () => void;
+    rol: UserRoles;
 }
 
 const FormAppointment = (props: FormAppointmentProps) => {
@@ -50,9 +53,12 @@ const FormAppointment = (props: FormAppointmentProps) => {
     const [email, setEmail] = useState('');
     const [registerCallCenterAppointment] = useRegisterCallCenterAppointmentMutation();
     const [isActionLoading, setIsActionLoading] = useState(false);
+    const [branchId, setBranchId] = useSessionStorage(
+        Constants.BRANCH_ID,
+        0
+    );
     useEffect(() => {
         handleGetBranchOffices();
-        //  handleGetPatients();
     }, []);
 
     const handleGetPatients = async (branchId: Number) => {
@@ -70,7 +76,11 @@ const FormAppointment = (props: FormAppointmentProps) => {
     const handleGetBranchOffices = async () => {
         try {
             const response = await getBranchOffices({}).unwrap();
-            setBranchOffices(branchOfficesToSelectOptionItem(response));
+            if (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) {
+                setBranchOffices(branchOfficesToSelectOptionItem(response));
+            } else {
+                setBranchOffices(branchOfficesToSelectOptionItem(response.filter((value, _) => value.id == branchId)));
+            }
         } catch (error) {
             console.log(error);
         }
@@ -80,7 +90,6 @@ const FormAppointment = (props: FormAppointmentProps) => {
         setBranchOffice(event);
         handleGetAppointmentAvailability(date, event.label);
         if (props.patient == null || props.patient == undefined || props.prospect == null || props.prospect == undefined) {
-            console.log('getting patients');
             handleGetPatients(event.id);
         }
     }
@@ -144,7 +153,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER_APPOINTMENT);
             handleResetParams();
-            if(props.onFinish != null && props.onFinish != undefined) {
+            if (props.onFinish != null && props.onFinish != undefined) {
                 props.onFinish();
             }
         } catch (error) {
@@ -185,9 +194,11 @@ const FormAppointment = (props: FormAppointmentProps) => {
                                 <CustomFormInput label={Strings.email} value={email} onChange={(value) => setEmail(value)} />
                             </div>}
 
-                        {((time != '' && !isProspect) && (props.prospect == null)) &&
+                        {((time != '') && (props.prospect == null)) &&
                             <div className="flex flex-col items-end justify-end">
-                                <Button onClick={() => setIsProspect(true)} type="link">{Strings.registerProspect}</Button>
+                                <Button onClick={() => setIsProspect(!isProspect)} type="link">
+                                    {isProspect ? Strings.selectPatient : Strings.registerProspect}
+                                </Button>
                             </div>
                         }
 

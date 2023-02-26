@@ -51,6 +51,7 @@ const FormPad = (props: FormPadProps) => {
 
     const [isTableLoading, setIsTableLoading] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingContent, setIsLoadingContent] = useState(false);
 
     const [isOpenModal, setIsOpenModal] = useState(false);
 
@@ -69,10 +70,13 @@ const FormPad = (props: FormPadProps) => {
 
     const handleGetPadCatalogs = async () => {
         try {
+            setIsLoadingContent(true);
             const response = await getPadCatalogs({}).unwrap();
             setPadCatalogs(response);
             setPadCatalogList(padCatalogsToSelectItemOption(response));
+            setIsLoadingContent(false);
         } catch (error) {
+            setIsLoadingContent(false);
             handleErrorNotification(error);
         }
     }
@@ -90,7 +94,6 @@ const FormPad = (props: FormPadProps) => {
     const handleGetAllPatients = async () => {
         try {
             const response = await getPatients(new FilterEmployeesRequest([DEFAULT_FILTERS[3]])).unwrap();
-            console.log(response);
             const filterData = response.filter((value, _) => (value.pad == 0 || value.pad == null));
             setPatientList(patientsToSelectItemOption(filterData));
         } catch (error) {
@@ -242,7 +245,7 @@ const FormPad = (props: FormPadProps) => {
     return (<LayoutCard isLoading={false} content={
         <div className="flex flex-col">
             <div className="flex w-full items-end justify-end">
-                <Button type="primary" onClick={() => setIsOpenModal(true)}>Registrar PAD</Button>
+                <Button disabled={isLoadingContent} loading={isLoadingContent} type="primary" onClick={() => setIsOpenModal(true)}>Registrar PAD</Button>
             </div>
             <Modal confirmLoading={isLoading} width={'85%'} title={Strings.formPad} onCancel={() => setIsOpenModal(false)} onOk={() => setIsOpenModal(false)} open={isOpenModal} okText={Strings.close}>
                 <div className="flex flex-col">

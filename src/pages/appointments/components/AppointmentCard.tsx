@@ -49,10 +49,11 @@ interface AppointmentCardProps {
     onStatusChange: (status: string) => void;
     onAppointmentChange?: (appointment: AppointmentDetail) => void;
     hideContent: boolean;
+    onlyRead?: boolean;
 }
 
 
-const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointmentChange }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointmentChange, onlyRead }: AppointmentCardProps) => {
     const [data, setData] = useState(appointment);
     const [getEmployeesByType] = useGetEmployeesByTypeMutation();
     const [getPatients] = useGetPatientsMutation();
@@ -208,7 +209,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             } else {
                 setDentistList(filterDentist(response));
             }
-
         } catch (error) {
             console.log(error);
         }
@@ -366,16 +366,18 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleOnNextAppointment = async () => {
         const branchOfficeOption = appointmentToBranchOfficeSelectItemOption(data);
         setBranchOffice(branchOfficeOption);
-        const dentist = appointmentToDentistSelectItemOption(data);
-        setDentist(dentist);
+        const dentistFound = appointmentToDentistSelectItemOption(data);
+        setDentist(dentistFound);
+
         if (isAdmin(user)) {
             await handleGetBranchOffices();
         } else {
             if (branchOfficeOption != null) setBranchOfficeList([branchOfficeOption]);
         }
+
         await handleGetDentist();
         handleGetDentistAvailability(
-            dentist.id,
+            dentistFound.id,
             branchOfficeOption?.id ?? 0,
             date
         );
@@ -540,7 +542,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <SectionElement label={Strings.services} value={buildServices()} icon={<RiServiceLine />} />
             {data.extendedTimes != null && data.extendedTimes.length > 0 &&
                 <SectionElement label={'Cita extendida'} value={extendedTimesToShow(data)} icon={<RiCalendar2Line />} />}
-            {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' &&
+            {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' && onlyRead == false &&
                 <div className="flex flex-col flex-wrap">
                     <div className="ml-2 flex flex-col items-baseline gap-2 mb-2">
                         <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
@@ -704,11 +706,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         //     subTotal = servicePrice;
         // }
 
-        if (discount > 0) {
-            console.log('pad')
-        } else {
-            price = servicePrice;
-        }
+        // if (discount > 0) {
+        //     console.log('pad')
+        // } else {
+        //     price = servicePrice;
+        // }
+        price = servicePrice;
         subTotal = price * 1;
 
         tableInfo.push(
@@ -861,7 +864,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     return (
         <div className="m-2">
             <Card title={!hideContent ? getPatientName(data) : ''} bordered={!hideContent} actions={
-                hideContent ? [] : [
+                (hideContent || onlyRead == true) ? [] : [
                     <span onClick={() => {
                         if (isAdmin(user)) {
                             navigate(`/admin/branchoffice/appointments/detail/${data?.appointment.folio}`)
@@ -871,7 +874,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     }}>{Strings.details}</span>
                 ]}>
                 {!hideContent && CardContent()}
-                <Row className="mt-4 gap-2">
+               {(onlyRead == false) && <Row className="mt-4 gap-2">
                     {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >
                         {!data.dentist ? Strings.assignDentist : Strings.changeDentist}
                     </Button>}
@@ -881,8 +884,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >{Strings.extendAppointment}</Button>}
                     {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >{Strings.scheduleNextAppointment}</Button>}
                     {canRegisterNextAppointment() && <FormCall patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange('finalizada')} />}
-
-                </Row>
+                </Row>}
 
             </Card>
 
