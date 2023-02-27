@@ -1,4 +1,5 @@
-import { Card, Tag } from "antd";
+import { Card, Tag, Typography } from "antd";
+import Paragraph from "antd/es/skeleton/Paragraph";
 import { RiHospitalLine, RiMailLine, RiPhoneLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { buildEmployeeEmail, buildEmployeeName, buildEmployeeNumber } from "../../../data/employee/employee.extentions";
@@ -12,7 +13,7 @@ interface EmployeeCardProps {
 const EmployeeCard = ({ data }: EmployeeCardProps) => {
 
     const navigate = useNavigate();
-    
+
     const getStauts = (): JSX.Element => {
         if (data.employee.status == 1) {
             return <Tag color="success">{Strings.statusActive}</Tag>
@@ -34,6 +35,8 @@ const EmployeeCard = ({ data }: EmployeeCardProps) => {
             <SectionElement icon={<RiHospitalLine />} label={Strings.branchOffice} value={buildBranchOfficeName()} />
             <SectionElement icon={<RiMailLine />} label={Strings.email} value={buildEmployeeEmail(data.employee)} />
             <SectionElement icon={<RiPhoneLine />} label={Strings.phoneNumber} value={buildEmployeeNumber(data.employee)} />
+            {(data.employee.referredCode != null && data.employee.referredCode != '') && <Typography.Paragraph className="mt-2" copyable={{ text: `https://cdentalcaregroup-fcdc9.web.app/appointment/${data.employee.referredCode}` }}>Link de referido</Typography.Paragraph>
+            }
             {getStauts()}
         </Card>
     );
