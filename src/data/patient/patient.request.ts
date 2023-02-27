@@ -25,6 +25,7 @@ export class RegisterPatientRequest {
     branchOfficeId: number;
     originId: number;
     organization: number;
+    folio: string;
 
     constructor(values: any, latitudes: Latitudes, branchId: any, city: string, colony: string, state: string) {
         this.name = values.name;
@@ -47,6 +48,7 @@ export class RegisterPatientRequest {
         this.branchOfficeId = Number(branchId);
         this.originId = Number(values.origin);
         this.organization = values.organization;
+        this.folio = values.folio;
     }
 }
 
@@ -84,6 +86,7 @@ export class UpdatePatientRequest {
     patientId: number;
     organization: number;
     startDate: string;
+    folio: string;
 
     constructor(values: any, branchId: any, colony: string, city: string, state: string, latitudes: Latitudes, patientId: number, birthday: string) {
         this.name = values.name;
@@ -108,5 +111,6 @@ export class UpdatePatientRequest {
         this.patientId = Number(patientId);
         this.organization = values.organization;
         this.startDate = values.startDate;
+        this.folio = values.folio;
     }
 }

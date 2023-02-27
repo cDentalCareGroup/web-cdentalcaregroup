@@ -82,6 +82,7 @@ const FormPatient = (props: FormPatientProps) => {
         setIsLoadingContent(true);
         form.setFieldValue('name', props.patient?.name);
         form.setFieldValue('lastname', props.patient?.lastname);
+        form.setFieldValue('folio', props.patient?.historicalFolio);
         form.setFieldValue('secondLastname', props.patient?.secondLastname);
         form.setFieldValue('gender', props.patient?.gender);
         form.setFieldValue('phone', props.patient?.primaryContact);
@@ -217,6 +218,7 @@ const FormPatient = (props: FormPatientProps) => {
             setShowNormalInputs(false);
             handleSucccessNotification(NotificationSuccess.REGISTER);
         } catch (error) {
+            setIsLoading(false);
             handleErrorNotification(error);
         }
     }
@@ -282,6 +284,14 @@ const FormPatient = (props: FormPatientProps) => {
                         defaultValue={branchOfficeId}
                     />
                 </Form.Item>}
+
+                <Form.Item
+                    name="folio"
+                    label={Strings.folio}
+                    style={{ minWidth: 200, padding: 10 }}
+                    rules={[{ required: true, message: Strings.requiredField }]}>
+                    <Input size="large" prefix={<RiUser3Line />} placeholder={Strings.folio} />
+                </Form.Item>
 
                 <Form.Item
                     name="name"
