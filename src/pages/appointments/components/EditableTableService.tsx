@@ -192,7 +192,7 @@ const EditableTable = (props: EditableTableCustomProps) => {
             row.price = row.unitPrice - Math.round((Number(row.unitPrice) / 100) * Math.round(Number(row.disscount)));
             row.subtotal = Number(row.quantity) * Number(row.price);
         } else {
-            row.price = row.subtotal;
+            row.price = row.unitPrice;
         }
         newData.splice(index, 1, {
             ...item,

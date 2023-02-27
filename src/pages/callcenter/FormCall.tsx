@@ -35,6 +35,8 @@ const FormCall = (props: FormCallProps) => {
     const [getCatalogs] = useGetCatalogsMutation();
 
     const [isOpen, setIsOpen] = useState(false);
+    const [isActionLoading, setIsActionLoading] = useState(false);
+
     const [comment, setComment] = useState('');
     const [date, setDate] = useState('');
     const [type, setType] = useState('');
@@ -93,6 +95,7 @@ const FormCall = (props: FormCallProps) => {
 
     const handleRegisterCall = async () => {
         try {
+            setIsActionLoading(true);
             let patientId = 0;
             if (props.showPatients) {
                 patientId = patient?.id ?? 0;
@@ -117,6 +120,7 @@ const FormCall = (props: FormCallProps) => {
             setPhone('');
             setPatient(undefined);
             setIsOpen(false);
+            setIsActionLoading(false);
             handleSucccessNotification(NotificationSuccess.REGISTER);
             props?.onFinish();
         } catch (error) {
@@ -133,7 +137,7 @@ const FormCall = (props: FormCallProps) => {
                         <Button onClick={() => setIsOpen(true)} type="dashed">{Strings.registerCall}</Button>
                     </div>
 
-                    <Modal confirmLoading={false} okText={Strings.save} open={isOpen} onCancel={() => setIsOpen(false)} title={Strings.registerNewCall} onOk={() => handleRegisterCall()}>
+                    <Modal confirmLoading={isActionLoading} okText={Strings.save} open={isOpen} onCancel={() => setIsOpen(false)} title={Strings.registerNewCall} onOk={() => handleRegisterCall()}>
                         {(props.showPatients && !isProspect) && <SelectSearch
                             placeholder={Strings.selectPatient}
                             items={patientList}

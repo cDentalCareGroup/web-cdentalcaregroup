@@ -274,7 +274,7 @@ const CallInfo = () => {
                 new UpdateCallRequest(data?.call.id ?? 0, `Llamada no contestada ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`)
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.UPDATE);
-            navigate(-1);
+            //navigate(-1);
         } catch (error) {
             handleErrorNotification(error);
         }
