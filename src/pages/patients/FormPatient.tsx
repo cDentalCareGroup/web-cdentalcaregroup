@@ -287,10 +287,9 @@ const FormPatient = (props: FormPatientProps) => {
 
                 <Form.Item
                     name="folio"
-                    label={Strings.folio}
-                    style={{ minWidth: 200, padding: 10 }}
-                    rules={[{ required: true, message: Strings.requiredField }]}>
-                    <Input size="large" prefix={<RiUser3Line />} placeholder={Strings.folio} />
+                    label={Strings.folioHistoric}
+                    style={{ minWidth: 200, padding: 10 }}>
+                    <Input size="large" prefix={<RiUser3Line />} placeholder={Strings.folioHistoric} />
                 </Form.Item>
 
                 <Form.Item

@@ -35,8 +35,6 @@ const EmployeeCard = ({ data }: EmployeeCardProps) => {
             <SectionElement icon={<RiHospitalLine />} label={Strings.branchOffice} value={buildBranchOfficeName()} />
             <SectionElement icon={<RiMailLine />} label={Strings.email} value={buildEmployeeEmail(data.employee)} />
             <SectionElement icon={<RiPhoneLine />} label={Strings.phoneNumber} value={buildEmployeeNumber(data.employee)} />
-            {(data.employee.referredCode != null && data.employee.referredCode != '') && <Typography.Paragraph className="mt-2" copyable={{ text: `https://cdentalcaregroup-fcdc9.web.app/appointment/${data.employee.referredCode}` }}>Link de referido</Typography.Paragraph>
-            }
             {getStauts()}
         </Card>
     );

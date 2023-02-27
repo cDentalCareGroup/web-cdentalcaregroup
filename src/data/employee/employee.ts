@@ -27,5 +27,4 @@
     city: string;
     user:string;
     password: string;
-    referredCode: string;
   }

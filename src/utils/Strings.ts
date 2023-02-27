@@ -57,6 +57,8 @@ class Strings {
     static selectGender = "Selecciona un género";
     static whatsapp = "Whatsapp";
     static folio = "Folio";
+    static folioHistoric = "Folio histórico";
+
     static dentist = "Dentista"
     static status = "Estatus"
     static appointment = "Cita"
