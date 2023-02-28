@@ -118,7 +118,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const [modalFinish, setModalFinish] = useState(false);
     const [amountReceived, setAmountReceived] = useState('0')
-    const [padComponent, setPadComponent] = useState<PadComponentUsed>();
+    const [padComponent, setPadComponent] = useState<any>();
     const [isTableLoading, setIsTableLoading] = useState(false);
 
     const [showExchange, setShowExchange] = useState(false);
@@ -602,9 +602,9 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const handleSetModalFinish = async () => {
-        await handleGetPaymentMethods();
         await handleGetServices();
-        // await handleGetPadServices();
+        handleGetPadServices();
+        handleGetPaymentMethods();
         setModalFinish(true)
     }
 
@@ -613,6 +613,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getPadServices(
                 { 'patientId': appointment.patient?.id }
             ).unwrap();
+            //console.log(response);
             setPadComponent(response);
         } catch (error) {
             console.log(error);
@@ -695,38 +696,39 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
 
     const handleOnServiceChange = (service: SelectItemOption) => {
+        // console.log(service);
         setIsTableLoading(true);
         const serviceItem = dataServices.find((value, _) => value.id == service.id);
         let tableInfo = dataTable;
+        const serviceKey = tableInfo.length + 1
         const servicePrice = serviceItem?.price ?? 0;
         setDataTable([]);
 
         let discount = 0;
         let subTotal = 0;
         let price = 0;
-        // if (padComponent != null && padComponent.components.length > 0) {
-        //     const component = padComponent.components.find((value, _) => value.component.serviceId == service.id)
-        //     if (component != null) {
-        //         discount = Math.round(component.component.discount);
-        //         subTotal = servicePrice - Math.round(((1 * servicePrice) / 100) * discount);
-        //     } else {
-        //         subTotal = servicePrice;
-        //     }
-        // } else {
-        //     subTotal = servicePrice;
-        // }
 
-        // if (discount > 0) {
-        //     console.log('pad')
-        // } else {
-        //     price = servicePrice;
-        // }
-        price = servicePrice;
-        subTotal = price * 1;
+        const component = padComponent?.components?.find((value: any, _: any) => value.service.id == service.id);
+        if (component != null) {
+            const exits = tableInfo.filter((value, _) => value.description.toLowerCase().includes(service.description?.toLowerCase()));
+            if (Number(component.availableUsage) > exits.length) {
+                discount = Number(component.component.discount);
+            } else {
+                discount =  Number(component.component.discountTwo);
+            }
+        }
+
+        if (discount > 0) {
+            price = servicePrice - Math.round((Number(servicePrice) / 100) * Math.round(Number(discount)));
+            subTotal = price;
+        } else {
+            price = servicePrice;
+            subTotal = price;
+        }
 
         tableInfo.push(
             {
-                key: tableInfo.length + 1,
+                key: serviceKey,
                 description: serviceItem?.name ?? '',
                 quantity: 1,
                 unitPrice: servicePrice,

@@ -45,6 +45,7 @@ class Strings {
 
     static lastName = "Apellido paterno";
     static secondLastName = "Apellido materno";
+    static lastNames = "Apellidos"
 
     static email = "Correo electrónico";
     static birthday = "Fecha de nacimiento";

@@ -3,7 +3,7 @@ import type { InputRef } from 'antd';
 import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { RiDeleteBin7Line } from 'react-icons/ri';
-import { formatNumberToPercent } from '../../../utils/Extensions';
+import { formatNumberToPercent, formatPrice } from '../../../utils/Extensions';
 import Strings from '../../../utils/Strings';
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
@@ -147,11 +147,16 @@ const EditableTable = (props: EditableTableCustomProps) => {
         {
             title: Strings.unitPrice,
             dataIndex: 'unitPrice',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span >{formatPrice(value.unitPrice)}</span>
+                </div>
+            ),
         },
         {
             title: Strings.discount,
             dataIndex: 'disscount',
-            editable: true,
+            editable: false,
             render: (_: any, value: any) => (
                 <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
                     <span className='text-blue-800'>{formatNumberToPercent(value.disscount)}</span>
@@ -161,10 +166,20 @@ const EditableTable = (props: EditableTableCustomProps) => {
         {
             title: Strings.price,
             dataIndex: 'price',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span >{formatPrice(value.price)}</span>
+                </div>
+            ),
         },
         {
             title: Strings.subTotal,
             dataIndex: 'subtotal',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span >{formatPrice(value.subtotal)}</span>
+                </div>
+            ),
         },
         {
             title: Strings.actions,
@@ -185,7 +200,6 @@ const EditableTable = (props: EditableTableCustomProps) => {
         row.unitPrice = row.unitPrice;
         row.disscount = Math.round(row.disscount);
 
-        row.subtotal = Number(row.quantity) * Number(row.unitPrice);
       //  row.price = Number(row.quantity) * Number(item.unitPrice);
 
         if (row.disscount != null && row.disscount != 0 && row.disscount != '0') {
@@ -193,6 +207,7 @@ const EditableTable = (props: EditableTableCustomProps) => {
             row.subtotal = Number(row.quantity) * Number(row.price);
         } else {
             row.price = row.unitPrice;
+            row.subtotal = Number(row.quantity) * Number(row.unitPrice);
         }
         newData.splice(index, 1, {
             ...item,
