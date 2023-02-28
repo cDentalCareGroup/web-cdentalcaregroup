@@ -733,6 +733,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 disscount: discount,
                 price: price,
                 subtotal: subTotal,
+                serviceId: serviceItem?.id
             },
         );
         setTimeout(() => {
