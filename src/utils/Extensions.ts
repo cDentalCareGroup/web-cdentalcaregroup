@@ -143,11 +143,21 @@ const monthName = (d: Date): string => {
   return monthName;
 }
 
-const capitalizeFirstLetter = (value: string | undefined): string => {
+// const capitalizeFirstLetter = (value: string | undefined): string => {
+//   if (value != undefined) {
+//     return value?.charAt(0).toUpperCase() + value?.slice(1).toLowerCase();
+//   }
+//   return '';
+// }
+
+const capitalizeAllCharacters = (value: string | undefined): string => {
   if (value != undefined) {
-    return value?.charAt(0).toUpperCase() + value?.slice(1).toLowerCase();
+          //return value.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+          return value.toLocaleLowerCase().replace(/(^|\s)\S/g, function (match) {
+                  return match.toUpperCase();
+          });
   }
-  return '';
+  return ''
 }
 
 
@@ -210,7 +220,7 @@ export {
   dayName,
   monthName,
   isAdmin,
-  capitalizeFirstLetter,
+  capitalizeAllCharacters,
   RESPONSIVE_LIST,
   RESPONSIVE_LIST_SMALL,
   RESPONSIVE_LIST_LARGE,

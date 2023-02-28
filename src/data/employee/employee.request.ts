@@ -1,4 +1,4 @@
-import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { capitalizeAllCharacters } from "../../utils/Extensions";
 import { Colony } from "../address/colonies";
 import { Latitudes } from "../maps/latitudes";
 
@@ -51,10 +51,10 @@ export class RegisterEmployeeRequest {
         this.phone = values.phone;
         this.email = values.email ?? "";
         this.street = values.street;
-        this.colony = capitalizeFirstLetter(colony);
+        this.colony = capitalizeAllCharacters(colony);
         this.cp = values.zipCode;
-        this.city = capitalizeFirstLetter(city);
-        this.state = capitalizeFirstLetter(state);
+        this.city = capitalizeAllCharacters(city);
+        this.state = capitalizeAllCharacters(state);
         this.streetNumber = values.streetNumber ?? "";
         this.lat = latitudes?.lat ?? 0;
         this.lon = latitudes?.lng ?? 0;
@@ -102,10 +102,10 @@ export class UpdateEmployeeRequest {
         this.phone = values.phone;
         this.email = values.email ?? "";
         this.street = values.street;
-        this.colony = capitalizeFirstLetter(colony);
+        this.colony = capitalizeAllCharacters(colony);
         this.cp = values.zipCode;
-        this.city = capitalizeFirstLetter(city);
-        this.state = capitalizeFirstLetter(state);
+        this.city = capitalizeAllCharacters(city);
+        this.state = capitalizeAllCharacters(state);
         this.streetNumber = values.streetNumber ?? "";
         this.branchOfficeId = Number(branchId);
         this.nss = values.nss;

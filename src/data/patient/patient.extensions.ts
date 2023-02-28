@@ -1,7 +1,7 @@
 import { AppointmentDetail } from "../appointment/appointment.detail"
 import { PadComponentService, Patient } from "./patient"
 import { formatISO } from "date-fns";
-import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { capitalizeAllCharacters } from "../../utils/Extensions";
 
 const DEFAULT_FIELD_VALUE = "-"
 
@@ -54,7 +54,7 @@ const buildPatientGender = (patient: Patient | undefined): string => {
 
 const getPatientName = (appointment: AppointmentDetail | undefined) => {
   const name = appointment?.prospect?.name ??
-    `${capitalizeFirstLetter(appointment?.patient?.name)} ${capitalizeFirstLetter(appointment?.patient?.lastname)} ${capitalizeFirstLetter(appointment?.patient?.secondLastname ?? '')}`;
+    `${capitalizeAllCharacters(appointment?.patient?.name)} ${capitalizeAllCharacters(appointment?.patient?.lastname)} ${capitalizeAllCharacters(appointment?.patient?.secondLastname ?? '')}`;
   return name;
 }
 const getPatientEmail = (appointment: AppointmentDetail | undefined): string => {
@@ -108,7 +108,7 @@ const getHasCabinet = (appointment: AppointmentDetail | undefined) => {
 const getPatientPad = (appointment: AppointmentDetail | undefined) => {
   if (appointment?.patient != null) {
     if (appointment.patient.pad) {
-      const pad = `${capitalizeFirstLetter(appointment?.patient?.padType)} - ${appointment?.patient?.padAcquisitionDate} - ${appointment?.patient?.padExpirationDate}`
+      const pad = `${capitalizeAllCharacters(appointment?.patient?.padType)} - ${appointment?.patient?.padAcquisitionDate} - ${appointment?.patient?.padExpirationDate}`
       return pad;
     } else {
       return `Sin pad`;

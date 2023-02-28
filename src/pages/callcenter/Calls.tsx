@@ -12,7 +12,7 @@ import { GetCalls } from "../../data/call/call.response";
 import { buildPatientEmail, buildPatientName, buildPatientPad, buildPatientPhone } from "../../data/patient/patient.extensions";
 import { useGetCallsMutation, useRegisterCallLogMutation } from "../../services/callService";
 import Constants from "../../utils/Constants";
-import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { capitalizeAllCharacters } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import FormAppointment from "../appointments/FormAppointment";
@@ -103,7 +103,7 @@ const Calls = () => {
 
                     <div className="flex flex-row flex-wrap gap-2 mt-4">
                         {data.map((value, index) =>
-                            <Card key={index} title={capitalizeFirstLetter(value.catalog.name)}
+                            <Card key={index} title={capitalizeAllCharacters(value.catalog.name)}
                                 actions={[<span onClick={() => {
                                     handleRegisterCallLog(value.call.id);
                                     setCall(value);

@@ -14,7 +14,7 @@ import { branchOfficesToSelectOptionItem } from "../../data/select/select.item.o
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetColoniesFromZipCodeMutation, useGetPatientOrganizationsMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { capitalizeFirstLetter, isAdmin, UserRoles } from "../../utils/Extensions";
+import { capitalizeAllCharacters, isAdmin, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SelectSearch from "../components/SelectSearch";
@@ -180,9 +180,9 @@ const FormPatient = (props: FormPatientProps) => {
         if (colony != null) {
             if (colony.stateCities != null && colony.stateCities.length > 0) {
                 if (colony.stateCities[0].cities != null) {
-                    form.setFieldValue('city', capitalizeFirstLetter(colony.stateCities[0].cities[0]));
+                    form.setFieldValue('city', capitalizeAllCharacters(colony.stateCities[0].cities[0]));
                 }
-                form.setFieldValue('state', capitalizeFirstLetter(colony.stateCities[0].state));
+                form.setFieldValue('state', capitalizeAllCharacters(colony.stateCities[0].state));
             }
             setColony(colony);
             googleApiFetchColony(colony.colony ?? '');
@@ -194,10 +194,10 @@ const FormPatient = (props: FormPatientProps) => {
         let city = '';
         let state = '';
         if (colony != null && colony != undefined) {
-            col = capitalizeFirstLetter(colony.colony);
-            city = capitalizeFirstLetter(colony.county?.toLowerCase());
+            col = capitalizeAllCharacters(colony.colony);
+            city = capitalizeAllCharacters(colony.county?.toLowerCase());
             if (colony.stateCities) {
-                state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
+                state = capitalizeAllCharacters(colony.stateCities[0].state?.toLocaleLowerCase());
             }
         } else {
             col = values.colony;
@@ -228,10 +228,10 @@ const FormPatient = (props: FormPatientProps) => {
         let city = '';
         let state = '';
         if (colony != null && colony != undefined) {
-            col = capitalizeFirstLetter(colony.colony);
-            city = capitalizeFirstLetter(colony.county?.toLowerCase());
+            col = capitalizeAllCharacters(colony.colony);
+            city = capitalizeAllCharacters(colony.county?.toLowerCase());
             if (colony.stateCities) {
-                state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
+                state = capitalizeAllCharacters(colony.stateCities[0].state?.toLocaleLowerCase());
             }
         } else {
             col = values.colony;
@@ -409,7 +409,7 @@ const FormPatient = (props: FormPatientProps) => {
                     rules={[{ required: true, message: Strings.requiredField }]}
                 >
                     <Select disabled={colonies.length == 0} size="large" placeholder={Strings.selectColony} onChange={(value) => handleOnColonyChange(value)}>
-                        {colonies?.map((value, index) => <Select.Option key={`${index}`} value={`${index}`}>{capitalizeFirstLetter(value.colony)}</Select.Option>)}
+                        {colonies?.map((value, index) => <Select.Option key={`${index}`} value={`${index}`}>{capitalizeAllCharacters(value.colony)}</Select.Option>)}
                     </Select>
                 </Form.Item>}
 

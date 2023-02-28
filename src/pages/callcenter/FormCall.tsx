@@ -14,7 +14,7 @@ import User from "../../data/user/user";
 import { useGetCatalogsMutation, useRegisterCallMutation } from "../../services/callService";
 import { useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { capitalizeFirstLetter, getUserRol, UserRoles } from "../../utils/Extensions";
+import { capitalizeAllCharacters, getUserRol, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
@@ -161,7 +161,7 @@ const FormCall = (props: FormCallProps) => {
 
                         <div className="flex flex-row gap-4 mb-4 mt-4">
                             <Select style={{ minWidth: 220 }} size="large" placeholder={Strings.callType} onChange={(value) => setType(value)}>
-                                {catalogList?.map((value, _) => <Select.Option key={`${value.id}`} value={`${value.id}`}>{capitalizeFirstLetter(value.name)}</Select.Option>)}
+                                {catalogList?.map((value, _) => <Select.Option key={`${value.id}`} value={`${value.id}`}>{capitalizeAllCharacters(value.name)}</Select.Option>)}
                             </Select>
 
                             <DatePicker

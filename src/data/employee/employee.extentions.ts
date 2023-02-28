@@ -1,4 +1,3 @@
-import { capitalizeFirstLetter } from "../../utils/Extensions";
 import SelectItemOption from "../select/select.item.option";
 import { Employee } from "./employee";
 
@@ -14,7 +13,7 @@ const employeesToSelectItemOptionsEmpty = (data: Employee[]): SelectItemOption[]
   return data.map((value, _) => {
     return new SelectItemOption(
       value.id, 
-      `${capitalizeFirstLetter(value.name)} ${capitalizeFirstLetter(value.lastname)} ${capitalizeFirstLetter(value?.secondLastname ?? '')}`, 
+      `${value.name} ${value.lastname} ${value?.secondLastname ?? ''}`, 
       value.id, 
       '');
   });
@@ -22,9 +21,9 @@ const employeesToSelectItemOptionsEmpty = (data: Employee[]): SelectItemOption[]
 
 const buildEmployeeName = (employee: Employee): string => {
   return `
-    ${capitalizeFirstLetter(employee.name)} 
-    ${capitalizeFirstLetter(employee.lastname)} 
-    ${capitalizeFirstLetter(employee.secondLastname ?? '')}`;
+    ${employee.name} 
+    ${employee.lastname} 
+    ${employee.secondLastname ?? ''}`;
 }
 
 const buildEmployeeEmail = (employee: Employee): string => {

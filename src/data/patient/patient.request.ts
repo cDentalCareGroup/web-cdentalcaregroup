@@ -1,4 +1,4 @@
-import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { capitalizeAllCharacters } from "../../utils/Extensions";
 import { Colony } from "../address/colonies";
 import { Latitudes } from "../maps/latitudes";
 
@@ -36,10 +36,10 @@ export class RegisterPatientRequest {
         this.phone = values.phone;
         this.email = values.email ?? "";
         this.street = values.street;
-        this.colony = capitalizeFirstLetter(colony);
+        this.colony = capitalizeAllCharacters(colony);
         this.zipCode = values.zipCode;
-        this.city = capitalizeFirstLetter(city);
-        this.state = capitalizeFirstLetter(state);
+        this.city = capitalizeAllCharacters(city);
+        this.state = capitalizeAllCharacters(state);
         this.streetNumber = values.streetNumber ?? "";
         this.civilStatus = values.civilState ?? "other";
         this.occupation = values.occupation ?? "";
