@@ -147,7 +147,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const hour = Number(arrayTime[0]);
             const minutes = Number(arrayTime[1]);
             const today = new Date();
-            if (hour <= today.getHours() && minutes <= today.getMinutes()) {
+            if (hour <= today.getHours() && minutes <= today.getMinutes() && data.appointment.status == 'activa') {
                 return <Tag color="red">{Strings.notAttendedAppointment}</Tag>
             }
         }
