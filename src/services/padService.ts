@@ -109,6 +109,14 @@ export const padService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: Service }, _, __) => response.data,
         }),
+        registerAditionalMember: builder.mutation<any, any>({
+            query: (data) => ({
+                url: '/pad/register/aditional',
+                method: "POST",
+                body: { ...data }
+            }),
+            transformResponse: (response: { data: any }, _, __) => response.data,
+        }),
     }),
 });
 
@@ -125,5 +133,6 @@ export const {
     useUpdateServiceMutation,
     useRegisterPadMutation,
     useGetPadsMutation,
-    useGetPadServicesMutation
+    useGetPadServicesMutation,
+    useRegisterAditionalMemberMutation
 } = padService;

@@ -11,11 +11,11 @@ import { buildPatientName } from "../../data/patient/patient.extensions";
 import SelectItemOption from "../../data/select/select.item.option";
 import { patientsToSelectItemOption } from "../../data/select/select.item.option.extensions";
 import User from "../../data/user/user";
-import { useGetPadsMutation } from "../../services/padService";
+import { useGetPadsMutation, useRegisterAditionalMemberMutation } from "../../services/padService";
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { UserRoles } from "../../utils/Extensions";
-import { handleErrorNotification } from "../../utils/Notifications";
+import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import SelectSearch from "../components/SelectSearch";
@@ -39,10 +39,12 @@ const Pads = (props: PadsProps) => {
     const [patientList, setPatientList] = useState<SelectItemOption[]>([]);
     const [patient, setPatient] = useState<SelectItemOption>();
     const [aditionalMembers, setAditionalMembers] = useState<SelectItemOption[]>([]);
+    const [registerAditionalMember] = useRegisterAditionalMemberMutation();
 
     const [selectedPad, setSelectedPad] = useState<PadDetail>();
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [isListLoading, setIsListLoading] = useState(false);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     useEffect(() => {
         handleGetPads();
@@ -130,11 +132,42 @@ const Pads = (props: PadsProps) => {
         }
     }
 
-    const handleOnAddAditionalMember = () => {
+    const handleOnAddAditionalMember = async () => {
+        //console.log(aditionalMembers)
+        try {
+            setIsActionLoading(true);
+            const branch = selectedPad?.members[0].padAcquisitionBranch ?? branchId;
 
+            const ids = aditionalMembers.map((value, _) => value.id);
+            await registerAditionalMember(
+                new RegisterAditionalMemberRequest(
+                    selectedPad?.pad.id ?? 0,
+                    ids, branch
+                )
+            ).unwrap();
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+            setIsOpenModal(false);
+            setIsActionLoading(false);
+            setAditionalMembers([]);
+            handleGetPads();
+        } catch (error) {
+            setIsActionLoading(false);
+            handleErrorNotification(error);
+        }
+    }
+    class RegisterAditionalMemberRequest {
+        padId: number;
+        members: number[];
+        branchOfficeId: number;
+        constructor(padId: number,
+            members: number[], branchOfficeId: number) {
+            this.padId = padId;
+            this.members = members;
+            this.branchOfficeId = branchOfficeId;
+        }
     }
 
-    
+
     return (
         <LayoutCard
             title={Strings.pads}
@@ -157,12 +190,13 @@ const Pads = (props: PadsProps) => {
                         setAditionalMembers([]);
                         setSelectedPad(undefined);
                         setIsListLoading(false);
-                    }} 
-                    title='Información de PAD' 
-                    open={isOpenModal} 
-                    okText='Actualizar'
-                    onOk={() => handleOnAddAditionalMember()}
-                    onCancel={() => setIsOpenModal(false)}>
+                    }}
+                        title={Strings.padInfo}
+                        open={isOpenModal}
+                        okText={Strings.update}
+                        confirmLoading={isActionLoading}
+                        onOk={() => handleOnAddAditionalMember()}
+                        onCancel={() => setIsOpenModal(false)}>
 
                         <Divider>Información del PAD</Divider>
                         <SectionElement label={Strings.padName} value={
@@ -176,7 +210,7 @@ const Pads = (props: PadsProps) => {
                         <SectionElement label={Strings.members} icon={<></>} value={buildPadMembers()} />
 
 
-                        <Divider className="mt-6">Agregar Miembro</Divider>
+                        <Divider className="mt-6">{Strings.addMember}</Divider>
 
                         <SelectSearch
                             placeholder={Strings.selectMember}
@@ -185,7 +219,7 @@ const Pads = (props: PadsProps) => {
                             icon={<RiMentalHealthLine />}
                         />
                         <div className="flex items-end justify-end mt-2">
-                            <Button onClick={() => handleOnAddPatientToPad()}>Agregar miembro</Button>
+                            <Button onClick={() => handleOnAddPatientToPad()}>{Strings.addMember}</Button>
                         </div>
 
                         <List
@@ -200,9 +234,6 @@ const Pads = (props: PadsProps) => {
                                 </List.Item>
                             )}
                         />
-
-
-
                     </Modal>
 
 

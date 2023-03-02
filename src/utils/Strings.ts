@@ -182,7 +182,7 @@ class Strings {
     static selectPadType = "Selecciona un tipo de pad"
     static selectPatient = "Selecciona un paciente"
     static selectMember = "Selecciona un miembro"
-
+    static addMember = "Agregar miembro"
     static discount = "Descuento"
     static discountTwo = "Segundo descuento"
     static maxQuantity = "Cantidad máxima"

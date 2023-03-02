@@ -65,7 +65,6 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             
             setIsLoadingCard(true);
             const response = await getPadCatalogDetail({ 'id': id }).unwrap();
-            setType(response.type);
             let active = false;
             if (response.status == Strings.statusValueActive) {
                 active = true;
@@ -75,10 +74,9 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
             setDescription(response.description);
             setPrice(response.price);
             setIsActive(active);
-            if (type == 'grupal') {
-                setMaxAditionals(`${response.maxAdditional}`);
-                setMaxMembers(`${response.maxMemebers}`)
-            }
+            setMaxAditionals(response.maxAdditional?.toString() ?? '0');
+            setMaxMembers(response.maxMemebers?.toString() ?? '0')
+            setType(response.type);
             setPadCatalogue(response);
             setComponents(padCatalogueDetailToDataTable(response));
             setIsLoadingCard(false);
