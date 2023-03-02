@@ -252,7 +252,7 @@ class Strings {
     static notAttendedAppointments = "Citas no atendidas"
     static notAttendedAppointment = "Cita no atendida"
     static scheduleNewAppointment = "Agendar nueva cita"
-    static cancel  = "Cancelar"
+    static cancel = "Cancelar"
     static cancelationReason = "Motivo de cancelación"
     static successCancelAppointment = "Cita cancelada correctamente"
     static quantity = "Cantidad"
@@ -289,7 +289,12 @@ class Strings {
     static selectSchedule = "Selecciona los horarios"
     static registerProspect = "Agregar prospecto"
 
-    static appVersion = 'v.1.0.33';
+    static scheduleNotAvailable = "No se pueden agendar citas en este horario"
+
+    static disabledSegment = "Deshabilitar horario"
+    static enableSegment = "Habilitar horario"
+
+    static appVersion = 'v.1.0.34';
 }
 
 export default Strings;

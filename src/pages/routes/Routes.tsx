@@ -42,6 +42,8 @@ import Services from "../service/Services";
 import Prospects from "../prospect/Prospects";
 import Test from "../components/Test";
 import Dashboard from "../dashboard/Dashboard";
+import { AvailableTime } from "../../data/appointment/available.time";
+import AvailableTimes from "../schedules/AvailableTimes";
 
 export class Route {
     label: string;
@@ -74,7 +76,7 @@ const adminPatients = new Route('Pacientes', 'patients', '/admin/patients', <Pat
 const adminRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/admin/patients/register', <FormPatient type={FormPatientType.REGISTER} rol={UserRoles.ADMIN} />, <RiUser3Line />);
 const adminPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/admin/patients/detail/:id', <PatientInfo rol={UserRoles.ADMIN} />, <RiUser3Line />);
 const adminProspects = new Route('Prospectos', 'prospects', '/admin/prospects', <Prospects />, <RiUser3Line />);
-const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads />, <RiUserHeartLine />);
+const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads   />, <RiUserHeartLine />);
 const adminPadCatalogue = new Route('Pad catalogos', 'padCatalogue', '/admin/pad/catalogs/', <PadCatalogues />, <RiUserHeartLine />);
 const adminPadCatalogueForm = new Route('Form pad catalogos', 'formPadCatalogue', '/admin/pad/catalogs/register', <FormPadCatalogue type={FormPadCatalogueType.REGISTER} />, <RiUserHeartLine />);
 const adminPadCatalogueFormUpdate = new Route('Form pad catalogos', 'formPadCatalogue', '/admin/pad/catalogs/detail/:id', <FormPadCatalogue type={FormPadCatalogueType.UPDATE} />, <RiUserHeartLine />);
@@ -95,6 +97,7 @@ const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/re
 const receptionistService = new Route('Servicios', 'services', '/receptionist/services/', <Services />, <RiServiceLine />);
 const receptionistPad = new Route('Pads', 'pad', '/receptionist/pad/', <Pads />, <RiUserHeartLine />);
 
+const receptionistTimes = new Route('Horarios', 'times', '/receptionist/times/', <AvailableTimes />, <RiCalendarCheckLine />);
 
 const callCenter = new Route('Llamadas', 'callCenter', '/callcenter', <Calls />, <RiUser3Line />);
 const callCenterCalInfo = new Route('Call Center', 'callCenterInfo', '/callcenter/call', <CallInfo />, <RiUser3Line />);
@@ -138,6 +141,7 @@ const receptionistRoutes: Route[] = [
     receptionistPatientsInfo,
     receptionistService,
     receptionistPad,
+    receptionistTimes,
     logout
 ];
 
@@ -229,6 +233,7 @@ const receptionistRoutesToMenuOptions = (): ItemType[] => {
             [
                 getItem(receptionistAppointments.label, receptionistAppointments.fullPath, receptionistAppointments.icon),
                 getItem(receptionistPatients.label, receptionistPatients.fullPath, receptionistPatients.icon),
+                getItem(receptionistTimes.label, receptionistTimes.fullPath, receptionistTimes.icon),
             ],
             'group'),
         getItem(
