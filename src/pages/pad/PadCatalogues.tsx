@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { PadCatalogue } from "../../data/pad/pad.catalogue";
 import { PadCatalogueDetail } from "../../data/pad/pad.catalogue.detail";
 import { useGetPadCatalogsMutation } from "../../services/padService";
+import Constants from "../../utils/Constants";
 import { formatPrice, RESPONSIVE_LIST } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
@@ -35,10 +36,10 @@ const PadCatalogues = () => {
     }
 
     const getStauts = (value: any): JSX.Element => {
-        if (value.status == 'activo') {
+        if (value.status == Constants.STATUS_ACTIVE) {
             return <Tag color="success">Activo</Tag>
         }
-        if (value.status == 'inactivo') {
+        if (value.status == Constants.STATUS_INACTIVE) {
             return <Tag color="red">Inactivo</Tag>
         }
         return <></>;

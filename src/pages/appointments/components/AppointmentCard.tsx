@@ -124,16 +124,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [showExchange, setShowExchange] = useState(false);
 
     const getStautsTag = (): JSX.Element => {
-        if (data.appointment.status == 'activa') {
+        if (data.appointment.status == Constants.STATUS_ACTIVE) {
             return <Tag color="success">{getAppointmentStatus(data)}</Tag>
         }
-        if (data.appointment.status == 'proceso') {
+        if (data.appointment.status == Constants.STATUS_PROCESS) {
             return <Tag color="blue">{getAppointmentStatus(data)}</Tag>
         }
-        if (data.appointment.status == 'finalizada') {
+        if (data.appointment.status == Constants.STATUS_FINISHED) {
             return <Tag color="default">{getAppointmentStatus(data)}</Tag>
         }
-        if (data.appointment.status == 'no-atendida') {
+        if (data.appointment.status == Constants.STATUS_NOT_ATTENDED) {
             return <Tag color="red">{getAppointmentStatus(data)}</Tag>
         }
         return <></>;
@@ -147,7 +147,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const hour = Number(arrayTime[0]);
             const minutes = Number(arrayTime[1]);
             const today = new Date();
-            if (hour <= today.getHours() && minutes <= today.getMinutes() && data.appointment.status == 'activa') {
+            if (hour <= today.getHours() && minutes <= today.getMinutes() && data.appointment.status == Constants.STATUS_ACTIVE) {
                 return <Tag color="red">{Strings.notAttendedAppointment}</Tag>
             }
         }
@@ -235,15 +235,15 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const isValidDentist = (): boolean => {
         return data.dentist != null &&
             (data.appointment.startedAt == null || data.appointment.startedAt == "")
-            && data.appointment.status != 'no-atendida'
+            && data.appointment.status != Constants.STATUS_NOT_ATTENDED
     }
     const canReschedule = (): boolean => {
-        return data.appointment.status == 'activa' || data.appointment.status == 'no-atendida'
+        return data.appointment.status == Constants.STATUS_ACTIVE || data.appointment.status == Constants.STATUS_NOT_ATTENDED
     }
 
     const handleUpdateAppointmentStatus = async (status: string) => {
         try {
-            if (status == 'finalizada') {
+            if (status == Constants.STATUS_FINISHED) {
                 if (paymentMethodId == 0 || paymentMethodId == undefined) {
                     handleErrorNotification(Constants.EMPTY_PAYMENT_METHOD);
                     return;
@@ -275,12 +275,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         }
     }
     const canFinish = (): boolean => {
-        return data.appointment.status == 'proceso'
+        return data.appointment.status == Constants.STATUS_PROCESS
     }
 
     const canExtendAppointment = (): boolean => {
-        return data.appointment.status == 'proceso' ||
-            data.appointment.status == 'activa'
+        return data.appointment.status == Constants.STATUS_PROCESS ||
+            data.appointment.status == Constants.STATUS_ACTIVE
     }
 
     const handleGetAppointmentAvailability = async (date: Date, branchOffice: string) => {
@@ -356,7 +356,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             resetRescheduleAppointmentParams();
             handleSucccessNotification(NotificationSuccess.UPDATE);
             onAppointmentChange?.(response);
-            onStatusChange?.('activa');
+            onStatusChange?.(Constants.STATUS_ACTIVE);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -471,7 +471,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             setData(response);
             resetNextAppointmentParams();
             handleSucccessNotification(NotificationSuccess.REGISTER_APPOINTMENT);
-            onStatusChange('finalizada-cita');
+            onStatusChange(Constants.STATUS_FINISHED_APPOINTMENT_OR_CALL);
         } catch (error) {
             console.log(error);
             handleErrorNotification(error);
@@ -546,7 +546,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <SectionElement label={Strings.services} value={buildServices()} icon={<RiServiceLine />} />
             {data.extendedTimes != null && data.extendedTimes.length > 0 &&
                 <SectionElement label={'Cita extendida'} value={extendedTimesToShow(data)} icon={<RiCalendar2Line />} />}
-            {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' && onlyRead == false &&
+            {data.appointment.status != Constants.STATUS_FINISHED && data.appointment.status != Constants.STATUS_NOT_ATTENDED && onlyRead == false &&
                 <div className="flex flex-col flex-wrap">
                     <div className="ml-2 flex flex-col items-baseline gap-2 mb-2">
                         <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
@@ -578,7 +578,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const canRegisterNextAppointment = (): boolean => {
-        return data.appointment.status == 'finalizada'
+        return data.appointment.status == Constants.STATUS_FINISHED
             && ((data.appointment?.call == null || data.appointment?.call == undefined) && (data.appointment.nextAppointmentId == null || data.appointment.nextAppointmentId == undefined))
     }
 
@@ -640,7 +640,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const canSetDentist = (): boolean => {
-        return data.appointment.status == 'activa'
+        return data.appointment.status == Constants.STATUS_ACTIVE
     }
 
     const handleOnExtendAppointment = async () => {
@@ -889,12 +889,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >
                         {!data.dentist ? Strings.assignDentist : Strings.changeDentist}
                     </Button>}
-                    {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >{Strings.startAppointment}</Button>}
+                    {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus(Constants.STATUS_PROCESS)} >{Strings.startAppointment}</Button>}
                     {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >{Strings.rescheduleAppointment}</Button>}
                     {canFinish() && <Button type="primary" loading={isActionLoading} onClick={() => { handleSetModalFinish() }} >{Strings.finishAppointment}</Button>}
                     {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >{Strings.extendAppointment}</Button>}
                     {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >{Strings.scheduleNextAppointment}</Button>}
-                    {canRegisterNextAppointment() && <FormCall appointmentId={data.appointment.id} patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange('finalizada')} />}
+                    {canRegisterNextAppointment() && <FormCall appointmentId={data.appointment.id} patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange(Constants.STATUS_FINISHED)} />}
                 </Row>}
 
             </Card>
@@ -905,7 +905,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 confirm({
                     content: <span>{Strings.askFinishAppointment}</span>,
                     onOk() {
-                        handleUpdateAppointmentStatus('finalizada');
+                        handleUpdateAppointmentStatus(Constants.STATUS_FINISHED);
                     },
                     okText: Strings.finish,
                     cancelText: Strings.cancel,

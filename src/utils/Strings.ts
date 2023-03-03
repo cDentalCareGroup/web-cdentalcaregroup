@@ -1,3 +1,4 @@
+import Constants from "./Constants";
 
 
 class Strings {
@@ -154,10 +155,10 @@ class Strings {
 
     static statusActive = "Activo"
     static statusInactive = "Inactivo"
-    static statusValueActive = "activo"
-    static statusValueInactive = "inactivo"
+    static statusValueActive = Constants.STATUS_ACTIVE
+    static statusValueInactive = Constants.STATUS_INACTIVE
     static statusDisabled = "Deshabilitado"
-    static statusValueDisabled = "deshabilitado"
+    static statusValueDisabled = Constants.STATUS_DISBALED;
 
 
     //prospect
@@ -295,6 +296,7 @@ class Strings {
     static enableSegment = "Habilitar horario"
 
     static appVersion = 'v.1.0.34';
+    
 }
 
 export default Strings;

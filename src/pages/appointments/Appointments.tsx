@@ -37,7 +37,7 @@ const Appointments = (props: AppointmentsProps) => {
     const [isFiltering, setIsFiltering] = useState(false);
 
     useEffect(() => {
-        handleGetAppointmentsByBranchOffice('activa');
+        handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
     }, []);
 
     const handleGetAppointmentsByBranchOffice = async (status: string) => {
@@ -56,7 +56,7 @@ const Appointments = (props: AppointmentsProps) => {
 
     const handleOnSearch = (query: string, shoudlSearch: Boolean) => {
         if (query == '' || query == null) {
-            handleGetAppointmentsByBranchOffice('activa');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
         } else if (shoudlSearch) {
             setAppointments([]);
             setIsFiltering(true);
@@ -77,19 +77,19 @@ const Appointments = (props: AppointmentsProps) => {
         setData([]);
         setAppointments([]);
         if (value.id == 1) {
-            handleGetAppointmentsByBranchOffice('activa');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
         }
         if (value.id == 2) {
-            handleGetAppointmentsByBranchOffice('proceso');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_PROCESS);
         }
         if (value.id == 3) {
-            handleGetAppointmentsByBranchOffice('finalizada');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_FINISHED);
         }
         if (value.id == 4) {
-            handleGetAppointmentsByBranchOffice('finalizada-cita');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_FINISHED_APPOINTMENT_OR_CALL);
         }
         if (value.id == 5) {
-            handleGetAppointmentsByBranchOffice('no-atendida');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_NOT_ATTENDED);
         }
     }
     const onStatusChange = (value?: string) => {
@@ -103,7 +103,7 @@ const Appointments = (props: AppointmentsProps) => {
         //     setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[2]);
         // }
         setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[0]);
-        handleGetAppointmentsByBranchOffice('activa');
+        handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
     }
 
     return (

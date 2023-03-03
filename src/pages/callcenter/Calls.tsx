@@ -1,15 +1,12 @@
 import { Button, Card, List, Modal, Row, Tag } from "antd";
-import TextArea from "antd/es/input/TextArea";
-import Paragraph from "antd/es/skeleton/Paragraph";
 import { differenceInDays } from "date-fns";
 import { useEffect, useState } from "react";
-import { RiMailLine, RiPhoneLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { RiMailLine, RiPhoneLine, RiUser3Line, } from "react-icons/ri";
 import { Navigate, useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
 import { Call } from "../../data/call/call";
-import { CallCatalog } from "../../data/call/call.catalog";
 import { GetCalls } from "../../data/call/call.response";
-import { buildPatientEmail, buildPatientName, buildPatientPad, buildPatientPhone } from "../../data/patient/patient.extensions";
+import { buildPatientEmail, buildPatientName, buildPatientPhone } from "../../data/patient/patient.extensions";
 import { useGetCallsMutation, useRegisterCallLogMutation } from "../../services/callService";
 import Constants from "../../utils/Constants";
 import { capitalizeAllCharacters } from "../../utils/Extensions";

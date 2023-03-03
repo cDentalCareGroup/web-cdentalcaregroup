@@ -82,6 +82,7 @@ const Services = () => {
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER);
             setIsOpenModal(false);
+            setIsEdit(false);
             handleGetServices();
         } catch (error) {
             handleErrorNotification(error);
@@ -130,10 +131,21 @@ const Services = () => {
 
     const getStautsTag = (service: Service): JSX.Element => {
         if (service.status != null && service.status == Strings.statusValueActive) {
-            return <Tag color="success">{service.status}</Tag>
+            return <Tag color="success">{Strings.statusActive}</Tag>
         } else {
-            return <Tag color="error">Inactivo</Tag>
+            return <Tag color="error">{Strings.statusInactive}</Tag>
         }
+    }
+    const handleOnRegisterOpenModal = () => {
+        setName('');
+        setPrice('');
+        setCategory(undefined);
+        setIsEdit(false);
+        setServiceId(0);
+        setStatus('');
+        setTimeout(() => {
+            setIsOpenModal(true);
+        }, 100)
     }
 
     return (
@@ -144,7 +156,7 @@ const Services = () => {
                 <div className="flex flex-col">
                     <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchService} onSearch={handleOnSearch} enterButton />
                     <div className="flex w-full items-end justify-end mt-4 mb-12">
-                        <Button type="primary" onClick={() => setIsOpenModal(true)}>{Strings.registerService}</Button>
+                        <Button type="primary" onClick={() => handleOnRegisterOpenModal()}>{Strings.registerService}</Button>
                     </div>
                     <List
                         grid={RESPONSIVE_LIST}

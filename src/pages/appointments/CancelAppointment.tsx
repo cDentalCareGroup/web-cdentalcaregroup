@@ -2,7 +2,7 @@ import { Button, Divider, Form } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useState } from "react";
 import { RiCheckboxCircleLine } from "react-icons/ri";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CancelAppointmentRequest } from "../../data/appointment/appointment.request";
 import { useCancelAppointmentMutation } from "../../services/appointmentService";
 import { handleErrorNotification } from "../../utils/Notifications";
@@ -15,6 +15,7 @@ const CancelAppointment = () => {
     const [cancelAppointment, { isLoading }] = useCancelAppointmentMutation();
     const [success, setSuccess] = useState(false);
     const { folio } = useParams();
+    const navigate = useNavigate();
 
     const handleOnCancelAppointment = async () => {
         try {
@@ -57,7 +58,7 @@ const CancelAppointment = () => {
                         <RiCheckboxCircleLine className="text-[#00152A]" size={50} />
                     </div>
                     <div className="flex w-full items-center justify-center">
-                        <Button type="primary" loading={false} onClick={() => { }}>{Strings.scheduleNewAppointment}</Button>
+                        <Button type="primary" loading={false} onClick={() => navigate('/appointment', { replace: true })}>{Strings.scheduleNewAppointment}</Button>
                     </div>
                 </div>}
             </div>

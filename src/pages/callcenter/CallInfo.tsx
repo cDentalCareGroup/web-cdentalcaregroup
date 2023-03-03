@@ -6,7 +6,6 @@ import { RiArrowDownSLine, RiArrowRightSLine, RiArrowUpSLine, RiCalendar2Line, R
 import { Navigate, useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
 import { AppointmentDetail } from "../../data/appointment/appointment.detail";
-import { getBranchOfficeName } from "../../data/branchoffice/branchoffice.extensions";
 import { UpdateCallRequest } from "../../data/call/call.request";
 import { CallCatalogDetail, GetCallDetail, GetCalls } from "../../data/call/call.response";
 import { buildPatientAddress, buildPatientBirthday, buildPatientEmail, buildPatientGender, buildPatientName, buildPatientPhone, getDentist, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
@@ -179,16 +178,16 @@ const CallInfo = () => {
     }
 
     const getAppointmentStatusTag = (appointment: AppointmentDetail): JSX.Element => {
-        if (appointment.appointment.status == 'activa') {
+        if (appointment.appointment.status == Constants.STATUS_ACTIVE) {
             return <Tag color="success">{getAppointmentStatus(appointment)}</Tag>
         }
-        if (appointment.appointment.status == 'proceso') {
+        if (appointment.appointment.status == Constants.STATUS_PROCESS) {
             return <Tag color="blue">{getAppointmentStatus(appointment)}</Tag>
         }
-        if (appointment.appointment.status == 'finalizada') {
+        if (appointment.appointment.status == Constants.STATUS_FINISHED) {
             return <Tag color="default">{getAppointmentStatus(appointment)}</Tag>
         }
-        if (appointment.appointment.status == 'no-atendida') {
+        if (appointment.appointment.status == Constants.STATUS_NOT_ATTENDED) {
             return <Tag color="red">{getAppointmentStatus(appointment)}</Tag>
         }
         return <></>;
@@ -239,7 +238,7 @@ const CallInfo = () => {
                 placeholder={Strings.callDetail}
             />
             <div className="flex mt-6 w-full justify-end items-end">
-                <Button loading={isLoadingAction} disabled={data?.call.status != 'activa'} type="dashed" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
+                <Button loading={isLoadingAction} disabled={data?.call.status != Constants.STATUS_ACTIVE} type="dashed" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
             </div>
 
             <div className="flex flex-row items-center justify-evenly mt-6 w-full">
@@ -281,10 +280,10 @@ const CallInfo = () => {
     }
 
     const getStautsTag = (): JSX.Element => {
-        if (data?.call.status == 'activa') {
+        if (data?.call.status == Constants.STATUS_ACTIVE) {
             return <Tag color="success">{data?.call.status}</Tag>
         }
-        if (data?.call.status == 'resuelta') {
+        if (data?.call.status == Constants.STATUS_SOLVED) {
             return <Tag color="default">{data?.call.status}</Tag>
         }
         return <></>;
