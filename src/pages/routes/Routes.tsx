@@ -76,7 +76,7 @@ const adminPatients = new Route('Pacientes', 'patients', '/admin/patients', <Pat
 const adminRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/admin/patients/register', <FormPatient type={FormPatientType.REGISTER} rol={UserRoles.ADMIN} />, <RiUser3Line />);
 const adminPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/admin/patients/detail/:id', <PatientInfo rol={UserRoles.ADMIN} />, <RiUser3Line />);
 const adminProspects = new Route('Prospectos', 'prospects', '/admin/prospects', <Prospects />, <RiUser3Line />);
-const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads   />, <RiUserHeartLine />);
+const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads rol={UserRoles.ADMIN}  />, <RiUserHeartLine />);
 const adminPadCatalogue = new Route('Pad catalogos', 'padCatalogue', '/admin/pad/catalogs/', <PadCatalogues />, <RiUserHeartLine />);
 const adminPadCatalogueForm = new Route('Form pad catalogos', 'formPadCatalogue', '/admin/pad/catalogs/register', <FormPadCatalogue type={FormPadCatalogueType.REGISTER} />, <RiUserHeartLine />);
 const adminPadCatalogueFormUpdate = new Route('Form pad catalogos', 'formPadCatalogue', '/admin/pad/catalogs/detail/:id', <FormPadCatalogue type={FormPadCatalogueType.UPDATE} />, <RiUserHeartLine />);
@@ -95,7 +95,7 @@ const receptionistRegisterPatients = new Route('RegistroPacientes', 'patientsReg
 const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/patients', <Patients rol={UserRoles.RECEPTIONIST} />, <RiUserHeartLine />);
 const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/receptionist/patients/detail/:id', <PatientInfo rol={UserRoles.RECEPTIONIST} />, <RiUser3Line />);
 const receptionistService = new Route('Servicios', 'services', '/receptionist/services/', <Services />, <RiServiceLine />);
-const receptionistPad = new Route('Pads', 'pad', '/receptionist/pad/', <Pads />, <RiUserHeartLine />);
+const receptionistPad = new Route('Pads', 'pad', '/receptionist/pad/', <Pads  rol={UserRoles.RECEPTIONIST} />, <RiUserHeartLine />);
 
 const receptionistTimes = new Route('Horarios', 'times', '/receptionist/times/', <AvailableTimes />, <RiCalendarCheckLine />);
 
