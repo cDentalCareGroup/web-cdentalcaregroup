@@ -181,6 +181,7 @@ class Strings {
     static padBenefits = "Beneficios del PAD"
     static selectPadType = "Selecciona un tipo de pad"
     static selectPatient = "Selecciona un paciente"
+    static selectMember = "Selecciona un miembro"
 
     static discount = "Descuento"
     static discountTwo = "Segundo descuento"
@@ -252,6 +253,7 @@ class Strings {
     static proccessAppointments = "Citas en proceso "
     static finishedAppointments = "Citas finalizadas"
     static notAttendedAppointments = "Citas no atendidas"
+    static appointmentDelay = "Cita retrasada"
     static notAttendedAppointment = "Cita no atendida"
     static scheduleNewAppointment = "Agendar nueva cita"
     static cancel = "Cancelar"

@@ -11,6 +11,17 @@ export class LoginRequest {
 }
 
 
+export class UpdatePasswordRequest {
+    username: string;
+    password: string;
+
+    constructor(username: string, passowrd: string) {
+        this.password = passowrd;
+        this.username = username;
+    }
+}
+
+
 export class SaveTokenRequest {
     username: string;
     token: string;

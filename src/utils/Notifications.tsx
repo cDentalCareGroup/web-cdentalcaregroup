@@ -103,5 +103,13 @@ const getErrorMessage = (message: string): string => {
         return 'El monto recibido debe ser mayor a cero';
     }
 
+    if (message == Constants.DIFFERENT_PASSWORD) {
+        return 'Las contraseñas no coinciden';
+    }
+
+    if (message == Constants.MIN_LENGTH) {
+        return 'La contraseña debe ser de mínimo 8 caracteres';
+    }
+
     return 'Ocurrio un error, intenta mas tarde';
 }

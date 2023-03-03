@@ -34,6 +34,8 @@ const STATUS_ABANDOMENT= 'abandonment'
 const STATUS_MANUAL = 'manual'
 const STATUS_AUTOMATIC = 'automatic'
 const STATUS_DISBALED = 'disabled'
+const DIFFERENT_PASSWORD = "DIFFERENT_PASSWORD"
+const MIN_LENGTH = "MIN_LENGTH"
 
 export default {
     STATUS_DISBALED,
@@ -63,5 +65,6 @@ export default {
     MAX_MEMBERS_PAD,
     EXISTING_PAYMENT_METHOD,
     EMPTY_AMOUNT,
-    
+    DIFFERENT_PASSWORD,
+    MIN_LENGTH
 }

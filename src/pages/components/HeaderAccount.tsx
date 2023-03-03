@@ -1,11 +1,15 @@
-import { Divider, Dropdown, Form, Input, Modal, Result } from "antd";
+import { Button, Divider, Dropdown, Form, Input, Modal, Result } from "antd";
 import { useState } from "react";
 import { RiArrowDownSLine, RiFootballLine, RiLogoutBoxLine, RiSettings3Line, RiUser3Line, RiUserLine } from 'react-icons/ri';
 import { useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
 import User from "../../data/user/user";
+import { UpdatePasswordRequest } from "../../data/user/user.request";
+import { useUpdatePassowrdMutation } from "../../services/authService";
 import Constants from "../../utils/Constants";
+import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
+import CustomFormInput from "./CustomFormInput";
 import SectionElement from "./SectionElement";
 
 interface HeaderAccountProps {
@@ -14,6 +18,7 @@ interface HeaderAccountProps {
 
 const HeaderAccount = (props: HeaderAccountProps) => {
     const [form] = Form.useForm();
+    const [updatePassowrd] = useUpdatePassowrdMutation();
 
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +26,10 @@ const HeaderAccount = (props: HeaderAccountProps) => {
     const [option, setOption] = useState('');
     const [session, setSession] = useSessionStorage(Constants.SESSION_AUTH, null);
 
+    const [password, setPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+
+    const [isLoading, setIsLoading] = useState(false);
 
     const items: any['items'] = [
         {
@@ -73,6 +82,28 @@ const HeaderAccount = (props: HeaderAccountProps) => {
         }
     }
 
+    const handleOnSavePassword = async () => {
+        if (password != newPassword) {
+            handleErrorNotification(Constants.DIFFERENT_PASSWORD);
+            return;
+        }
+        if (password.length < 8) {
+            handleErrorNotification(Constants.MIN_LENGTH);
+            return;
+        }
+        try {
+            setIsLoading(true);
+            const user = session as User;
+            await updatePassowrd(new UpdatePasswordRequest(user.username, password)).unwrap();
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+            setIsOpen(false);
+            setIsLoading(false);
+        } catch (error) {
+            handleErrorNotification(error);
+            setIsLoading(false);
+        }
+    }
+
     const buildModalContent = () => {
         if (option == 'help') {
             return (<Result
@@ -118,7 +149,14 @@ const HeaderAccount = (props: HeaderAccountProps) => {
                         </Form.Item>
                     </Form>
 
-                    {/* <Divider>Cambiar contraseña</Divider> */}
+                    <Divider>Cambiar contraseña</Divider>
+
+                    <CustomFormInput isPassword={true} label="Nueva contraseña" value={password} onChange={(value) => setPassword(value)} />
+                    <CustomFormInput isPassword={true} label="Confirmar contraseña" value={newPassword} onChange={(value) => setNewPassword(value)} />
+
+                    <div className="flex items-end justify-end">
+                        <Button loading={isLoading} className="mt-2 mb-8" onClick={() => handleOnSavePassword()}>Guardar contraseña</Button>
+                    </div>
 
                 </div>
             );
@@ -134,7 +172,7 @@ const HeaderAccount = (props: HeaderAccountProps) => {
                     <RiArrowDownSLine size={20} />
                 </div>
             </Dropdown>
-            <Modal title={title} open={isOpen} onCancel={() => setIsOpen(false)} okText='Aceptar' onOk={() => setIsOpen(false)}>
+            <Modal confirmLoading={isLoading} title={title} open={isOpen} onCancel={() => setIsOpen(false)} okText='Aceptar' onOk={() => setIsOpen(false)}>
                 {buildModalContent()}
             </Modal>
         </div>

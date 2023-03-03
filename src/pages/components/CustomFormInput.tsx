@@ -1,6 +1,7 @@
-import Input from "antd/es/input/Input";
+import { Input } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useState } from "react";
+import { RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 
 interface CustomFormInputProps {
     label: string;
@@ -9,10 +10,11 @@ interface CustomFormInputProps {
     placeholder?: string;
     prefix?: string;
     isArea?: boolean;
+    isPassword?: boolean;
     onChange: (value: string) => void;
 }
 
-const CustomFormInput = ({ label, onChange, icon, placeholder, prefix, isArea, value }: CustomFormInputProps) => {
+const CustomFormInput = ({ label, onChange, icon, placeholder, prefix, isArea, value, isPassword }: CustomFormInputProps) => {
 
     const [currentValue, setCurrentValue] = useState(value);
 
@@ -35,7 +37,17 @@ const CustomFormInput = ({ label, onChange, icon, placeholder, prefix, isArea, v
                 placeholder={placeholder}
             />}
 
-            {!isArea && <Input size="large"
+            {isPassword == true &&
+                <Input.Password
+                    placeholder={placeholder}
+                    value={currentValue}
+                    onChange={((event) => handleOnChange(event.target.value))}
+                    type="password"
+                    size="large"
+                    iconRender={(visible) => (visible ? <RiEyeLine /> : <RiEyeOffLine />)}
+                />}
+
+            {!isArea && !isPassword && <Input size="large"
                 addonBefore={prefix}
                 onChange={((event) => handleOnChange(event.target.value))}
                 prefix={icon}

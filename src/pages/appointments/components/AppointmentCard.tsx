@@ -707,14 +707,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         let discount = 0;
         let subTotal = 0;
         let price = 0;
+        let availableUsage = 100;
 
         const component = padComponent?.components?.find((value: any, _: any) => value.service.id == service.id);
         if (component != null) {
             const exits = tableInfo.filter((value, _) => value.description.toLowerCase().includes(service.description?.toLowerCase()));
-            if (Number(component.availableUsage) > exits.length) {
+            if (Number(component.availableUsage) >= exits.length) {
                 discount = Number(component.component.discount);
+                availableUsage = component.availableUsage;
             } else {
-                discount =  Number(component.component.discountTwo);
+                discount = Number(component.component.discountTwo);
             }
         }
 
@@ -735,7 +737,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 disscount: discount,
                 price: price,
                 subtotal: subTotal,
-                serviceId: serviceItem?.id
+                serviceId: serviceItem?.id,
+                availableUsage: availableUsage
             },
         );
         setTimeout(() => {
@@ -746,7 +749,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const handleOnTableChange = (data: any) => {
-        setDataTable(data);
+        //setDataTable(data);
+        if (data != null && data?.length <= 0) {
+            setDataTable([]);
+        } else {
+            setDataTable(data);
+        }
         //  updateServiceTable(data);
     }
 
@@ -850,6 +858,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             amount: amountReceived
         });
         validateShowExchange();
+        setAmountReceived('0');
         setTimeout(() => {
             setPaymentDataTable(data);
         }, 100)
@@ -912,7 +921,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     okText: Strings.finish,
                     cancelText: Strings.cancel,
                 });
-            }} onCancel={() => setModalFinish(false)} open={modalFinish} okText={Strings.finish} >
+            }} onCancel={() => setModalFinish(false)} okButtonProps={
+                {
+                    disabled: (paymentDataTable?.length == 0 || dataTable?.length == 0)
+                    }} open={modalFinish} okText={Strings.finish} >
 
                 <span className="flex mt-2">{Strings.serviceType}</span>
                 <SelectSearch icon={<></>} placeholder={Strings.services} items={serviceList} onChange={(event) => handleOnServiceChange(event)} />

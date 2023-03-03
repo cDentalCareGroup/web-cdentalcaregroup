@@ -17,5 +17,7 @@ export interface PadCatalogue {
     type: PadType;
     status: PadStatus;
     day: number;
+    maxMember: number;
+    maxAdditional: number;
 }
 

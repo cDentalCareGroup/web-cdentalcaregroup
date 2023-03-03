@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import type { InputRef } from 'antd';
-import { Button, Form, Input, Popconfirm, Table } from 'antd';
+import { notification, Form, Input, Popconfirm, Table } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { RiDeleteBin7Line } from 'react-icons/ri';
 import { formatNumberToPercent, formatPrice } from '../../../utils/Extensions';
@@ -51,6 +51,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     const [editing, setEditing] = useState(false);
     const inputRef = useRef<InputRef>(null);
     const form = useContext(EditableContext)!;
+
 
     useEffect(() => {
         if (editing) {
@@ -122,6 +123,7 @@ interface EditableTableCustomProps {
 const EditableTable = (props: EditableTableCustomProps) => {
     const [dataSource, setDataSource] = useState<any[]>(props.data);
     const [isLoading, setIsLoading] = useState(props.isLoading);
+    const [api, contextHolder] = notification.useNotification();
 
     const handleDelete = (key: React.Key) => {
         const newData = dataSource.filter((item) => item.key !== key);
@@ -159,7 +161,7 @@ const EditableTable = (props: EditableTableCustomProps) => {
             editable: false,
             render: (_: any, value: any) => (
                 <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
-                    <span className='text-blue-800'>{formatNumberToPercent(value.disscount)}</span>
+                    <span>{formatNumberToPercent(value.disscount)}</span>
                 </div>
             ),
         },
@@ -200,7 +202,28 @@ const EditableTable = (props: EditableTableCustomProps) => {
         row.unitPrice = row.unitPrice;
         row.disscount = Math.round(row.disscount);
 
-      //  row.price = Number(row.quantity) * Number(item.unitPrice);
+        // console.log(`Disponibilidad ${row.availableUsage}, ${row.quantity}`);
+
+        if (row.quantity > row.availableUsage) {
+            notification.open({
+                message: 'Aviso!',
+                description: `Llegaste a la cantidad maxima de este servicio con el descuento de PAD,
+                Agrega nuevamente el mismo servicio para aplicar una cantidad diferente con el descuento por defecto.`,
+                type: 'warning',
+                duration: 15
+            });
+            return;
+        }
+        if (row.quantity <= 0) {
+            notification.open({
+                message: 'Aviso!',
+                description: `La cantidad debe ser mayor a cero`,
+                type: 'warning',
+            });
+            return;
+        }
+
+        //  row.price = Number(row.quantity) * Number(item.unitPrice);
 
         if (row.disscount != null && row.disscount != 0 && row.disscount != '0') {
             row.price = row.unitPrice - Math.round((Number(row.unitPrice) / 100) * Math.round(Number(row.disscount)));
