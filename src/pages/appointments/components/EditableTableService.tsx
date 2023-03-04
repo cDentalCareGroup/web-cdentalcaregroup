@@ -196,19 +196,54 @@ const EditableTable = (props: EditableTableCustomProps) => {
 
 
     const handleSave = (row: any) => {
-        const newData = [...dataSource];
+        let newData = [...dataSource];
         const index = newData.findIndex((item) => row.key === item.key);
         const item = newData[index];
         row.unitPrice = row.unitPrice;
         row.disscount = Math.round(row.disscount);
 
-        // console.log(`Disponibilidad ${row.availableUsage}, ${row.quantity}`);
+
+        const existingService = newData.filter((value, _) => value.serviceId == row.serviceId);
+        if (existingService.length > 1 && row.quantity < row.availableUsage) {
+            const element = existingService[existingService.length - 1];
+            element.quantity = Number(element.quantity) - Number(row.quantity);
+
+            if (element.disscount != null && element.disscount != 0 && element.disscount != '0') {
+                element.price = element.unitPrice - Math.round((Number(element.unitPrice) / 100) * Math.round(Number(element.disscount)));
+                element.subtotal = Number(element.quantity) * Number(element.price);
+            } else {
+                element.price = element.unitPrice;
+                element.subtotal = Number(element.quantity) * Number(element.unitPrice);
+            }
+
+            const res = newData.filter((value, _) => value.key != element.key);
+            if (element.quantity > 0) {
+                res.push(element);
+            }
+            newData = res;
+        } else {
+            const element = existingService[existingService.length - 1];
+            element.quantity = Number(element.quantity) + Number(row.quantity) - 1;
+            if (element.disscount != null && element.disscount != 0 && element.disscount != '0') {
+                element.price = element.unitPrice - Math.round((Number(element.unitPrice) / 100) * Math.round(Number(element.disscount)));
+                element.subtotal = Number(element.quantity) * Number(element.price);
+            } else {
+                element.price = element.unitPrice;
+                element.subtotal = Number(element.quantity) * Number(element.unitPrice);
+            }
+            const res = newData.filter((value, _) => value.key != element.key);
+            if (element.quantity > 0) {
+                res.push(element);
+            }
+            newData = res;
+        }
+
+        //   console.log(`Disponibilidad ${row.availableUsage}, ${row.quantity}`);
 
         if (row.quantity > row.availableUsage) {
             notification.open({
                 message: 'Aviso!',
-                description: `Llegaste a la cantidad maxima de este servicio con el descuento de PAD,
-                Agrega nuevamente el mismo servicio para aplicar una cantidad diferente con el descuento por defecto.`,
+                description: `Llegaste a la cantidad maxima de este servicio con el descuento de PAD`,
                 type: 'warning',
                 duration: 15
             });

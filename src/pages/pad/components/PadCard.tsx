@@ -42,7 +42,7 @@ const PadCard = ({ data, onEditMembers }: PadCardProps) => {
     return (
         <div className="flex flex-col">
             <Card title={data.catalogue.name} className="m-2 cursor-pointer" actions={[
-               <span onClick={() => onEditMembers()}>Ver mimebros</span>
+               <span onClick={() => onEditMembers()}>Ver miembros</span>
             ]}>
                 <SectionElement label={Strings.price} icon={<></>} value={`$${data.pad.padPrice}`} />
                 <SectionElement label={Strings.validity} icon={<></>} value={`De ${data.pad.padAdquisitionDate} al ${data.pad.padDueDate}`} />

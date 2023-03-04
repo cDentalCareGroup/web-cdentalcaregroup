@@ -14,12 +14,12 @@ import { useGetPatientsMutation } from "../../../services/patientService";
 import { FilterEmployeesRequest } from "../../../data/filter/filters.request";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../../data/filter/filters";
 import { appointmentToBranchOfficeSelectItemOption, appointmentToDentistSelectItemOption, appointmentToPatientSelectItemOption, branchOfficesToSelectOptionItem, patientsToSelectItemOption, timesToSelectItemOption } from "../../../data/select/select.item.option.extensions";
-import { useExtendAppointmentMutation, useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useGetPaymentMethodsMutation, useGetServicesMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasCabinetAppointmentMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
-import { AppointmentAvailbilityByDentistRequest, ExtendAppointmentRequest, GetAppointmentAvailabilityRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasCabinetAppointmentRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
+import { useExtendAppointmentMutation, useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useGetPaymentMethodsMutation, useGetServicesMutation, useRegisterAppointmentPatientMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasCabinetAppointmentMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
+import { AppointmentAvailbilityByDentistRequest, ExtendAppointmentRequest, GetAppointmentAvailabilityRequest, RegiserAppointmentPatientRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasCabinetAppointmentRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
 import { useAppSelector } from "../../../core/store";
 import { selectCurrentUser } from "../../../core/authReducer";
-import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../../utils/Notifications";
-import { dayName, formatPrice, isAdmin, stringToDate } from "../../../utils/Extensions";
+import { handleErrorNotification, handleSucccessNotification, handleWarningNotification, NotificationSuccess } from "../../../utils/Notifications";
+import { dayName, formatPrice, stringToDate } from "../../../utils/Extensions";
 import Calendar from "../../components/Calendar";
 import { AvailableTime } from "../../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../../data/appointment/available.times.extensions";
@@ -37,12 +37,12 @@ import { servicesToSelectItemOption } from "../../../data/service/service.extent
 import MultiSelectSearch from "../../components/MultiSelectSearch";
 import { useGetPadServicesMutation } from "../../../services/padService";
 import EditableTable from "./EditableTableService";
-import { PadComponentUsed } from "../../../data/pad/pad.component.used";
 import { Service } from "../../../data/service/service";
 import Spinner from "../../components/Spinner";
 import FormCall from "../../callcenter/FormCall";
-import EditableSortableTable from "./Test";
+import FormPatient, { FormPatientType, FormPatientSource } from "../../patients/FormPatient";
 const { confirm } = Modal;
+import { UserRoles } from "../../../utils/Extensions";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -50,10 +50,12 @@ interface AppointmentCardProps {
     onAppointmentChange?: (appointment: AppointmentDetail) => void;
     hideContent: boolean;
     onlyRead?: boolean;
+    rol: UserRoles
 }
 
 
-const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointmentChange, onlyRead }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointmentChange, onlyRead, rol }: AppointmentCardProps) => {
+    // console.log(appointment);
     const [data, setData] = useState(appointment);
     const [getEmployeesByType] = useGetEmployeesByTypeMutation();
     const [getPatients] = useGetPatientsMutation();
@@ -70,6 +72,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [getServices] = useGetServicesMutation();
     const [extendAppointment] = useExtendAppointmentMutation();
     const [getPadServices] = useGetPadServicesMutation();
+    const [registerAppointmentPatient] = useRegisterAppointmentPatientMutation();
 
     const [paymentMethodList, setPaymentMethodList] = useState<PaymentMethod[]>([]);
     const [paymentMethodId, setPaymentMethodId] = useState(0);
@@ -120,6 +123,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [amountReceived, setAmountReceived] = useState('0')
     const [padComponent, setPadComponent] = useState<any>();
     const [isTableLoading, setIsTableLoading] = useState(false);
+    const [modalRegisterPatient, setModalRegisterPatient] = useState(false);
 
     const [showExchange, setShowExchange] = useState(false);
 
@@ -204,7 +208,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getEmployeesByType(
                 new GetEmployeeByTypeRequest('Medico/Especialista')
             ).unwrap();
-            if (isAdmin(user)) {
+            if (rol == UserRoles.ADMIN) {
                 setDentistList(employeesToSelectItemOptions(response, true));
             } else {
                 setDentistList(filterDentist(response));
@@ -301,7 +305,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleOnReschedueAppointment = async () => {
         const branchOfficeOption = appointmentToBranchOfficeSelectItemOption(data);
         setBranchOffice(branchOfficeOption);
-        if (isAdmin(user)) {
+        if (rol == UserRoles.ADMIN) {
             await handleGetBranchOffices();
         } else {
             if (branchOfficeOption != null) setBranchOfficeList([branchOfficeOption]);
@@ -369,7 +373,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         const dentistFound = appointmentToDentistSelectItemOption(data);
         setDentist(dentistFound);
 
-        if (isAdmin(user)) {
+        if (rol == UserRoles.ADMIN) {
             await handleGetBranchOffices();
         } else {
             if (branchOfficeOption != null) setBranchOfficeList([branchOfficeOption]);
@@ -534,6 +538,29 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return `${data.appointment.call?.dueDate ?? ''}`;
     }
 
+    const buildReferralName = (): string => {
+        if (validateReferral()) {
+            return `${data.appointment.referralName}`
+        }
+        return ''
+    }
+    const validateReferral = (): boolean => {
+        return data.appointment.referralCode != null && data.appointment.referralCode != undefined &&
+            data.appointment.referralCode != '';
+    }
+
+    const getTypeOfUser = () => {
+        if (data.patient != null && data.patient != undefined) {
+            return <Tag color='blue'>{Strings.patient}</Tag>
+        } else {
+            return <Tag>{Strings.prospect}</Tag>
+        }
+    }
+
+    const isProspect = (): boolean => {
+        return data.patient == null || data.patient == undefined;
+    }
+
     const CardContent = (): JSX.Element => {
         return <>
             {data.patient && <SectionElement label={Strings.patientId} value={`${data.patient?.id}`} icon={<RiHashtag />} />}
@@ -544,6 +571,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
             <SectionElement label={Strings.services} value={buildServices()} icon={<RiServiceLine />} />
+            {validateReferral() && <SectionElement label={Strings.origin} value={buildReferralName()} icon={<RiUser3Line />} />}
             {data.extendedTimes != null && data.extendedTimes.length > 0 &&
                 <SectionElement label={'Cita extendida'} value={extendedTimesToShow(data)} icon={<RiCalendar2Line />} />}
             {data.appointment.status != Constants.STATUS_FINISHED && data.appointment.status != Constants.STATUS_NOT_ATTENDED && onlyRead == false &&
@@ -568,6 +596,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 </div>
             }
             {getStautsTag()}
+            {getTypeOfUser()}
             {checkDueDate()}
             {showNextAppointment() &&
                 <SectionElement label={Strings.followAppointment} value={buildNextAppointmentText()} icon={<RiCalendar2Line />} />
@@ -702,23 +731,80 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         let tableInfo = dataTable;
         const serviceKey = tableInfo.length + 1
         const servicePrice = serviceItem?.price ?? 0;
-        setDataTable([]);
-
         let discount = 0;
         let subTotal = 0;
         let price = 0;
         let availableUsage = 100;
+        ///  let quantity = 1;
+        //let shouldAdd = true;
+        //  let item: any = null;
 
         const component = padComponent?.components?.find((value: any, _: any) => value.service.id == service.id);
+        const serviceExists = tableInfo.filter((value, _) => value.serviceId == service.id);
+
         if (component != null) {
-            const exits = tableInfo.filter((value, _) => value.description.toLowerCase().includes(service.description?.toLowerCase()));
-            if (Number(component.availableUsage) >= exits.length) {
+            if (serviceExists != null && serviceExists.length > 0 && serviceExists[serviceExists.length - 1].disscount == Number(component.component.discount)) {
+                if (serviceExists.length < Number(component.availableUsage) && serviceExists[serviceExists.length - 1].quantity < Number(component.availableUsage)) {
+                    const total = Number(component.availableUsage) - 1;
+                    if (total <= 1) {
+                        handleWarningNotification(
+                            `Tienes 1 unidad disponible con el descuento PAD, modifica la cantidad actual para agregarlo`
+                        );
+                    } else {
+                        handleWarningNotification(
+                            `Tienes ${total} unidades disponibles con el descuento PAD, modifica la cantidad actual para agregarlo`
+                        );
+                    }
+                    setIsTableLoading(false);
+                    return;
+                } else {
+                    discount = Number(component.component.discountTwo);
+                }
+            } else if (serviceExists.length == 0) {
                 discount = Number(component.component.discount);
-                availableUsage = component.availableUsage;
-            } else {
-                discount = Number(component.component.discountTwo);
+                availableUsage = Number(component.availableUsage);
+            } else if (serviceExists != null && serviceExists.length > 0 && serviceExists[serviceExists.length - 1].disscount == Number(component.component.discountTwo)) {
+                handleErrorNotification(Constants.ALREADY_EXIST_SERVICE);
+                setIsTableLoading(false);
+                return;
             }
+        } else if (serviceExists != null && serviceExists.length > 0) {
+            handleErrorNotification(Constants.ALREADY_EXIST_SERVICE);
+            setIsTableLoading(false);
+            return;
         }
+
+        // if (component != null) {
+        //     const exits = tableInfo.filter((value, _) => value.description.toLowerCase().includes(service.description?.toLowerCase()));
+        //     //   const alreadyExist = tableInfo.filter((value, _) => value.serviceId == service.id);
+        //     console.log(exits);
+        //     if (Number(component.availableUsage) > exits.length) {
+        //         // console.log(exits[exits.length - 1].disscount);
+        //         //console.log(Number(component.component.discount));
+        //         if (exits.length > 0 && exits[exits.length - 1].disscount == Number(component.component.discount) && exits[exits.length - 1].quantity < component.availableUsage) {
+        //             // console.log('agrego otra con el mism descuentoÏ')
+        //             shouldAdd = false;
+        //             const element = exits[exits.length - 1];
+        //             element.quantity = Number(element.quantity) + 1;
+        //             item = element;
+        //         } else {
+        //             discount = Number(component.component.discountTwo);
+        //             availableUsage = component.availableUsage;
+        //         }
+
+        //     } else {
+        //         console.log('aqui')
+        //         if (exits.length > 0 && exits[exits.length - 1].discountTwo == Number(component.component.discountTwo)) {
+        //             console.log('agrego otra con el mism descuentoÏ')
+        //             shouldAdd = false;
+        //             const element = exits[exits.length - 1];
+        //             element.quantity = Number(element.quantity) + 1;
+        //             item = element;
+        //         } else {
+        //             discount = Number(component.component.discountTwo);
+        //         }
+        //     }
+        // }
 
         if (discount > 0) {
             price = servicePrice - Math.round((Number(servicePrice) / 100) * Math.round(Number(discount)));
@@ -727,7 +813,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             price = servicePrice;
             subTotal = price;
         }
+        // setDataTable([]);
 
+        //  if (shouldAdd) {
+        console.log(serviceItem);
         tableInfo.push(
             {
                 key: serviceKey,
@@ -738,9 +827,17 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 price: price,
                 subtotal: subTotal,
                 serviceId: serviceItem?.id,
-                availableUsage: availableUsage
+                availableUsage: availableUsage,
+                labCost: serviceItem?.labCost
             },
         );
+        // } else if (item != null) {
+        //     const filteredData = tableInfo.filter((value, _) => value.key != item.key);
+        //     item.quantity = quantity;
+        //     item.disscount = discount;
+        //     filteredData.push(item);
+        //     tableInfo = filteredData;
+        // }
         setTimeout(() => {
             setDataTable(tableInfo);
             setIsTableLoading(false);
@@ -883,12 +980,30 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         setShowExchange(value != null);
     }
 
+    const handleOnSetPatient = async (patient: number) => {
+        try {
+            setIsActionLoading(true);
+            const response = await registerAppointmentPatient(
+                new RegiserAppointmentPatientRequest(
+                    data.appointment.id, patient
+                )
+            ).unwrap();
+            setData(response);
+            setIsActionLoading(false);
+            setModalRegisterPatient(false);
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+        } catch (error) {
+            setIsActionLoading(false);
+            handleErrorNotification(error);
+        }
+    }
+
     return (
         <div className="m-2">
             <Card title={!hideContent ? getPatientName(data) : ''} bordered={!hideContent} actions={
                 (hideContent || onlyRead == true) ? [] : [
                     <span onClick={() => {
-                        if (isAdmin(user)) {
+                        if (rol == UserRoles.ADMIN) {
                             navigate(`/admin/branchoffice/appointments/detail/${data?.appointment.folio}`)
                         } else {
                             navigate(`/receptionist/appointments/detail/${data?.appointment.folio}`)
@@ -906,6 +1021,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >{Strings.extendAppointment}</Button>}
                     {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >{Strings.scheduleNextAppointment}</Button>}
                     {canRegisterNextAppointment() && <FormCall appointmentId={data.appointment.id} patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange(Constants.STATUS_FINISHED)} />}
+                    {isProspect() && <Button loading={isActionLoading} onClick={() => setModalRegisterPatient(true)} type="dashed">Registrar paciente</Button>}
                 </Row>}
 
             </Card>
@@ -924,7 +1040,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             }} onCancel={() => setModalFinish(false)} okButtonProps={
                 {
                     disabled: (paymentDataTable?.length == 0 || dataTable?.length == 0)
-                    }} open={modalFinish} okText={Strings.finish} >
+                }} open={modalFinish} okText={Strings.finish} >
 
                 <span className="flex mt-2">{Strings.serviceType}</span>
                 <SelectSearch icon={<></>} placeholder={Strings.services} items={serviceList} onChange={(event) => handleOnServiceChange(event)} />
@@ -932,6 +1048,36 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
                 {!isTableLoading && <EditableTable onChange={handleOnTableChange} isLoading={isTableLoading} data={dataTable} />}
                 {isTableLoading && <Spinner />}
+
+                <div className="flex flex-col">
+                    <div className="flex flex-row w-full items-end justify-end gap-2 mt-2">
+                        <span className="text font-bold text-base text-gray-600">
+                            {Strings.receivedAmount}:
+                        </span>
+                        <span className="text font-semibold text-base">
+                            {formatPrice(getReceivedAmount())}
+                        </span>
+                    </div>
+
+                    <div className="flex flex-row w-full items-end justify-end gap-2">
+                        <span className="text font-bold text-base text-gray-600">
+                            {Strings.total}:
+                        </span>
+                        <span className="text font-semibold text-base">
+                            {formatPrice(getTotalFromServices())}
+                        </span>
+                    </div>
+
+
+                    {showExchange && <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
+                        <span className="text font-bold text-base text-gray-600">
+                            {validateExchange()}
+                        </span>
+                        <span className="text font-semibold text-base">
+                            {getExchange()}
+                        </span>
+                    </div>}
+                </div>
 
 
                 <div className="flex flex-row gap-6">
@@ -960,33 +1106,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
 
 
-                <div className="flex flex-row w-full items-end justify-end gap-2 mt-2">
-                    <span className="text font-bold text-base text-gray-600">
-                        {Strings.receivedAmount}:
-                    </span>
-                    <span className="text font-semibold text-base">
-                        {formatPrice(getReceivedAmount())}
-                    </span>
-                </div>
 
-                <div className="flex flex-row w-full items-end justify-end gap-2">
-                    <span className="text font-bold text-base text-gray-600">
-                        {Strings.total}:
-                    </span>
-                    <span className="text font-semibold text-base">
-                        {formatPrice(getTotalFromServices())}
-                    </span>
-                </div>
-
-
-                {showExchange && <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
-                    <span className="text font-bold text-base text-gray-600">
-                        {validateExchange()}
-                    </span>
-                    <span className="text font-semibold text-base">
-                        {getExchange()}
-                    </span>
-                </div>}
 
             </Modal>
 
@@ -1114,6 +1234,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <Modal confirmLoading={isExtendTimesLoading} title={Strings.extendAppointment} onOk={() => handleExtendAppointment()} open={modalExtendAppointment} onCancel={() => setModalExtendAppointment(false)} okText={Strings.save}>
                 <span className="flex mt-2">{Strings.selectSchedule}</span>
                 <MultiSelectSearch icon={<></>} placeholder={Strings.schedule} items={extendedTimesList} onChange={(event) => setExtendedAvailableTimes(event)} />
+            </Modal>
+
+
+            <Modal confirmLoading={isActionLoading} okButtonProps={{
+                disabled: !isActionLoading
+            }} okText={Strings.accept} onCancel={() => setModalRegisterPatient(false)} open={modalRegisterPatient} title={Strings.formPatient} width={'85%'}>
+                <FormPatient onFinish={(patient) => handleOnSetPatient(patient?.id)} origin={data.appointment.referralId} source={FormPatientSource.APPOINTMENT} type={FormPatientType.REGISTER} rol={rol} />
             </Modal>
         </div>
     );

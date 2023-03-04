@@ -5,4 +5,6 @@ export interface Service {
     name: string;
     price: number;
     status: string;
+    labCost: number;
+    minimumPercentagePayment: number;
 }

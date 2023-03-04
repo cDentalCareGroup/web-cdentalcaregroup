@@ -1,4 +1,4 @@
-import {  Divider, Tag } from "antd";
+import { Divider, Tag } from "antd";
 import { RiCalendar2Line, RiFunctionLine, RiMailLine, RiMentalHealthLine, RiPhoneLine, RiSearch2Line, RiStethoscopeLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import Strings from "../../utils/Strings";
@@ -15,7 +15,13 @@ import { AppointmentDetail } from "../../data/appointment/appointment.detail";
 import { getHasCabinet, getHasLabs, getPatientAddress, getPatientBirthDay, getPatientEmail, getPatientGender, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
 import { getAppointmentDate, getAppointmentDentist, getAppointmentFolio, getAppointmentStatus } from "../../data/appointment/appointment.extensions";
 import AppointmentCard from "./components/AppointmentCard";
-const AppointmentInfo = () => {
+import { UserRoles } from "../../utils/Extensions";
+
+interface AppointmentInfoProps {
+    rol: UserRoles;
+}
+
+const AppointmentInfo = (props: AppointmentInfoProps) => {
     const { folio } = useParams();
     const [getAppointmentInfo, { isLoading }] = useGetAppointmentInfoMutation();
     const [data, setData] = useState<AppointmentDetail>();
@@ -36,7 +42,7 @@ const AppointmentInfo = () => {
     return (
         <LayoutCard showBack={true} title={`${Strings.appointment} - ${getPatientName(data)} - ${getAppointmentDate(data)}`} isLoading={isLoading} content={
             <div className="flex flex-col">
-                               <div className="flex w-full flex-wrap items-baseline">
+                <div className="flex w-full flex-wrap items-baseline">
                     <div className="p-4">
                         <span className="text-2xl text-gray-500 font-semibold mb-4 flex">{Strings.patientInformation}</span>
                         <SectionElement label={Strings.patientName} value={getPatientName(data)} icon={<RiUser3Line />} />
@@ -72,7 +78,7 @@ const AppointmentInfo = () => {
 
                     <Divider />
                     <div className="flex w-full items-center justify-center overflow-hidden">
-                        {data != null && <AppointmentCard hideContent={true} appointment={data} onStatusChange={() => { }} onAppointmentChange={(event) => setData(event)} />}
+                        {data != null && <AppointmentCard onlyRead={false} rol={props.rol} hideContent={true} appointment={data} onStatusChange={() => { }} onAppointmentChange={(event) => setData(event)} />}
 
                     </div>
                 </div>

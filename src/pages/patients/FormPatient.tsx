@@ -24,9 +24,16 @@ interface FormPatientProps {
     type: FormPatientType;
     patient?: Patient;
     rol: UserRoles;
+    source: FormPatientSource;
+    origin?: number;
+    onFinish?: (patient: Patient) => void;
 }
 export enum FormPatientType {
     REGISTER, UPDATE
+}
+
+export enum FormPatientSource {
+    APPOINTMENT, FORM
 }
 
 const FormPatient = (props: FormPatientProps) => {
@@ -116,6 +123,9 @@ const FormPatient = (props: FormPatientProps) => {
         try {
             const response = await getPatientOrigins({}).unwrap();
             setOrigins(response);
+            if (props.origin != null && props.origin != undefined && props.origin != 0) {
+                form.setFieldValue('origin', props.origin);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -206,17 +216,26 @@ const FormPatient = (props: FormPatientProps) => {
         }
         setIsLoading(true);
         try {
-            await registerPatient(
+            const response = await registerPatient(
                 new RegisterPatientRequest(
                     values,
                     latitudes!,
                     (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) ? branchOfficeId : Number(branchId),
                     city, col, state
                 )).unwrap();
+
+            if (props.source == FormPatientSource.APPOINTMENT) {
+                //console.log(response);
+                if (props.onFinish != null) {
+                    props?.onFinish(response);
+                }
+            } else {
+                handleSucccessNotification(NotificationSuccess.REGISTER);
+            }
             form.resetFields();
             setIsLoading(false);
             setShowNormalInputs(false);
-            handleSucccessNotification(NotificationSuccess.REGISTER);
+
         } catch (error) {
             setIsLoading(false);
             handleErrorNotification(error);
@@ -252,11 +271,11 @@ const FormPatient = (props: FormPatientProps) => {
     }
 
     const shouldShowBack = (): boolean => {
-        return props.type == FormPatientType.REGISTER;
+        return props.type == FormPatientType.REGISTER && props.source == FormPatientSource.FORM;
     }
 
     const buildCardTitle = (): string => {
-        return props.type == FormPatientType.REGISTER ? "Registro de pacientes" : ''
+        return (props.type == FormPatientType.REGISTER && props.source == FormPatientSource.FORM) ? Strings.formPatient : ''
     }
 
     const handleCheckForm = (values: any) => {
@@ -269,8 +288,7 @@ const FormPatient = (props: FormPatientProps) => {
 
     return (<LayoutCard showBack={shouldShowBack()} title={buildCardTitle()} isLoading={isLoadingContent} content={
         <div className="flex flex-col">
-            <Form form={form} name="horizontal_login" layout="vertical" onFinish={handleCheckForm}>
-
+            <Form form={form} name="horizontal_login" className={`flex ${props.source == FormPatientSource.FORM ? 'flex-col flex-wrap' : 'flex-row flex-wrap'}`} layout="vertical" onFinish={handleCheckForm}>
                 {(props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) && <Form.Item
                     name="branchOfficeId"
                     label={Strings.branchOfficeOrigin}
@@ -311,7 +329,7 @@ const FormPatient = (props: FormPatientProps) => {
                     name="secondLastname"
                     label={Strings.secondLastName}
                     style={{ minWidth: 200, padding: 10 }}
-                    rules={[{ required: true, message: Strings.requiredField }]}>
+                >
                     <Input size="large" prefix={<RiUser3Line />} placeholder={Strings.secondLastName} />
                 </Form.Item>
 
@@ -449,7 +467,7 @@ const FormPatient = (props: FormPatientProps) => {
                     style={{ minWidth: 200, padding: 10 }}
                     rules={[{ required: true, message: Strings.requiredField }]}
                 >
-                    <Select size="large" placeholder='Origen' >
+                    <Select disabled={props.origin != null && props.origin != undefined && props.origin != 0} size="large" placeholder='Origen' >
                         {origins?.map((value, _) => <Select.Option key={value.id} value={value.id}>{value.name}</Select.Option>)}
                     </Select>
                 </Form.Item>
@@ -494,7 +512,7 @@ const FormPatient = (props: FormPatientProps) => {
                 </Form.Item>}
 
                 <Form.Item>
-                    <Button loading={isLoading} type="primary" htmlType="submit">
+                    <Button className={`${props.source == FormPatientSource.FORM ? '' : 'mt-10'}`} loading={isLoading} type="primary" htmlType="submit">
                         {props.type == FormPatientType.REGISTER ? Strings.save : Strings.update}
                     </Button>
                 </Form.Item>

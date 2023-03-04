@@ -228,3 +228,13 @@ export class RegisterCallCenterAppointmentRequest {
     this.callId = callId;
   }
 }
+
+export class RegiserAppointmentPatientRequest {
+  appointmentId: number;
+  patientId: number;
+  constructor(appointmentId: number,
+      patientId: number) {
+      this.appointmentId = appointmentId;
+      this.patientId = patientId;
+  }
+}

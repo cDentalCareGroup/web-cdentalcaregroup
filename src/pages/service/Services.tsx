@@ -28,6 +28,7 @@ const Services = () => {
 
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
+    const [labCost, setLabCost] = useState('');
     const [category, setCategory] = useState<SelectItemOption>();
     const [status, setStatus] = useState('activo');
     const [isEdit, setIsEdit] = useState(false);
@@ -77,7 +78,7 @@ const Services = () => {
         try {
             await registerService(
                 new RegisterServiceRequest(
-                    name, Number(price), category?.id ?? 0
+                    name, Number(price), category?.id ?? 0, Number(labCost)
                 )
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER);
@@ -182,6 +183,7 @@ const Services = () => {
                         onCancel={() => setIsOpenModal(false)}>
                         <CustomFormInput value={name} label={Strings.nameLabel} onChange={(value) => setName(value)} placeholder={Strings.generalInquiry} />
                         <CustomFormInput value={price} label={Strings.price} onChange={(value) => setPrice(value)} prefix="$" placeholder="0.0" />
+                        <CustomFormInput value={labCost} label={Strings.labCost} onChange={(value) => setLabCost(value)} prefix="$" placeholder="0.0" />
 
                         <span className="flex mt-2 mb-2">{Strings.selectCategory}</span>
                         <SelectSearch

@@ -5,7 +5,7 @@ import Constants from "./Constants";
 
 
 
-export const handleErrorNotification = (value: any) => {
+export const handleErrorNotification = (value: any, text?: string) => {
     if (value.hasOwnProperty('data') && value.data.hasOwnProperty('message')) {
         notification.open({
             message: 'Ups!',
@@ -15,10 +15,18 @@ export const handleErrorNotification = (value: any) => {
     } else {
         notification.open({
             message: 'Ups!',
-            description: getErrorMessage(value),
+            description: getErrorMessage(value, text),
             type: 'error'
         });
     }
+}
+
+export const handleWarningNotification = (value: string) => {
+    notification.open({
+        message: 'Aviso!',
+        description: value,
+        type: 'warning'
+    });
 }
 
 export const handleSucccessNotification = (value: NotificationSuccess) => {
@@ -55,7 +63,7 @@ const getSuccessMessage = (type: NotificationSuccess): string => {
     return 'Se realizó correctamente';
 }
 
-const getErrorMessage = (message: string): string => {
+const getErrorMessage = (message: string, text?: string): string => {
     if (message == 'NO_ERROR_REGISTER') {
         return 'Ocurrio un error, intenta mas tarde';
     }
@@ -110,6 +118,14 @@ const getErrorMessage = (message: string): string => {
     if (message == Constants.MIN_LENGTH) {
         return 'La contraseña debe ser de mínimo 8 caracteres';
     }
+    if(message == Constants.ALREADY_EXIST_SERVICE) {
+        return 'Ya has agregado el servicio, modifica la cantidad si deseas agregar mas unidades';
+    }
 
+    if(message == Constants.ALREADY_EXIST_SERVICE_PAD) {
+        return `${text}`;
+    }
+
+    
     return 'Ocurrio un error, intenta mas tarde';
 }

@@ -9,6 +9,8 @@ class Strings {
     static group = "Grupal";
     static groupValue = "grupal";
 
+    static formPatient = "Registro de pacientes"
+
     static street = "Calle"
     static hasLabs = "Tiene laboratorios?";
     static hasCabinet = "Tiene estudios?";
@@ -20,6 +22,7 @@ class Strings {
     static simpleName = "Nombre";
     static goal = "Meta";
     static price = "Precio"
+    static labCost = "Costo de laboratorio"
     static type = "Tipo"
     static durationDays = "Duración en dias";
 
@@ -164,6 +167,9 @@ class Strings {
 
     //prospect
     static prospects = "Prospectos"
+    static prospect = "Prospecto"
+    static patient = "Paciente"
+
     static searchProspect = "Buscar prospecto"
 
     static deletePatient = "Eliminar paciente"
@@ -298,7 +304,7 @@ class Strings {
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
 
-    static appVersion = 'v.1.0.35-QA';
+    static appVersion = 'v.1.0.36-QA';
 }
 
 export default Strings;

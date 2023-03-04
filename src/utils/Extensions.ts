@@ -152,12 +152,18 @@ const monthName = (d: Date): string => {
 
 const capitalizeAllCharacters = (value: string | undefined): string => {
   if (value != undefined) {
-          //return value.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
-          return value.toLocaleLowerCase().replace(/(^|\s)\S/g, function (match) {
-                  return match.toUpperCase();
-          });
+    //return value.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+    return value.toLocaleLowerCase().replace(/(^|\s)\S/g, function (match) {
+      return match.toUpperCase();
+    });
   }
   return ''
+}
+
+const formatAppointmentDate = (date: string, appointments: number) => {
+  const previusDate = new Date(date);
+  previusDate.setDate(previusDate.getDate() + 1);
+  return `${dayName(previusDate)} ${previusDate.getDate()} de ${monthName(previusDate)}, Citas: ${appointments}`;
 }
 
 
@@ -226,5 +232,5 @@ export {
   RESPONSIVE_LIST_LARGE,
   formatPrice,
   stringToDate,
-  formatNumberToPercent
+  formatNumberToPercent, formatAppointmentDate
 }

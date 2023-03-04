@@ -24,4 +24,7 @@ export interface Appointment {
     nextAppointmentId: number;
     nextAppointmentDate: string;
     call?: Call;
+    referralCode?: string;
+    referralName?: string;
+    referralId?: number;
 }
