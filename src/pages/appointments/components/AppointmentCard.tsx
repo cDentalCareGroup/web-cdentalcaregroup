@@ -257,6 +257,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     return;
                 }
             }
+            let patientPatId = 0;
+            if (padComponent != null && padComponent.pad != null) {
+                patientPatId = padComponent.pad.id;
+            }
             setIsActionLoading(true);
             const response = await updateAppointmentStatus(
                 new UpdateAppointmentStatusRequest(
@@ -266,7 +270,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     getTotalFromPaymentMethod().toString(),
                     dataTable,
                     paymentDataTable,
-                    padComponent?.pad.id ?? 0
+                    patientPatId
                 )).unwrap();
             setData(response);
             onStatusChange(status);
@@ -274,6 +278,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             handleSucccessNotification(NotificationSuccess.UPDATE);
             onAppointmentChange?.(response);
         } catch (error) {
+            console.log(error);
             setIsActionLoading(false);
             handleErrorNotification(error);
         }
@@ -760,9 +765,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 } else {
                     discount = Number(component.component.discountTwo);
                 }
-            } else if (serviceExists.length == 0) {
+            } else if (serviceExists.length == 0 && Number(component.availableUsage) > 0) {
                 discount = Number(component.component.discount);
                 availableUsage = Number(component.availableUsage);
+            } else if (serviceExists.length == 0) {
+                discount = Number(component.component.discountTwo);
             } else if (serviceExists != null && serviceExists.length > 0 && serviceExists[serviceExists.length - 1].disscount == Number(component.component.discountTwo)) {
                 handleErrorNotification(Constants.ALREADY_EXIST_SERVICE);
                 setIsTableLoading(false);

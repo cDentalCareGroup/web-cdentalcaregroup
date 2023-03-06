@@ -217,7 +217,7 @@ const stringToDate = (data: string): Date => {
 }
 
 const formatNumberToPercent = (num: any): string => {
-  return Number(num / 100).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 0 });
+  return Number(num / 100).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 2 });
 }
 
 export {
