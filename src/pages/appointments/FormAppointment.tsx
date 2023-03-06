@@ -1,4 +1,4 @@
-import { Button, Modal } from "antd";
+import { Button, Checkbox, Modal, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { RiCalendar2Line, RiHospitalLine, RiMentalHealthLine, RiUser2Fill, RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
@@ -25,7 +25,9 @@ import SectionElement from "../components/SectionElement";
 import SelectSearch from "../components/SelectSearch";
 import LayoutCard from "../layouts/LayoutCard";
 import ScheduleAppointmentInfoCard from "./components/ScheduleAppointmentInfoCard";
-
+import {
+    WhatsAppOutlined,
+} from '@ant-design/icons';
 interface FormAppointmentProps {
     patient?: Patient;
     prospect?: Prospect;
@@ -58,6 +60,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
         Constants.BRANCH_ID,
         0
     );
+    const [notify, setNotify] = useState(true);
     useEffect(() => {
         handleGetBranchOffices();
     }, []);
@@ -149,7 +152,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
                     email,
                     branchOffice?.id,
                     finalPatientId,
-                    props?.prospect?.id ?? 0, props.callId ?? 0
+                    props?.prospect?.id ?? 0, props.callId ?? 0, notify
                 )
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER_APPOINTMENT);
@@ -203,7 +206,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
                                 <CustomFormInput label={Strings.email} value={email} onChange={(value) => setEmail(value)} />
                             </div>}
 
-                        {((time != '') && (props.prospect == null)) &&
+                        {((time != '' && time != null) && (props.prospect == null)) &&
                             <div className="flex flex-col items-end justify-end">
                                 <Button onClick={() => setIsProspect(!isProspect)} type="link">
                                     {isProspect ? Strings.selectPatient : Strings.registerProspect}
@@ -248,6 +251,14 @@ const FormAppointment = (props: FormAppointmentProps) => {
                                 <SectionElement label={Strings.branchOffice} value={`${branchOffice?.label}`} icon={<RiHospitalLine />} />
 
                             </div>}
+                        {(time != '' && time != null) && (patient != null || props.prospect != null || phone != '' || props.patient != null) && <div className="flex w-full mt-2">
+                            <div className="flex flex-row">
+                                <Tag className="cursor-pointer" icon={<WhatsAppOutlined />} color="#25D366">
+                                    Notificar por whastapp
+                                </Tag>
+                                <Checkbox value={notify} checked={notify} onChange={(event) => setNotify(event.target.checked)} />
+                            </div>
+                        </div>}
                     </Modal>
                 </div>
             } />

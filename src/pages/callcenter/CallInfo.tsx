@@ -215,7 +215,7 @@ const CallInfo = () => {
     }
 
     const buildTitle = (): string => {
-        if(info?.appointments != null && info.appointments.length > 0) {
+        if (info?.appointments != null && info.appointments.length > 0) {
             const res = info.appointments[info.appointments.length - 1];
             return `Agendar nueva cita - Sucursal del paciente: ${res.branchOffice.name}`;
         } else {
@@ -238,13 +238,13 @@ const CallInfo = () => {
                 placeholder={Strings.callDetail}
             />
             <div className="flex mt-6 w-full justify-end items-end">
-                <Button loading={isLoadingAction} disabled={data?.call.status != Constants.STATUS_ACTIVE} type="dashed" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
+                <Button loading={isLoadingAction}  type="dashed" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
             </div>
 
             <div className="flex flex-row items-center justify-evenly mt-6 w-full">
                 <FormCall callId={data?.call.id} patientId={data?.patient?.id} prospectId={data?.propspect?.id} showPatients={false} onFinish={() => navigate(-1)} />
                 <div className="flex w-full items-end justify-end mx-4">
-                    <Button onClick={() => handleCallNotAttended()} type="dashed">Llamada no contestada</Button>
+                    <Button loading={isLoadingAction} onClick={() => handleCallNotAttended()} type="dashed">Llamada no contestada</Button>
                 </div>
                 <FormAppointment title={buildTitle()} rol={UserRoles.CALL_CENTER} callId={data?.call.id} patient={data?.patient} prospect={data?.propspect} onFinish={() => navigate(-1)} />
 
@@ -259,7 +259,7 @@ const CallInfo = () => {
             await updateCall(new UpdateCallRequest(data?.call.id ?? 0, comment)).unwrap();
             handleSucccessNotification(NotificationSuccess.UPDATE);
             setIsLoadingAction(false);
-            navigate(-1);
+           // navigate(-1);
         } catch (error) {
             setIsLoadingAction(false);
             handleErrorNotification(error);
@@ -269,12 +269,15 @@ const CallInfo = () => {
 
     const handleCallNotAttended = async () => {
         try {
+            setIsLoadingAction(true);
             await notAttendedCall(
                 new UpdateCallRequest(data?.call.id ?? 0, `Llamada no contestada ${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`)
             ).unwrap();
+            setIsLoadingAction(false);
             handleSucccessNotification(NotificationSuccess.UPDATE);
-            //navigate(-1);
+            navigate(-1);
         } catch (error) {
+            setIsLoadingAction(false);
             handleErrorNotification(error);
         }
     }

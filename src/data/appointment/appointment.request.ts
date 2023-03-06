@@ -213,10 +213,11 @@ export class RegisterCallCenterAppointmentRequest {
   patientId?: number;
   prospectId?: number;
   callId?: number;
+  nofity?: boolean;
   constructor(
     name?: string,
     phone?: string,
-    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number, prospectId?: number, callId?: number) {
+    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number, prospectId?: number, callId?: number, nofity?: boolean) {
     this.time = time;
     this.name = name;
     this.phone = phone;
@@ -226,6 +227,7 @@ export class RegisterCallCenterAppointmentRequest {
     this.patientId = patientId;
     this.prospectId = prospectId;
     this.callId = callId;
+    this.nofity = nofity;
   }
 }
 
@@ -233,8 +235,8 @@ export class RegiserAppointmentPatientRequest {
   appointmentId: number;
   patientId: number;
   constructor(appointmentId: number,
-      patientId: number) {
-      this.appointmentId = appointmentId;
-      this.patientId = patientId;
+    patientId: number) {
+    this.appointmentId = appointmentId;
+    this.patientId = patientId;
   }
 }
