@@ -1,17 +1,21 @@
+import { Card } from "antd";
 import { useEffect, useState } from "react";
-import { callDataToStatisticChar } from "../../data/statistics/statistic.extensions";
-import { useGetStatisticsMutation } from "../../services/statisticService";
+import { RiCloseCircleFill, RiCloseCircleLine } from "react-icons/ri";
+import { GetStatisticsCalls } from "../../data/statistics/statistic.calls";
+import { callDataToStatisticChar, PieData } from "../../data/statistics/statistic.extensions";
+import { useGetCallStatisticsMutation, useGetStatisticsMutation } from "../../services/statisticService";
 import { handleErrorNotification } from "../../utils/Notifications";
 import LayoutCard from "../layouts/LayoutCard";
+import PieChar from "./components/PieChar";
 
-
-import { Pie } from '@ant-design/plots';
-import { Card, Statistic } from "antd";
 
 const Dashboard = () => {
 
-    const [getStatistics] = useGetStatisticsMutation();
-    const [callsChar, setCallsChar] = useState<any>();
+    const [callsData, setCallsData] = useState<GetStatisticsCalls>();
+    const [getCallStatistics] = useGetCallStatisticsMutation();
+    const [isLoading, setIsLoading] = useState(false);
+    const [showCallsChar, setShowCallsChar] = useState(false);
+    const [callData, setCallData] = useState<PieData>();
 
     useEffect(() => {
         handleGetStatistics();
@@ -20,86 +24,38 @@ const Dashboard = () => {
 
     const handleGetStatistics = async () => {
         try {
-            const response = await getStatistics({}).unwrap();
+            setIsLoading(true);
+            const response = await getCallStatistics({}).unwrap();
+            setCallsData(response);
             console.log(response);
-            setCallsChar(callDataToStatisticChar(response));
+            setIsLoading(false);
         } catch (error) {
+            setIsLoading(false);
             handleErrorNotification(error);
         }
     }
 
-    const config = {
-        angleField: 'value',
-        colorField: 'type',
-        radius: 0.4,
-        label: {
-            type: 'inner',
-            offset: '-30%',
-
-            style: {
-                fontSize: 14,
-                textAlign: 'center',
-            },
-        },
-        interactions: [
-            {
-                type: 'element-active',
-            },
-        ],
-    };
 
     return (
         <LayoutCard
-            isLoading={false}
+            isLoading={isLoading}
             title='Dashboard'
             content={
-                <div className="flex flex-row gap-6 flex-wrap">
-
-                    {/* <Card >
-                        <Pie style={{width:400}} data={callsChar} {...config} />
-                    </Card> */}
-
-
-                    <Card bordered={true}>
-                        <Statistic
-                            title="Citas activas"
-                            value={6}
-                            valueStyle={{ color: '#3f8600' }}
-                        />
-                    </Card>
-
-                    <Card bordered={true}>
-                        <Statistic
-                            title="Citas en proceso"
-                            value={3}
-                            valueStyle={{ color: '#3f8600' }}
-                        />
-                    </Card>
-
-                    <Card bordered={true}>
-                        <Statistic
-                            title="Citas no atendidas"
-                            value={0}
-                            valueStyle={{ color: '#3f8600' }}
-                        />
-                    </Card>
-
-                    <Card bordered={true}>
-                        <Statistic
-                            title="Llamadas activas"
-                            value={6}
-                            valueStyle={{ color: '#3f8600' }}
-                        />
-                    </Card>
-
-                    <Card  bordered={true}>
-                        <Statistic
-                            title="Llamadas resueltas"
-                            value={2}
-                            valueStyle={{ color: '#3f8600' }}
-                        />
-                    </Card>
-
+                <div>
+                    <div className="flex flex-row flex-wrap">
+                        {callsData != null && callsData != undefined && <PieChar data={callDataToStatisticChar(callsData)} onClick={(value) => {
+                            setCallData(value);
+                            setShowCallsChar(true);
+                        }} />}
+                        {showCallsChar &&
+                            <Card bordered={false}>
+                                <div className="flex flex-col">
+                                    <RiCloseCircleLine className="cursor-pointer" onClick={() => setShowCallsChar(false)} size={20} />
+                                    content {JSON.stringify(callData)}
+                                </div>
+                            </Card>
+                        }
+                    </div>
                 </div>
 
             }

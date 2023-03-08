@@ -1,20 +1,24 @@
+import Constants from "../../utils/Constants";
+import { GetStatisticsCalls } from "./statistic.calls";
 
 
+export class PieData {
+    type: string;
+    value: number;
 
-const callDataToStatisticChar = (data: any) => {
-    const calls = data.calls;
+    constructor(type: string,
+        value: number) {
+        this.type = type;
+        this.value = value;
+    }
+}
 
-    const pending = calls.pending.length;
-    const attended = calls.attended.length;
+
+const callDataToStatisticChar = (data: GetStatisticsCalls): PieData[] => {
     return [
-        {
-            type: 'Llamadas pendientes',
-            value: pending,
-        },
-        {
-            type: 'Llamadas atendidas',
-            value: attended,
-        },
+        new PieData('Llamadas activas', data.active.length),
+        new PieData('Llamadas retrasadas', data.expiredCalls.length),
+        new PieData('Llamadas resueltas', data.solvedCalls.length)
     ];
 }
 

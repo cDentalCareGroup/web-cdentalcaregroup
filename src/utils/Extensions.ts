@@ -167,6 +167,13 @@ const formatAppointmentDate = (date: string, appointments: number) => {
 }
 
 
+const formatServiceDate = (date: Date): string => {
+  const arrayData = date.toString().split("T");
+  const timeArray = arrayData[1].split(".")
+  return `${arrayData[0]} - ${timeArray[0]}`;
+}
+
+
 const RESPONSIVE_LIST = {
   gutter: 4,
   xs: 1,
@@ -232,5 +239,5 @@ export {
   RESPONSIVE_LIST_LARGE,
   formatPrice,
   stringToDate,
-  formatNumberToPercent, formatAppointmentDate
+  formatNumberToPercent, formatAppointmentDate,formatServiceDate
 }
