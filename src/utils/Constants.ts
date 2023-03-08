@@ -30,7 +30,7 @@ const STATUS_NOT_ATTENDED = 'not-attended'
 const STATUS_CANCELLED = 'cancelled'
 const STATUS_FINISHED_APPOINTMENT_OR_CALL = 'finished-appointment-or-call'
 const STATUS_SOLVED = 'solved'
-const STATUS_ABANDOMENT= 'abandonment'
+const STATUS_ABANDOMENT = 'abandonment'
 const STATUS_MANUAL = 'manual'
 const STATUS_AUTOMATIC = 'automatic'
 const STATUS_DISBALED = 'disabled'
@@ -39,6 +39,10 @@ const MIN_LENGTH = "MIN_LENGTH"
 
 const ALREADY_EXIST_SERVICE = "ALREADY_EXIST_SERVICE"
 const ALREADY_EXIST_SERVICE_PAD = "ALREADY_EXIST_SERVICE_PAD"
+
+const DEBT_ACTIVE = "DEBT_ACTIVE"
+
+const PAYMENT_DEBT_ACTIVE = "PAYMENT_DEBT_ACTIVE"
 
 export default {
     STATUS_DISBALED,
@@ -71,5 +75,7 @@ export default {
     DIFFERENT_PASSWORD,
     MIN_LENGTH,
     ALREADY_EXIST_SERVICE,
-    ALREADY_EXIST_SERVICE_PAD
+    ALREADY_EXIST_SERVICE_PAD, DEBT_ACTIVE,
+    PAYMENT_DEBT_ACTIVE
+
 }

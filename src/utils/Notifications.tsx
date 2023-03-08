@@ -118,14 +118,22 @@ const getErrorMessage = (message: string, text?: string): string => {
     if (message == Constants.MIN_LENGTH) {
         return 'La contraseña debe ser de mínimo 8 caracteres';
     }
-    if(message == Constants.ALREADY_EXIST_SERVICE) {
+    if (message == Constants.ALREADY_EXIST_SERVICE) {
         return 'Ya has agregado el servicio, modifica la cantidad si deseas agregar mas unidades';
     }
 
-    if(message == Constants.ALREADY_EXIST_SERVICE_PAD) {
+    if (message == Constants.ALREADY_EXIST_SERVICE_PAD) {
         return `${text}`;
     }
 
-    
+    if (message == Constants.DEBT_ACTIVE) {
+        return `No puedes finalizar una cita hasta pagar el saldo pendiente del paciente`;
+    }
+
+    if (message == Constants.PAYMENT_DEBT_ACTIVE) {
+        return `El paciente cuenta con un saldo pendiente por liquidar`;
+    }
+
+
     return 'Ocurrio un error, intenta mas tarde';
 }

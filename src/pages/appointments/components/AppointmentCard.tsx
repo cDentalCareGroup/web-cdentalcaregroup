@@ -3,7 +3,7 @@ import SectionElement from "../../components/SectionElement";
 import { RiCalendar2Line, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { buildPatientName, buildPatientPad, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
-import { Button, Form, Input, Modal, Radio, Row, Select, Table, Tag } from "antd";
+import { Button, Checkbox, Form, Input, Modal, Popover, Radio, Row, Select, Table, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
 import { GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
 import { useEffect, useRef, useState } from "react";
@@ -43,6 +43,10 @@ import FormCall from "../../callcenter/FormCall";
 import FormPatient, { FormPatientType, FormPatientSource } from "../../patients/FormPatient";
 const { confirm } = Modal;
 import { UserRoles } from "../../../utils/Extensions";
+import SectionPrice from "../../components/SectionPrice";
+import { useGetPatientPaymentsMutation } from "../../../services/paymentService";
+import { DebtInfo } from "../../../data/payment/payment.info";
+import { Payment } from "../../../data/payment/payment";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -53,9 +57,7 @@ interface AppointmentCardProps {
     rol: UserRoles
 }
 
-
 const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointmentChange, onlyRead, rol }: AppointmentCardProps) => {
-    // console.log(appointment);
     const [data, setData] = useState(appointment);
     const [getEmployeesByType] = useGetEmployeesByTypeMutation();
     const [getPatients] = useGetPatientsMutation();
@@ -73,6 +75,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [extendAppointment] = useExtendAppointmentMutation();
     const [getPadServices] = useGetPadServicesMutation();
     const [registerAppointmentPatient] = useRegisterAppointmentPatientMutation();
+    const [getPatientPayments] = useGetPatientPaymentsMutation();
 
     const [paymentMethodList, setPaymentMethodList] = useState<PaymentMethod[]>([]);
     const [paymentMethodId, setPaymentMethodId] = useState(0);
@@ -126,6 +129,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [modalRegisterPatient, setModalRegisterPatient] = useState(false);
 
     const [showExchange, setShowExchange] = useState(false);
+    const [addAmountToAccount, setAddAmountToAccount] = useState(false);
+
+    //const [patientPaymentInfo, setPaymentPatientInfo] = useState<PaymentInfo>();
+    const [showDeposit, setShowDeposit] = useState(false);
+    const [deposits, setDeposits] = useState<Payment[]>([]);
+    const [debtsInfo, setDebtsInfo] = useState<DebtInfo[]>([]);
 
     const getStautsTag = (): JSX.Element => {
         if (data.appointment.status == Constants.STATUS_ACTIVE) {
@@ -256,10 +265,18 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     handleErrorNotification(Constants.EMPTY_SERVICE);
                     return;
                 }
+                if (getDebtsAmount() > 0 && getTotalFromPaymentMethod() < getDebtsAmount()) {
+                    handleErrorNotification(Constants.DEBT_ACTIVE);
+                    return;
+                }
             }
             let patientPatId = 0;
             if (padComponent != null && padComponent.pad != null) {
                 patientPatId = padComponent.pad.id;
+            }
+            let debts: Payment[] = [];
+            if (debtsInfo.length > 0) {
+                debts = debtsInfo.map((value,_) => value.debt);
             }
             setIsActionLoading(true);
             const response = await updateAppointmentStatus(
@@ -270,7 +287,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     getTotalFromPaymentMethod().toString(),
                     dataTable,
                     paymentDataTable,
-                    patientPatId
+                    addAmountToAccount,
+                    patientPatId,
+                    deposits.filter((value, _) => value.isAplicable == true),
+                    debts
                 )).unwrap();
             setData(response);
             onStatusChange(status);
@@ -639,6 +659,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         await handleGetServices();
         handleGetPadServices();
         handleGetPaymentMethods();
+        handleGetPatientPayments();
         setModalFinish(true)
     }
 
@@ -647,11 +668,31 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getPadServices(
                 { 'patientId': appointment.patient?.id }
             ).unwrap();
-            //console.log(response);
             setPadComponent(response);
         } catch (error) {
             console.log(error);
         }
+    }
+    const handleGetPatientPayments = async () => {
+        try {
+            const response = await getPatientPayments({
+                'patientId': data.patient?.id ?? 0
+            }).unwrap();
+            console.log(response);
+            setDebtsInfo(response?.debts ?? []);
+            setDeposits(response?.deposits ?? []);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const showApplicableAmount = (): Boolean => {
+        return deposits.find((value, _) => value.isAplicable == true) != null;
+    }
+
+    const getApplicableAmount = (): number => {
+        return deposits.filter((value, _) => value.isAplicable == true)
+            .map((value, _) => Number(value.amount)).reduce((a, b) => a + b, 0);
     }
 
 
@@ -872,25 +913,28 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const getTotalFromPaymentMethod = (): number => {
+        const applicableAmount = getApplicableAmount();
         let total = 0;
         for (const payment of paymentDataTable) {
             total += Number(payment.amount);
         }
+        if (applicableAmount > 0) {
+            total += getApplicableAmount();
+        }
         return total;
     }
 
-    const getExchange = (): string => {
-        let res = getTotalFromPaymentMethod() - getTotalFromServices();
-        return formatPrice(res);
+    const getExchange = (): number => {
+        return getTotalFromPaymentMethod() - getTotalFromServices() - getDebtsAmount();
     }
 
     const validateExchange = (): string => {
         if (getTotalFromPaymentMethod() == 0) {
-            return 'Saldo pendiente :'
-        } else if (getTotalFromPaymentMethod() < getTotalFromServices()) {
-            return 'Saldo pendiente :'
+            return 'Saldo pendiente'
+        } else if (getTotalFromPaymentMethod() < (getTotalFromServices() + getDebtsAmount())) {
+            return 'Saldo pendiente'
         } else {
-            return 'Cambio :'
+            return 'Cambio'
         }
     }
 
@@ -961,8 +1005,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             paymentmethod: payment?.name ?? '',
             amount: amountReceived
         });
-        validateShowExchange();
+        //validateShowExchange();
         setAmountReceived('0');
+
+        const isNotCash = data.filter((value, _) => value.paymentmethod.toLowerCase() != 'Efectivo'.toLowerCase());
+        if (isNotCash.length > 0) {
+            setAddAmountToAccount(true);
+        }
         setTimeout(() => {
             setPaymentDataTable(data);
         }, 100)
@@ -983,8 +1032,36 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const validateShowExchange = () => {
-        const value = paymentDataTable.find((value, _) => (value.paymentmethod as String).includes('Efectivo'));
-        setShowExchange(value != null);
+        // const value = paymentDataTable.find((value, _) => (value.paymentmethod as String).includes('Efectivo'));
+        // setShowExchange(value != null);
+        setShowExchange(true);
+    }
+
+    const handleOnApplyPayment = (value: Payment) => {
+        var element = JSON.parse(JSON.stringify(value));
+        element.isAplicable = true;
+        Object.preventExtensions(element);
+        const result = deposits.filter((value, _) => value.id != value.id);
+        result.push(element);
+        setDeposits(result);
+        setShowExchange(true);
+    }
+
+    const buildDepositContent = (): JSX.Element => {
+        return (
+            <div className="flex flex-col gap-2">
+                {deposits.map((value: Payment, index: number) =>
+                    <div key={index} className="flex flex-row items-baseline justify-center gap-2">
+                        <span className="font-bold text-base text-gray-600">{formatPrice(Number(value.amount))}</span>
+                        {(value.isAplicable == null) && <Button onClick={() => handleOnApplyPayment(value)} type="link">Aplicar</Button>}
+                        {(value.isAplicable == true) && <Button disabled type="link">Aplicado</Button>}
+                    </div>
+                )}
+                <span className="flex items-end justify-end" onClick={() => setShowDeposit(!showDeposit)}>
+                    <Button type="link">Cerrar</Button>
+                </span>
+            </div>
+        );
     }
 
     const handleOnSetPatient = async (patient: number) => {
@@ -1003,6 +1080,23 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             setIsActionLoading(false);
             handleErrorNotification(error);
         }
+    }
+
+
+    const checkPaymentType = () => {
+        let validate = false;
+        paymentDataTable.forEach((value, _) => {
+            if (value.paymentmethod.toLowerCase().includes('Efectivo'.toLowerCase())) {
+                validate = true;
+                return;
+            }
+        });
+
+        return validate;
+    }
+
+    const getDebtsAmount = (): number => {
+        return debtsInfo.map((value, _) => Number(value.amountDebt)).reduce((a, b) => a + b, 0);
     }
 
     return (
@@ -1056,35 +1150,34 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 {!isTableLoading && <EditableTable onChange={handleOnTableChange} isLoading={isTableLoading} data={dataTable} />}
                 {isTableLoading && <Spinner />}
 
+                {deposits.length > 0 && <div className="flex flex-col items-end justify-end mt-2 mb-2">
+                    <Popover
+                        content={buildDepositContent()}
+                        title="Abonos de la cuenta"
+                        trigger="click"
+                        open={showDeposit}
+                        placement="left"
+                        onOpenChange={(event) => setShowDeposit(event)}
+                    >
+                        <Button type="link">Ver abonos de la cuenta</Button>
+                    </Popover>
+                </div>}
+
                 <div className="flex flex-col">
-                    <div className="flex flex-row w-full items-end justify-end gap-2 mt-2">
-                        <span className="text font-bold text-base text-gray-600">
-                            {Strings.receivedAmount}:
-                        </span>
-                        <span className="text font-semibold text-base">
-                            {formatPrice(getReceivedAmount())}
-                        </span>
-                    </div>
-
-                    <div className="flex flex-row w-full items-end justify-end gap-2">
-                        <span className="text font-bold text-base text-gray-600">
-                            {Strings.total}:
-                        </span>
-                        <span className="text font-semibold text-base">
-                            {formatPrice(getTotalFromServices())}
-                        </span>
-                    </div>
-
-
-                    {showExchange && <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
-                        <span className="text font-bold text-base text-gray-600">
-                            {validateExchange()}
-                        </span>
-                        <span className="text font-semibold text-base">
-                            {getExchange()}
-                        </span>
-                    </div>}
+                    <SectionPrice label={Strings.receivedAmount} price={getReceivedAmount()} />
+                    {showApplicableAmount() &&
+                        <SectionPrice label='Saldo aplicado' price={getApplicableAmount()} />
+                    }
+                    <SectionPrice label={Strings.total} price={getTotalFromServices()} />
+                    {getDebtsAmount() > 0 && <SectionPrice danger label={'Pagos pendientes'} price={getDebtsAmount()} />}
+                    <SectionPrice label={validateExchange()} price={getExchange()} />
                 </div>
+
+
+                {(paymentDataTable.length > 0 && getExchange() > 0) && <div className="flex w-full flex-col items-end justify-end mt-2">
+                    {checkPaymentType() && <Checkbox className=" text-gray-600 mb-2 mr-16" value={addAmountToAccount} checked={addAmountToAccount} onChange={(event) => setAddAmountToAccount(event.target.checked)}>Abonar cambio</Checkbox>}
+                    {(addAmountToAccount || !checkPaymentType()) && <SectionPrice label={'Abono a la cuenta'} price={getExchange()} />}
+                </div>}
 
 
                 <div className="flex flex-row gap-6">
@@ -1110,10 +1203,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 </div>
 
                 <Table className="mt-4" columns={serviceTableColums} dataSource={paymentDataTable} />
-
-
-
-
 
             </Modal>
 
