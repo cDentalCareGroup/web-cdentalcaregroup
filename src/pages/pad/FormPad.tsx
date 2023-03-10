@@ -116,7 +116,9 @@ const FormPad = (props: FormPadProps) => {
             handleErrorNotification(Constants.IS_INDIVIDUAL_PAD)
             return;
         } else {
+            console.log(selectedPadCatalogue?.maxMemebers);
             const maxMembers = (selectedPadCatalogue?.maxMemebers ?? 1) - 1;
+            
             if (dataList.length <= maxMembers) {
                 setIsTableLoading(true);
                 setData([]);

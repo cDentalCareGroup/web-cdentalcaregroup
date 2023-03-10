@@ -1,5 +1,7 @@
 import { Payment } from "../payment/payment";
+import { Service } from "../service/service";
 import { AppointmentDetail } from "./appointment.detail";
+import { AppointmentDetailService } from "./appointment.detail.service";
 import { AvailableTime } from "./available.time";
 
 export class RegisterAppointmentDentistRequest {
@@ -96,14 +98,25 @@ export class AppointmentAvailbilityByDentistRequest {
 
 export class GetAppointmentDetail {
   appointment: AppointmentDetail;
-  nextAppointments: AppointmentDetail[];
+  services: AppointmentServiceInfo[];
 
 
   constructor(appointment: AppointmentDetail,
-    nextAppointments: AppointmentDetail[]
+    services: AppointmentServiceInfo[]
   ) {
     this.appointment = appointment;
-    this.nextAppointments = nextAppointments;
+    this.services = services;
+  }
+}
+
+export class AppointmentServiceInfo {
+  service: Service;
+  info: AppointmentDetailService;
+
+  constructor(service: Service,
+    info: AppointmentDetailService) {
+    this.service = service;
+    this.info = info;
   }
 }
 

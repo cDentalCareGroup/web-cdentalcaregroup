@@ -134,6 +134,14 @@ const getErrorMessage = (message: string, text?: string): string => {
         return `El paciente cuenta con un saldo pendiente por liquidar`;
     }
 
+    if (message == Constants.REQUIRED_FIELDS) {
+        return `Tienes campos vacios`;
+    }
+    if (message == Constants.ERROR_ADDING_PAD_COMPONENT) {
+        return `Error al agregar el servicio del PAD, por favor regresa a la pantalla anterior y vuelve o refresca la página`;
+    }
+
+
 
     return 'Ocurrio un error, intenta mas tarde';
 }

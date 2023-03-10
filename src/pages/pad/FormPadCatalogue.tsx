@@ -10,6 +10,7 @@ import SelectItemOption from "../../data/select/select.item.option";
 import { servicesToSelectItemOption } from "../../data/service/service.extentions";
 import { useGetServicesMutation } from "../../services/appointmentService";
 import { useDeletePadCatalogueComponentMutation, useGetPadCatalogDetailMutation, useRegisterPadCatalogueComponentMutation, useRegisterPadCatalogueMutation, useUpdatePadCatalogueMutation } from "../../services/padService";
+import Constants from "../../utils/Constants";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
@@ -62,7 +63,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
 
     const handleGetPadCatalogueDetail = async () => {
         try {
-            
+
             setIsLoadingCard(true);
             const response = await getPadCatalogDetail({ 'id': id }).unwrap();
             let active = false;
@@ -138,10 +139,20 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
     const handleAddComponent = async () => {
         setIsTableLoading(true);
         try {
+            if (padCatalogue?.id  == null || padCatalogue?.id == undefined || padCatalogue?.id == 0) {
+                handleErrorNotification(Constants.ERROR_ADDING_PAD_COMPONENT);
+                return;
+            }
+
+            if (service?.id == null || service?.id == undefined || service?.id == 0) {
+                handleErrorNotification(Constants.ERROR_ADDING_PAD_COMPONENT);
+                return;
+            }
+
             const response = await registerPadCatalogueComponent(
                 new RegisterPadComponentRequest(
-                    padCatalogue?.id ?? 0,
-                    service?.id ?? 0,
+                    padCatalogue.id,
+                    service.id,
                     Number(quantityPad),
                     Number(quantityPatient),
                     Number(discount),
@@ -164,6 +175,10 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
 
     const handleRegisterPadCatalogue = async () => {
         try {
+            if (name == '' || description == '' || price == '') {
+                handleErrorNotification(Constants.REQUIRED_FIELDS)
+                return;
+            }
             setIsLoadingAction(true);
             const response = await registerPadCatalogue(
                 new RegisterPadCatalogueRequest(
@@ -254,10 +269,10 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
 
                     <br />
                     <span>{Strings.status}</span>
-                    <Checkbox 
-                    className="ml-2 mt-2" 
-                    checked={isActive} 
-                    onChange={(event) => setIsActive(event.target.value)}>{Strings.statusActive}</Checkbox>
+                    <Checkbox
+                        className="ml-2 mt-2"
+                        checked={isActive}
+                        onChange={(event) => setIsActive(event.target.value)}>{Strings.statusActive}</Checkbox>
                     <br />
 
                     <span>{Strings.type}</span>
@@ -270,7 +285,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
 
                     <div className="flex flex-row items-end justify-end gap-4">
                         <Button disabled={padCatalogue == null} onClick={() => setIsModalOpen(true)} type="dashed">
-                            {props.type == FormPadCatalogueType.REGISTER ? Strings.addComponents : Strings.updateComponents }
+                            {props.type == FormPadCatalogueType.REGISTER ? Strings.addComponents : Strings.updateComponents}
                         </Button>
                         <Button loading={isLoadingAction} onClick={handleCheckForm} type="primary">
                             {props.type == FormPadCatalogueType.REGISTER ? Strings.save : Strings.update}
@@ -278,7 +293,7 @@ const FormPadCatalogue = (props: FormPadCatalogueProps) => {
                     </div>
 
 
-                    <Modal width={'85%'} title={Strings.components} open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => setIsModalOpen(false)}>
+                    <Modal width={'85%'} okText='Aceptar' title={Strings.components} open={isModalOpen} onCancel={() => setIsModalOpen(false)} onOk={() => setIsModalOpen(false)}>
                         <br />
                         <SelectSearch icon={<></>} placeholder={Strings.serviceType} items={serviceList} onChange={(event) => setService(event)} />
                         <div className="flex flex-row  gap-4 mt-4">

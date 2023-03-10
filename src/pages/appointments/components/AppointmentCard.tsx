@@ -1,6 +1,6 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
-import { RiCalendar2Line, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { RiCalendar2Line, RiCoinsLine, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { buildPatientName, buildPatientPad, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
 import { Button, Checkbox, Form, Input, Modal, Popover, Radio, Row, Select, Table, Tag } from "antd";
@@ -45,8 +45,9 @@ const { confirm } = Modal;
 import { UserRoles } from "../../../utils/Extensions";
 import SectionPrice from "../../components/SectionPrice";
 import { useGetPatientPaymentsMutation } from "../../../services/paymentService";
-import { DebtInfo } from "../../../data/payment/payment.info";
+import { DebtInfo, PaymentInfo } from "../../../data/payment/payment.info";
 import { Payment } from "../../../data/payment/payment";
+import PaymentPatientCard from "../../components/PaymentPatientCard";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -128,13 +129,20 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [isTableLoading, setIsTableLoading] = useState(false);
     const [modalRegisterPatient, setModalRegisterPatient] = useState(false);
 
-    const [showExchange, setShowExchange] = useState(false);
     const [addAmountToAccount, setAddAmountToAccount] = useState(false);
 
     //const [patientPaymentInfo, setPaymentPatientInfo] = useState<PaymentInfo>();
     const [showDeposit, setShowDeposit] = useState(false);
     const [deposits, setDeposits] = useState<Payment[]>([]);
     const [debtsInfo, setDebtsInfo] = useState<DebtInfo[]>([]);
+    const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
+    const [showPaymentInfo, setShowPaymentInfo] = useState(false);
+
+
+    useEffect(() => {
+        handleGetPatientPayments();
+    }, [])
+
 
     const getStautsTag = (): JSX.Element => {
         if (data.appointment.status == Constants.STATUS_ACTIVE) {
@@ -265,10 +273,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     handleErrorNotification(Constants.EMPTY_SERVICE);
                     return;
                 }
-                if (getDebtsAmount() > 0 && getTotalFromPaymentMethod() < getDebtsAmount()) {
-                    handleErrorNotification(Constants.DEBT_ACTIVE);
-                    return;
-                }
             }
             let patientPatId = 0;
             if (padComponent != null && padComponent.pad != null) {
@@ -276,7 +280,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             }
             let debts: Payment[] = [];
             if (debtsInfo.length > 0) {
-                debts = debtsInfo.map((value,_) => value.debt);
+                debts = debtsInfo.map((value, _) => value.debt);
             }
             setIsActionLoading(true);
             const response = await updateAppointmentStatus(
@@ -659,7 +663,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         await handleGetServices();
         handleGetPadServices();
         handleGetPaymentMethods();
-        handleGetPatientPayments();
         setModalFinish(true)
     }
 
@@ -678,7 +681,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getPatientPayments({
                 'patientId': data.patient?.id ?? 0
             }).unwrap();
-            console.log(response);
+            setPaymentInfo(response);
             setDebtsInfo(response?.debts ?? []);
             setDeposits(response?.deposits ?? []);
         } catch (error) {
@@ -1031,21 +1034,20 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return total;
     }
 
-    const validateShowExchange = () => {
-        // const value = paymentDataTable.find((value, _) => (value.paymentmethod as String).includes('Efectivo'));
-        // setShowExchange(value != null);
-        setShowExchange(true);
-    }
 
-    const handleOnApplyPayment = (value: Payment) => {
-        var element = JSON.parse(JSON.stringify(value));
-        element.isAplicable = true;
+    const handleOnApplyPayment = (item: Payment, type: string) => {
+        var element = JSON.parse(JSON.stringify(item));
+        if (type == 'add') {
+            element.isAplicable = true;
+        } else {
+            element.isAplicable = null;
+        }
         Object.preventExtensions(element);
-        const result = deposits.filter((value, _) => value.id != value.id);
+        const result = deposits.filter((value, _) => value.id != item.id);
         result.push(element);
         setDeposits(result);
-        setShowExchange(true);
     }
+
 
     const buildDepositContent = (): JSX.Element => {
         return (
@@ -1053,11 +1055,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 {deposits.map((value: Payment, index: number) =>
                     <div key={index} className="flex flex-row items-baseline justify-center gap-2">
                         <span className="font-bold text-base text-gray-600">{formatPrice(Number(value.amount))}</span>
-                        {(value.isAplicable == null) && <Button onClick={() => handleOnApplyPayment(value)} type="link">Aplicar</Button>}
-                        {(value.isAplicable == true) && <Button disabled type="link">Aplicado</Button>}
+                        {(value.isAplicable == null) && <Button onClick={() => handleOnApplyPayment(value, 'add')} type="link">Aplicar</Button>}
+                        {(value.isAplicable == true) && <Button onClick={() => handleOnApplyPayment(value, 'remove')} type="link">Quitar</Button>}
                     </div>
                 )}
-                <span className="flex items-end justify-end" onClick={() => setShowDeposit(!showDeposit)}>
+                <span className="flex items-start justify-start" onClick={() => setShowDeposit(!showDeposit)}>
                     <Button type="link">Cerrar</Button>
                 </span>
             </div>
@@ -1099,9 +1101,31 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return debtsInfo.map((value, _) => Number(value.amountDebt)).reduce((a, b) => a + b, 0);
     }
 
+    const hasPaymentInfo = (): boolean => {
+        return paymentInfo != null && paymentInfo != undefined &&
+            ((paymentInfo.debts != null && paymentInfo.debts.length > 0) ||
+                (paymentInfo.deposits != null && paymentInfo.deposits.length > 0))
+    }
+
+    const buildCardTitle = () => {
+        return !hideContent ? <div className="flex flex-row justify-between">
+            <span>{getPatientName(data)}</span>
+            {hasPaymentInfo() && <Popover
+                content={<PaymentPatientCard paymentInfo={paymentInfo!!} />}
+                title="Informacion de pagos / abonos / saldos pendientes"
+                trigger="click"
+                open={showPaymentInfo}
+                placement="top"
+                onOpenChange={(event) => setShowPaymentInfo(event)}
+            >
+                <RiCoinsLine size={22} />
+            </Popover>}
+        </div> : ''
+    }
+
     return (
         <div className="m-2">
-            <Card title={!hideContent ? getPatientName(data) : ''} bordered={!hideContent} actions={
+            <Card title={buildCardTitle()} bordered={!hideContent} actions={
                 (hideContent || onlyRead == true) ? [] : [
                     <span onClick={() => {
                         if (rol == UserRoles.ADMIN) {
@@ -1111,6 +1135,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                         }
                     }}>{Strings.details}</span>
                 ]}>
+
                 {!hideContent && CardContent()}
                 {(onlyRead == false) && <Row className="mt-4 gap-2">
                     {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >
@@ -1164,18 +1189,15 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 </div>}
 
                 <div className="flex flex-col">
-                    <SectionPrice label={Strings.receivedAmount} price={getReceivedAmount()} />
-                    {showApplicableAmount() &&
-                        <SectionPrice label='Saldo aplicado' price={getApplicableAmount()} />
-                    }
                     <SectionPrice label={Strings.total} price={getTotalFromServices()} />
+                    {showApplicableAmount() && <SectionPrice label='Saldo aplicado' price={getApplicableAmount()} />}
+                    <SectionPrice label={Strings.receivedAmount} price={getReceivedAmount()} />
                     {getDebtsAmount() > 0 && <SectionPrice danger label={'Pagos pendientes'} price={getDebtsAmount()} />}
-                    <SectionPrice label={validateExchange()} price={getExchange()} />
+                    {getExchange() != 0 && <SectionPrice label={validateExchange()} price={getExchange()} />}
                 </div>
 
-
                 {(paymentDataTable.length > 0 && getExchange() > 0) && <div className="flex w-full flex-col items-end justify-end mt-2">
-                    {checkPaymentType() && <Checkbox className=" text-gray-600 mb-2 mr-16" value={addAmountToAccount} checked={addAmountToAccount} onChange={(event) => setAddAmountToAccount(event.target.checked)}>Abonar cambio</Checkbox>}
+                    {checkPaymentType() && <Checkbox className=" text-gray-600 mb-2 mr-16" value={addAmountToAccount} checked={addAmountToAccount} onChange={(event) => setAddAmountToAccount(event.target.checked)}>Abonar a cuenta</Checkbox>}
                     {(addAmountToAccount || !checkPaymentType()) && <SectionPrice label={'Abono a la cuenta'} price={getExchange()} />}
                 </div>}
 

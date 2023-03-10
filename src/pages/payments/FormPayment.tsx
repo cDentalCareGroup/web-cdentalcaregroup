@@ -5,7 +5,8 @@ import { RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../data/filter/filters";
 import { FilterEmployeesRequest } from "../../data/filter/filters.request";
-import { PaymentInfo } from "../../data/payment/payment.info";
+import { Payment } from "../../data/payment/payment";
+import { PaymentInfo, DebtInfo } from "../../data/payment/payment.info";
 import { PaymentMethod } from "../../data/payment/payment.method";
 import { PaymentType } from "../../data/payment/payment.types";
 import SelectItemOption from "../../data/select/select.item.option";
@@ -44,6 +45,9 @@ const FormPayment = () => {
     const [patient, setPatient] = useState<SelectItemOption | undefined>();
     const [getPatientPayments] = useGetPatientPaymentsMutation();
     const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
+    const [showDebts, setShowDebts] = useState(false);
+    const [debtsInfo, setDebtsInfo] = useState<DebtInfo[]>([]);
+
 
     useEffect(() => {
         handleGetPaymentMethods();
@@ -91,6 +95,7 @@ const FormPayment = () => {
                 'patientId': patientId
             }).unwrap();
             setPaymentInfo(response);
+            setDebtsInfo(response?.debts ?? []);
         } catch (error) {
             console.log(error);
         }
@@ -98,26 +103,21 @@ const FormPayment = () => {
 
     const handleRegisterPatientPayment = async () => {
         try {
-            let hasDebts = false;
-            const movement = paymentTypesList.find((value, _) => value.id == paymentTypeId);
-            if (paymentInfo != undefined && paymentInfo.debts != null && paymentInfo.debts.length > 0) {
-                if (movement != null && movement?.name.toLocaleLowerCase().includes('anticipo')) {
-                    handleErrorNotification(Constants.PAYMENT_DEBT_ACTIVE);
-                    hasDebts = true;
-                    return;
-        
-                }
-                hasDebts = true;
+
+
+            if (checkDebts()) {
+                console.log('tiene deudas y quiere hacer pago')
+                return;
             }
 
+            console.log('all ok')
             await registerPatientMovement(
                 {
                     'patientId': patient?.id ?? 0,
                     'paymentMethodId': paymentMethodId,
                     'amount': Number(amount),
                     'movementType': paymentTypeId,
-                    'hasDebts': hasDebts
-
+                    'debts': debtsInfo.filter((value, _) => value.debt.isAplicable == true)
                 }
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER);
@@ -132,9 +132,60 @@ const FormPayment = () => {
         setPaymentTypeId(0);
         setPaymentInfo(undefined);
         setAmount('');
+        setShowDebts(false);
         setIsOpenModal(false);
-
     }
+
+
+    const handleCheckPaymentType = (id: number) => {
+        const movement = paymentTypesList.find((value, _) => value.id == id);
+        if (movement != null && movement?.name.toLocaleLowerCase().includes('pago')) {
+            setShowDebts(true);
+        }
+    }
+
+    const handleOnApplyPayment = (item: DebtInfo, type: string) => {
+        const totalDebts = debtsInfo.filter((value, _) => value.debt.isAplicable == true)
+            .map((value, _) => Number(value.amountDebt)).reduce((a, b) => a + b, 0);
+
+        console.log(`Ttoal debts`, totalDebts)
+        console.log(Number(amount));
+        if (Number(amount) <= 0) {
+            console.log('Arega cantidad');
+            return;
+        }
+        var element = JSON.parse(JSON.stringify(item));
+        if (type == 'apply' && Number(amount) >= Number(element.amountDebt) && (Number(amount) - totalDebts) >= Number(element.amountDebt)) {
+            element.debt.isAplicable = true;
+        } else {
+            console.log('alert')
+            element.debt.isAplicable = null;
+        }
+        Object.preventExtensions(element);
+        const result = debtsInfo.filter((value, _) => value.debt.id != item.debt.id);
+        result.push(element);
+        setDebtsInfo(result.sort((a, b) => a.debt.id - b.debt.id));
+    }
+
+    const resetDebts = () => {
+        let debtsArray: DebtInfo[] = [];
+        debtsInfo.forEach((value, _) => {
+            var element = JSON.parse(JSON.stringify(value));
+            element.debt.isAplicable = null;
+            Object.preventExtensions(element);
+            debtsArray.push(element);
+        });
+        setDebtsInfo(debtsArray.sort((a, b) => a.debt.id - b.debt.id));
+    }
+
+    const checkDebts = (): boolean => {
+        const movement = paymentTypesList.find((value, _) => value.id == paymentTypeId);
+        return debtsInfo.length > 0 &&
+            movement != null && movement?.name.toLocaleLowerCase().includes('pago') &&
+            debtsInfo.filter((value, _) => value.debt.isAplicable == true).length <= 0
+    }
+
+
     return (
         <LayoutCard
             isLoading={false}
@@ -168,27 +219,43 @@ const FormPayment = () => {
                                 <Input addonBefore="$"
                                     size="large"
                                     value={amount}
-                                    onChange={((event) => setAmount(event.target.value))}
+                                    onChange={((event) => {
+                                        setAmount(event.target.value);
+                                        resetDebts()
+                                    })}
                                     prefix={<></>}
                                     placeholder='10.00' />
                             </div>
 
                             <div className="flex flex-col">
                                 <span className="flex mt-2">Tipo</span>
-                                <Select style={{ minWidth: 250 }} size="large" placeholder={'Tipo'} onChange={(event) => setPaymentTypeId(event)}>
+                                <Select style={{ minWidth: 250 }} size="large" placeholder={'Tipo'} onChange={(event) => {
+                                    setPaymentTypeId(event);
+                                    handleCheckPaymentType(event);
+                                }}>
                                     {paymentTypesList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                                 </Select>
                             </div>
 
-                            {(paymentInfo != undefined && paymentInfo.deposits != null && paymentInfo.deposits.length > 0) && <div className="flex flex-col flex-wrap gap-2">
-                                <Divider>Depositos</Divider>
-                                {paymentInfo.deposits.map((value, index) => <SectionElement key={index} label={Strings.receivedAmount} value={`${formatPrice(value.amount)}, Fecha ${formatServiceDate(value.createdAt)}`} icon={<></>} />)}
+                            {showDebts && <div className="flex flex-col gap-2 mt-4 w-full items-start justify-start">
+                                {debtsInfo.map((value, index) =>
+                                    <div key={index} className="flex flex-row items-baseline justify-center gap-2">
+                                        <SectionElement label={`#${value.debt.id} Saldo por cobrar`} value={formatPrice(Number(value.amountDebt))} icon={<></>} />
+                                        {(value.debt.isAplicable == null) && <Button onClick={() => handleOnApplyPayment(value, 'apply')} type="link">Aplicar</Button>}
+                                        {(value.debt.isAplicable == true) && <Button onClick={() => handleOnApplyPayment(value, 'remove')} type="link">Quitar</Button>}
+                                    </div>
+                                )}
                             </div>}
 
-                            {(paymentInfo != undefined && paymentInfo.debts != null && paymentInfo.debts.length > 0) && <div className="flex flex-col flex-wrap gap-2">
+                            {/* {(paymentInfo != undefined && paymentInfo.deposits != null && paymentInfo.deposits.length > 0) && <div className="flex flex-col flex-wrap gap-2">
+                                <Divider>Depositos</Divider>
+                                {paymentInfo.deposits.map((value, index) => <SectionElement key={index} label={Strings.receivedAmount} value={`${formatPrice(value.amount)}, Fecha ${formatServiceDate(value.createdAt)}`} icon={<></>} />)}
+                            </div>} */}
+
+                            {/* {(paymentInfo != undefined && paymentInfo.debts != null && paymentInfo.debts.length > 0) && <div className="flex flex-col flex-wrap gap-2">
                                 <Divider>Saldo por cobrar</Divider>
                                 {paymentInfo.debts.map((value, index) => <SectionElement key={index} label={'Saldo por cobrar'} value={`${formatPrice(value.amountDebt)}, Fecha ${formatServiceDate(value.debt.createdAt)}`} icon={<></>} />)}
-                            </div>}
+                            </div>} */}
                         </div>
                     </Modal>
 
