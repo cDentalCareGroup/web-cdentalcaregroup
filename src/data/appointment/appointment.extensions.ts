@@ -114,9 +114,10 @@ const filterExtendedAvailableTimes = (appointment: AppointmentDetail, response: 
     for (const item of response) {
         const itemTimeArray = item.simpleTime.split(":");
         if (Number(itemTimeArray[0]) >= Number(appointmentTimeArray[0]) &&
-            Number(itemTimeArray[1]) >= Number(appointmentTimeArray[1]) &&
             appointment.appointment.time != item.simpleTime) {
-            availableTimes.push(item);
+            if (!(Number(appointmentTimeArray[1]) == 30 && Number(itemTimeArray[0]) == Number(appointmentTimeArray[0]))) {
+                availableTimes.push(item);
+            }
         }
     }
     return availableTimes;
