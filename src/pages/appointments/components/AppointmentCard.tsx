@@ -730,6 +730,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     data.branchOffice.name,
                     dayName(appointmentDate), appointmentDate)
             ).unwrap();
+            console.log(response);
             setExtendedTimesList(
                 timesToSelectItemOption(filterExtendedAvailableTimes(appointment, response))
             );
