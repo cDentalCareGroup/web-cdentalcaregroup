@@ -10,10 +10,9 @@ import { FilterEmployeesRequest } from "../../data/filter/filters.request";
 import { Patient } from "../../data/patient/patient";
 import { buildPatientEmail, buildPatientName, buildPatientPhone } from "../../data/patient/patient.extensions";
 import { UpdatePatientStatusRequest } from "../../data/patient/patient.request";
-import User from "../../data/user/user";
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation, useUpdatePatientStatusMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { isAdmin, UserRoles } from "../../utils/Extensions";
+import { UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
@@ -42,13 +41,10 @@ const Patients = (props: PatientsProps) => {
 
 
     useEffect(() => {
-        if (session != null) {
-            const user = session as User;
-            if (isAdmin(user)) {
-                handleGetAllPatients();
-            } else {
-                handleGetPatients();
-            }
+        if (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) {
+            handleGetAllPatients();
+        } else {
+            handleGetPatients();
         }
     }, []);
 
@@ -131,6 +127,8 @@ const Patients = (props: PatientsProps) => {
                         <Button type="primary" onClick={() => {
                             if (props.rol == UserRoles.ADMIN) {
                                 navigate('/admin/patients/register')
+                            } else if (props.rol == UserRoles.CALL_CENTER) {
+                                navigate('/callcenter/patients/register')
                             } else {
                                 navigate('/receptionist/patients/register')
                             }
@@ -146,7 +144,9 @@ const Patients = (props: PatientsProps) => {
                                 <Button type="dashed" onClick={() => {
                                     if (props.rol == UserRoles.ADMIN) {
                                         navigate(`/admin/patients/detail/${value.id}`)
-                                    } else {
+                                    } else if(props.rol == UserRoles.CALL_CENTER) {
+                                        navigate(`/callcenter/patients/detail/${value.id}`)
+                                    }else {
                                         navigate(`/receptionist/patients/detail/${value.id}`)
                                     }
                                 }}>{Strings.seeInfo}</Button>

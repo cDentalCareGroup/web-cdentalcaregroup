@@ -143,11 +143,27 @@ const monthName = (d: Date): string => {
   return monthName;
 }
 
-const capitalizeFirstLetter = (value: string | undefined): string => {
+// const capitalizeFirstLetter = (value: string | undefined): string => {
+//   if (value != undefined) {
+//     return value?.charAt(0).toUpperCase() + value?.slice(1).toLowerCase();
+//   }
+//   return '';
+// }
+
+const capitalizeAllCharacters = (value: string | undefined): string => {
   if (value != undefined) {
-    return value?.charAt(0).toUpperCase() + value?.slice(1).toLowerCase();
+    //return value.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+    return value.toLocaleLowerCase().replace(/(^|\s)\S/g, function (match) {
+      return match.toUpperCase();
+    });
   }
-  return '';
+  return ''
+}
+
+const formatAppointmentDate = (date: string, appointments: number) => {
+  const previusDate = new Date(date);
+  previusDate.setDate(previusDate.getDate() + 1);
+  return `${dayName(previusDate)} ${previusDate.getDate()} de ${monthName(previusDate)}, Citas: ${appointments}`;
 }
 
 
@@ -201,7 +217,7 @@ const stringToDate = (data: string): Date => {
 }
 
 const formatNumberToPercent = (num: any): string => {
-  return Number(num / 100).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 0 });
+  return Number(num / 100).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 2 });
 }
 
 export {
@@ -210,11 +226,11 @@ export {
   dayName,
   monthName,
   isAdmin,
-  capitalizeFirstLetter,
+  capitalizeAllCharacters,
   RESPONSIVE_LIST,
   RESPONSIVE_LIST_SMALL,
   RESPONSIVE_LIST_LARGE,
   formatPrice,
   stringToDate,
-  formatNumberToPercent
+  formatNumberToPercent, formatAppointmentDate
 }

@@ -1,9 +1,9 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
-import { RiCalendar2Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
-import { getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
+import { RiCalendar2Line, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { buildPatientName, buildPatientPad, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
-import { Button, Form, Input, Modal, Radio, Row, Select, Tag } from "antd";
+import { Button, Form, Input, Modal, Radio, Row, Select, Table, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
 import { GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
 import { useEffect, useRef, useState } from "react";
@@ -14,12 +14,12 @@ import { useGetPatientsMutation } from "../../../services/patientService";
 import { FilterEmployeesRequest } from "../../../data/filter/filters.request";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../../data/filter/filters";
 import { appointmentToBranchOfficeSelectItemOption, appointmentToDentistSelectItemOption, appointmentToPatientSelectItemOption, branchOfficesToSelectOptionItem, patientsToSelectItemOption, timesToSelectItemOption } from "../../../data/select/select.item.option.extensions";
-import { useExtendAppointmentMutation, useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useGetPaymentMethodsMutation, useGetServicesMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasCabinetAppointmentMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
-import { AppointmentAvailbilityByDentistRequest, ExtendAppointmentRequest, GetAppointmentAvailabilityRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasCabinetAppointmentRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
+import { useExtendAppointmentMutation, useGetAppointmentAvailabilityMutation, useGetDentistAvailabilityMutation, useGetPaymentMethodsMutation, useGetServicesMutation, useRegisterAppointmentPatientMutation, useRegisterDentistToAppointmentMutation, useRegisterNextAppointmentMutation, useRescheduleAppointmentMutation, useUpdateAppointmentStatusMutation, useUpdateHasCabinetAppointmentMutation, useUpdateHasLabsAppointmentMutation } from "../../../services/appointmentService";
+import { AppointmentAvailbilityByDentistRequest, ExtendAppointmentRequest, GetAppointmentAvailabilityRequest, RegiserAppointmentPatientRequest, RegisterAppointmentDentistRequest, RegisterNextAppointmentRequest, RescheduleAppointmentRequest, UpdateAppointmentStatusRequest, UpdateHasCabinetAppointmentRequest, UpdateHasLabsAppointmentRequest } from "../../../data/appointment/appointment.request";
 import { useAppSelector } from "../../../core/store";
 import { selectCurrentUser } from "../../../core/authReducer";
-import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../../utils/Notifications";
-import { dayName, formatPrice, isAdmin, stringToDate } from "../../../utils/Extensions";
+import { handleErrorNotification, handleSucccessNotification, handleWarningNotification, NotificationSuccess } from "../../../utils/Notifications";
+import { dayName, formatPrice, stringToDate } from "../../../utils/Extensions";
 import Calendar from "../../components/Calendar";
 import { AvailableTime } from "../../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../../data/appointment/available.times.extensions";
@@ -37,22 +37,25 @@ import { servicesToSelectItemOption } from "../../../data/service/service.extent
 import MultiSelectSearch from "../../components/MultiSelectSearch";
 import { useGetPadServicesMutation } from "../../../services/padService";
 import EditableTable from "./EditableTableService";
-import { PadComponentUsed } from "../../../data/pad/pad.component.used";
 import { Service } from "../../../data/service/service";
 import Spinner from "../../components/Spinner";
 import FormCall from "../../callcenter/FormCall";
-import EditableSortableTable from "./Test";
+import FormPatient, { FormPatientType, FormPatientSource } from "../../patients/FormPatient";
 const { confirm } = Modal;
+import { UserRoles } from "../../../utils/Extensions";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
     onStatusChange: (status: string) => void;
     onAppointmentChange?: (appointment: AppointmentDetail) => void;
     hideContent: boolean;
+    onlyRead?: boolean;
+    rol: UserRoles
 }
 
 
-const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointmentChange }: AppointmentCardProps) => {
+const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointmentChange, onlyRead, rol }: AppointmentCardProps) => {
+    // console.log(appointment);
     const [data, setData] = useState(appointment);
     const [getEmployeesByType] = useGetEmployeesByTypeMutation();
     const [getPatients] = useGetPatientsMutation();
@@ -69,11 +72,14 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [getServices] = useGetServicesMutation();
     const [extendAppointment] = useExtendAppointmentMutation();
     const [getPadServices] = useGetPadServicesMutation();
+    const [registerAppointmentPatient] = useRegisterAppointmentPatientMutation();
 
     const [paymentMethodList, setPaymentMethodList] = useState<PaymentMethod[]>([]);
     const [paymentMethodId, setPaymentMethodId] = useState(0);
 
     const [serviceList, setServiceList] = useState<SelectItemOption[]>([]);
+    const [paymentDataTable, setPaymentDataTable] = useState<any[]>([]);
+
     const [services, setServices] = useState<number[]>();
     const [dataServices, setDataServices] = useState<Service[]>([]);
     const [dataTable, setDataTable] = useState<any[]>([]);
@@ -115,20 +121,23 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const [modalFinish, setModalFinish] = useState(false);
     const [amountReceived, setAmountReceived] = useState('0')
-    const [padComponent, setPadComponent] = useState<PadComponentUsed>();
+    const [padComponent, setPadComponent] = useState<any>();
     const [isTableLoading, setIsTableLoading] = useState(false);
+    const [modalRegisterPatient, setModalRegisterPatient] = useState(false);
+
+    const [showExchange, setShowExchange] = useState(false);
 
     const getStautsTag = (): JSX.Element => {
-        if (data.appointment.status == 'activa') {
+        if (data.appointment.status == Constants.STATUS_ACTIVE) {
             return <Tag color="success">{getAppointmentStatus(data)}</Tag>
         }
-        if (data.appointment.status == 'proceso') {
+        if (data.appointment.status == Constants.STATUS_PROCESS) {
             return <Tag color="blue">{getAppointmentStatus(data)}</Tag>
         }
-        if (data.appointment.status == 'finalizada') {
+        if (data.appointment.status == Constants.STATUS_FINISHED) {
             return <Tag color="default">{getAppointmentStatus(data)}</Tag>
         }
-        if (data.appointment.status == 'no-atendida') {
+        if (data.appointment.status == Constants.STATUS_NOT_ATTENDED) {
             return <Tag color="red">{getAppointmentStatus(data)}</Tag>
         }
         return <></>;
@@ -142,7 +151,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const hour = Number(arrayTime[0]);
             const minutes = Number(arrayTime[1]);
             const today = new Date();
-            if (hour <= today.getHours() && minutes <= today.getMinutes()) {
+            if (hour <= today.getHours() && minutes <= today.getMinutes() && data.appointment.status == Constants.STATUS_ACTIVE) {
                 return <Tag color="red">{Strings.notAttendedAppointment}</Tag>
             }
         }
@@ -199,12 +208,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getEmployeesByType(
                 new GetEmployeeByTypeRequest('Medico/Especialista')
             ).unwrap();
-            if (isAdmin(user)) {
+            if (rol == UserRoles.ADMIN) {
                 setDentistList(employeesToSelectItemOptions(response, true));
             } else {
                 setDentistList(filterDentist(response));
             }
-
         } catch (error) {
             console.log(error);
         }
@@ -221,7 +229,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getPatients(
                 new FilterEmployeesRequest(DEFAULT_PATIENTS_ACTIVE)
             ).unwrap();
-            const filtered = response.filter((value: any, _) => value.originBranchOfficeId == Number(branchId))
+            const filtered = response.filter((value: any, _: any) => value.originBranchOfficeId == Number(branchId))
             setPatientList(patientsToSelectItemOption(filtered));
         } catch (error) {
             console.log(error);
@@ -231,15 +239,15 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const isValidDentist = (): boolean => {
         return data.dentist != null &&
             (data.appointment.startedAt == null || data.appointment.startedAt == "")
-            && data.appointment.status != 'no-atendida'
+            && data.appointment.status != Constants.STATUS_NOT_ATTENDED
     }
     const canReschedule = (): boolean => {
-        return data.appointment.status == 'activa' || data.appointment.status == 'no-atendida'
+        return data.appointment.status == Constants.STATUS_ACTIVE || data.appointment.status == Constants.STATUS_NOT_ATTENDED
     }
 
     const handleUpdateAppointmentStatus = async (status: string) => {
         try {
-            if (status == 'finalizada') {
+            if (status == Constants.STATUS_FINISHED) {
                 if (paymentMethodId == 0 || paymentMethodId == undefined) {
                     handleErrorNotification(Constants.EMPTY_PAYMENT_METHOD);
                     return;
@@ -249,15 +257,20 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     return;
                 }
             }
+            let patientPatId = 0;
+            if (padComponent != null && padComponent.pad != null) {
+                patientPatId = padComponent.pad.id;
+            }
             setIsActionLoading(true);
             const response = await updateAppointmentStatus(
                 new UpdateAppointmentStatusRequest(
                     data.appointment.id,
                     status,
                     getTotalFromServices().toString(),
-                    paymentMethodId,
+                    getTotalFromPaymentMethod().toString(),
                     dataTable,
-                    padComponent?.pad.id ?? 0
+                    paymentDataTable,
+                    patientPatId
                 )).unwrap();
             setData(response);
             onStatusChange(status);
@@ -265,16 +278,18 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             handleSucccessNotification(NotificationSuccess.UPDATE);
             onAppointmentChange?.(response);
         } catch (error) {
+            console.log(error);
+            setIsActionLoading(false);
             handleErrorNotification(error);
         }
     }
     const canFinish = (): boolean => {
-        return data.appointment.status == 'proceso'
+        return data.appointment.status == Constants.STATUS_PROCESS
     }
 
     const canExtendAppointment = (): boolean => {
-        return data.appointment.status == 'proceso' ||
-            data.appointment.status == 'activa'
+        return data.appointment.status == Constants.STATUS_PROCESS ||
+            data.appointment.status == Constants.STATUS_ACTIVE
     }
 
     const handleGetAppointmentAvailability = async (date: Date, branchOffice: string) => {
@@ -295,7 +310,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleOnReschedueAppointment = async () => {
         const branchOfficeOption = appointmentToBranchOfficeSelectItemOption(data);
         setBranchOffice(branchOfficeOption);
-        if (isAdmin(user)) {
+        if (rol == UserRoles.ADMIN) {
             await handleGetBranchOffices();
         } else {
             if (branchOfficeOption != null) setBranchOfficeList([branchOfficeOption]);
@@ -350,7 +365,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             resetRescheduleAppointmentParams();
             handleSucccessNotification(NotificationSuccess.UPDATE);
             onAppointmentChange?.(response);
-            onStatusChange?.('activa');
+            onStatusChange?.(Constants.STATUS_ACTIVE);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -360,16 +375,18 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleOnNextAppointment = async () => {
         const branchOfficeOption = appointmentToBranchOfficeSelectItemOption(data);
         setBranchOffice(branchOfficeOption);
-        const dentist = appointmentToDentistSelectItemOption(data);
-        setDentist(dentist);
-        if (isAdmin(user)) {
+        const dentistFound = appointmentToDentistSelectItemOption(data);
+        setDentist(dentistFound);
+
+        if (rol == UserRoles.ADMIN) {
             await handleGetBranchOffices();
         } else {
             if (branchOfficeOption != null) setBranchOfficeList([branchOfficeOption]);
         }
+
         await handleGetDentist();
         handleGetDentistAvailability(
-            dentist.id,
+            dentistFound.id,
             branchOfficeOption?.id ?? 0,
             date
         );
@@ -463,7 +480,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             setData(response);
             resetNextAppointmentParams();
             handleSucccessNotification(NotificationSuccess.REGISTER_APPOINTMENT);
-            onStatusChange('finalizada-cita');
+            onStatusChange(Constants.STATUS_FINISHED_APPOINTMENT_OR_CALL);
         } catch (error) {
             console.log(error);
             handleErrorNotification(error);
@@ -522,6 +539,33 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return `-`
     }
 
+    const buildCall = () => {
+        return `${data.appointment.call?.dueDate ?? ''}`;
+    }
+
+    const buildReferralName = (): string => {
+        if (validateReferral()) {
+            return `${data.appointment.referralName}`
+        }
+        return ''
+    }
+    const validateReferral = (): boolean => {
+        return data.appointment.referralCode != null && data.appointment.referralCode != undefined &&
+            data.appointment.referralCode != '';
+    }
+
+    const getTypeOfUser = () => {
+        if (data.patient != null && data.patient != undefined) {
+            return <Tag color='blue'>{Strings.patient}</Tag>
+        } else {
+            return <Tag>{Strings.prospect}</Tag>
+        }
+    }
+
+    const isProspect = (): boolean => {
+        return data.patient == null || data.patient == undefined;
+    }
+
     const CardContent = (): JSX.Element => {
         return <>
             {data.patient && <SectionElement label={Strings.patientId} value={`${data.patient?.id}`} icon={<RiHashtag />} />}
@@ -532,40 +576,44 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
             <SectionElement label={Strings.services} value={buildServices()} icon={<RiServiceLine />} />
+            {validateReferral() && <SectionElement label={Strings.origin} value={buildReferralName()} icon={<RiUser3Line />} />}
             {data.extendedTimes != null && data.extendedTimes.length > 0 &&
                 <SectionElement label={'Cita extendida'} value={extendedTimesToShow(data)} icon={<RiCalendar2Line />} />}
-            {data.appointment.status != 'finalizada' && data.appointment.status != 'no-atendida' &&
+            {data.appointment.status != Constants.STATUS_FINISHED && data.appointment.status != Constants.STATUS_NOT_ATTENDED && onlyRead == false &&
                 <div className="flex flex-col flex-wrap">
                     <div className="ml-2 flex flex-col items-baseline gap-2 mb-2">
                         <span className="text text-base text-gray-500">{Strings.hasLabs}</span>
                         <Radio.Group onChange={(event) => handleOnHasLabs(event.target.value)} value={data.appointment.hasLabs}>
-                            <Radio value={1}>Si necesita</Radio>
-                            <Radio value={0}>No necesita</Radio>
-                            <Radio value={2}>Ya tiene</Radio>
+                            <Radio value={1}>{Strings.optionNeeds}</Radio>
+                            <Radio value={0}>{Strings.optionNoNeeds}</Radio>
+                            <Radio value={2}>{Strings.optionAlreadyHas}</Radio>
                         </Radio.Group>
                     </div>
 
                     <div className="ml-2 flex flex-col items-baseline gap-2 mb-2">
                         <span className="text text-base text-gray-500">{Strings.hasCabinet}</span>
                         <Radio.Group onChange={(event) => handleOnHasCabinet(event.target.value)} value={data.appointment.hasCabinet}>
-                            <Radio value={1}>Si necesita</Radio>
-                            <Radio value={0}>No necesita</Radio>
-                            <Radio value={2}>Ya tiene</Radio>
+                            <Radio value={1}>{Strings.optionNeeds}</Radio>
+                            <Radio value={0}>{Strings.optionNoNeeds}</Radio>
+                            <Radio value={2}>{Strings.optionAlreadyHas}</Radio>
                         </Radio.Group>
                     </div>
                 </div>
             }
             {getStautsTag()}
+            {getTypeOfUser()}
             {checkDueDate()}
             {showNextAppointment() &&
-                <SectionElement label={'Siguiente cita'} value={buildNextAppointmentText()} icon={<RiCalendar2Line />} />
+                <SectionElement label={Strings.followAppointment} value={buildNextAppointmentText()} icon={<RiCalendar2Line />} />
+            }
+            {showNextCall() && <SectionElement label={'Llamada agendada'} value={buildCall()} icon={<RiPhoneLine />} />
             }
         </>
     }
 
     const canRegisterNextAppointment = (): boolean => {
-        return data.appointment.status == 'finalizada'
-            && (data.appointment.nextAppointmentId == null || data.appointment.nextAppointmentId == undefined)
+        return data.appointment.status == Constants.STATUS_FINISHED
+            && ((data.appointment?.call == null || data.appointment?.call == undefined) && (data.appointment.nextAppointmentId == null || data.appointment.nextAppointmentId == undefined))
     }
 
     const buildNextAppointmentText = (): string => {
@@ -583,10 +631,14 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             data.appointment.nextAppointmentId != 0
     }
 
+    const showNextCall = (): boolean => {
+        return data.appointment.call != null && data.appointment.call != undefined
+    }
+
     const handleSetModalFinish = async () => {
-        await handleGetPaymentMethods();
         await handleGetServices();
-        await handleGetPadServices();
+        handleGetPadServices();
+        handleGetPaymentMethods();
         setModalFinish(true)
     }
 
@@ -595,6 +647,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getPadServices(
                 { 'patientId': appointment.patient?.id }
             ).unwrap();
+            //console.log(response);
             setPadComponent(response);
         } catch (error) {
             console.log(error);
@@ -622,7 +675,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const canSetDentist = (): boolean => {
-        return data.appointment.status == 'activa'
+        return data.appointment.status == Constants.STATUS_ACTIVE
     }
 
     const handleOnExtendAppointment = async () => {
@@ -677,38 +730,121 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
 
     const handleOnServiceChange = (service: SelectItemOption) => {
+        // console.log(service);
         setIsTableLoading(true);
         const serviceItem = dataServices.find((value, _) => value.id == service.id);
         let tableInfo = dataTable;
+        const serviceKey = tableInfo.length + 1
         const servicePrice = serviceItem?.price ?? 0;
-        setDataTable([]);
-
         let discount = 0;
         let subTotal = 0;
-        if (padComponent != null && padComponent.components.length > 0) {
-            const component = padComponent.components.find((value, _) => value.component.serviceId == service.id)
-            if (component != null) {
-                discount = Math.round(component.component.discount);
-                subTotal = servicePrice - Math.round(((1 * servicePrice) / 100) * discount);
-            } else {
-                subTotal = servicePrice;
+        let price = 0;
+        let availableUsage = 100;
+        ///  let quantity = 1;
+        //let shouldAdd = true;
+        //  let item: any = null;
+
+        const component = padComponent?.components?.find((value: any, _: any) => value.service.id == service.id);
+        const serviceExists = tableInfo.filter((value, _) => value.serviceId == service.id);
+
+        if (component != null) {
+            if (serviceExists != null && serviceExists.length > 0 && serviceExists[serviceExists.length - 1].disscount == Number(component.component.discount)) {
+                if (serviceExists.length < Number(component.availableUsage) && serviceExists[serviceExists.length - 1].quantity < Number(component.availableUsage)) {
+                    const total = Number(component.availableUsage) - 1;
+                    if (total <= 1) {
+                        handleWarningNotification(
+                            `Tienes 1 unidad disponible con el descuento PAD, modifica la cantidad actual para agregarlo`
+                        );
+                    } else {
+                        handleWarningNotification(
+                            `Tienes ${total} unidades disponibles con el descuento PAD, modifica la cantidad actual para agregarlo`
+                        );
+                    }
+                    setIsTableLoading(false);
+                    return;
+                } else {
+                    discount = Number(component.component.discountTwo);
+                }
+            } else if (serviceExists.length == 0 && Number(component.availableUsage) > 0) {
+                discount = Number(component.component.discount);
+                availableUsage = Number(component.availableUsage);
+            } else if (serviceExists.length == 0) {
+                discount = Number(component.component.discountTwo);
+            } else if (serviceExists != null && serviceExists.length > 0 && serviceExists[serviceExists.length - 1].disscount == Number(component.component.discountTwo)) {
+                handleErrorNotification(Constants.ALREADY_EXIST_SERVICE);
+                setIsTableLoading(false);
+                return;
             }
-        } else {
-            subTotal = servicePrice;
+        } else if (serviceExists != null && serviceExists.length > 0) {
+            handleErrorNotification(Constants.ALREADY_EXIST_SERVICE);
+            setIsTableLoading(false);
+            return;
         }
 
+        // if (component != null) {
+        //     const exits = tableInfo.filter((value, _) => value.description.toLowerCase().includes(service.description?.toLowerCase()));
+        //     //   const alreadyExist = tableInfo.filter((value, _) => value.serviceId == service.id);
+        //     console.log(exits);
+        //     if (Number(component.availableUsage) > exits.length) {
+        //         // console.log(exits[exits.length - 1].disscount);
+        //         //console.log(Number(component.component.discount));
+        //         if (exits.length > 0 && exits[exits.length - 1].disscount == Number(component.component.discount) && exits[exits.length - 1].quantity < component.availableUsage) {
+        //             // console.log('agrego otra con el mism descuentoÏ')
+        //             shouldAdd = false;
+        //             const element = exits[exits.length - 1];
+        //             element.quantity = Number(element.quantity) + 1;
+        //             item = element;
+        //         } else {
+        //             discount = Number(component.component.discountTwo);
+        //             availableUsage = component.availableUsage;
+        //         }
+
+        //     } else {
+        //         console.log('aqui')
+        //         if (exits.length > 0 && exits[exits.length - 1].discountTwo == Number(component.component.discountTwo)) {
+        //             console.log('agrego otra con el mism descuentoÏ')
+        //             shouldAdd = false;
+        //             const element = exits[exits.length - 1];
+        //             element.quantity = Number(element.quantity) + 1;
+        //             item = element;
+        //         } else {
+        //             discount = Number(component.component.discountTwo);
+        //         }
+        //     }
+        // }
+
+        if (discount > 0) {
+            price = servicePrice - Math.round((Number(servicePrice) / 100) * Math.round(Number(discount)));
+            subTotal = price;
+        } else {
+            price = servicePrice;
+            subTotal = price;
+        }
+        // setDataTable([]);
+
+        //  if (shouldAdd) {
+        console.log(serviceItem);
         tableInfo.push(
             {
-                key: serviceItem?.id ?? 0,
+                key: serviceKey,
                 description: serviceItem?.name ?? '',
                 quantity: 1,
                 unitPrice: servicePrice,
                 disscount: discount,
-                price: (1 * servicePrice),
+                price: price,
                 subtotal: subTotal,
-                paid: 0
+                serviceId: serviceItem?.id,
+                availableUsage: availableUsage,
+                labCost: serviceItem?.labCost
             },
         );
+        // } else if (item != null) {
+        //     const filteredData = tableInfo.filter((value, _) => value.key != item.key);
+        //     item.quantity = quantity;
+        //     item.disscount = discount;
+        //     filteredData.push(item);
+        //     tableInfo = filteredData;
+        // }
         setTimeout(() => {
             setDataTable(tableInfo);
             setIsTableLoading(false);
@@ -717,8 +853,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const handleOnTableChange = (data: any) => {
-        setDataTable(data);
-        updateServiceTable(data);
+        //setDataTable(data);
+        if (data != null && data?.length <= 0) {
+            setDataTable([]);
+        } else {
+            setDataTable(data);
+        }
+        //  updateServiceTable(data);
     }
 
 
@@ -730,60 +871,146 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return total;
     }
 
-    const getExchange = (): string => {
-        if (Number(amountReceived) == 0) {
-            return formatPrice(0);
-        } else {
-            const result = Number(amountReceived) - getTotalFromServices();
-            return formatPrice(result);
+    const getTotalFromPaymentMethod = (): number => {
+        let total = 0;
+        for (const payment of paymentDataTable) {
+            total += Number(payment.amount);
         }
+        return total;
+    }
+
+    const getExchange = (): string => {
+        let res = getTotalFromPaymentMethod() - getTotalFromServices();
+        return formatPrice(res);
     }
 
     const validateExchange = (): string => {
-        if (Number(amountReceived) == 0) {
-            return 'Cambio :'
-        } else if (Number(amountReceived) < getTotalFromServices()) {
+        if (getTotalFromPaymentMethod() == 0) {
+            return 'Saldo pendiente :'
+        } else if (getTotalFromPaymentMethod() < getTotalFromServices()) {
             return 'Saldo pendiente :'
         } else {
             return 'Cambio :'
         }
     }
 
+    // const updateServiceTable = (pastData: any) => {
+    //     setIsTableLoading(true);
+    //     setDataTable([]);
+    //     const amount = Number(amountReceived);
+    //     const newData = [];
+    //     let totalAmount = amount;
+    //     for (const item of pastData) {
+    //         if (Number(item.subtotal) > 0 && totalAmount > 0) {
+    //             if (totalAmount >= Number(item.subtotal)) {
+    //                 totalAmount = totalAmount - Number(item.subtotal);
+    //                 item.paid = Number(item.subtotal);
+    //             } else {
+    //                 item.paid = totalAmount;
+    //                 totalAmount = 0;
+    //             }
+    //         } else {
+    //             item.paid = 0;
+    //         }
+    //         newData.push(item);
+    //     }
+    //     setDataTable(newData);
+    //     setIsTableLoading(false);
+    // }
 
-    const handleOnPriceChange = (event: any) => {
-        setAmountReceived(event.target.value);
+
+    const serviceTableColums = [
+        {
+            title: Strings.paymentMethod,
+            dataIndex: 'paymentmethod',
+        },
+        {
+            title: Strings.receivedAmount,
+            dataIndex: 'amount',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span>{formatPrice(value.amount)}</span>
+                </div>
+            ),
+        },
+        {
+            title: Strings.actions,
+            dataIndex: 'actions',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <RiDeleteBin7Line size={20} onClick={() => handleOnDeletePaymentMethod(value.key)} className="text text-red-600" />
+                </div>
+            ),
+        },
+    ];
+
+    const handleOnPaymentAdd = () => {
+        // if (amountReceived == '' || amountReceived == null || amountReceived == '0') {
+        //     handleErrorNotification(Constants.EMPTY_AMOUNT);
+        //     return
+        // }
+        const payment = paymentMethodList.find((value, _) => value.id == paymentMethodId);
+        const data = paymentDataTable;
+        if (data.find((value, _) => value.key == paymentMethodId)) {
+            handleErrorNotification(Constants.EXISTING_PAYMENT_METHOD);
+            return;
+        }
+        setPaymentDataTable([]);
+        data.push({
+            key: paymentMethodId,
+            paymentmethod: payment?.name ?? '',
+            amount: amountReceived
+        });
+        validateShowExchange();
+        setAmountReceived('0');
+        setTimeout(() => {
+            setPaymentDataTable(data);
+        }, 100)
     }
 
-    const updateServiceTable = (pastData: any) => {
-        setIsTableLoading(true);
-        setDataTable([]);
-        const amount = Number(amountReceived);
-        const newData = [];
-        let totalAmount = amount;
-        for (const item of pastData) {
-            if (Number(item.subtotal) > 0 && totalAmount > 0) {
-                if (totalAmount >= Number(item.subtotal)) {
-                    totalAmount = totalAmount - Number(item.subtotal);
-                    item.paid = Number(item.subtotal);
-                } else {
-                    item.paid = totalAmount;
-                    totalAmount = 0;
-                }
-            } else {
-                item.paid = 0;
-            }
-            newData.push(item);
+    const handleOnDeletePaymentMethod = (key: any) => {
+        const data = paymentDataTable.filter((value, _) => value.key != key);
+        setPaymentDataTable([]);
+        setTimeout(() => {
+            setPaymentDataTable(data);
+        }, 100)
+    }
+
+    const getReceivedAmount = (): number => {
+        let total = 0;
+        paymentDataTable.forEach((value, _) => total += Number(value.amount));
+        return total;
+    }
+
+    const validateShowExchange = () => {
+        const value = paymentDataTable.find((value, _) => (value.paymentmethod as String).includes('Efectivo'));
+        setShowExchange(value != null);
+    }
+
+    const handleOnSetPatient = async (patient: number) => {
+        try {
+            setIsActionLoading(true);
+            const response = await registerAppointmentPatient(
+                new RegiserAppointmentPatientRequest(
+                    data.appointment.id, patient
+                )
+            ).unwrap();
+            setData(response);
+            setIsActionLoading(false);
+            setModalRegisterPatient(false);
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+        } catch (error) {
+            setIsActionLoading(false);
+            handleErrorNotification(error);
         }
-        setDataTable(newData);
-        setIsTableLoading(false);
     }
 
     return (
         <div className="m-2">
             <Card title={!hideContent ? getPatientName(data) : ''} bordered={!hideContent} actions={
-                hideContent ? [] : [
+                (hideContent || onlyRead == true) ? [] : [
                     <span onClick={() => {
-                        if (isAdmin(user)) {
+                        if (rol == UserRoles.ADMIN) {
                             navigate(`/admin/branchoffice/appointments/detail/${data?.appointment.folio}`)
                         } else {
                             navigate(`/receptionist/appointments/detail/${data?.appointment.folio}`)
@@ -791,36 +1018,36 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     }}>{Strings.details}</span>
                 ]}>
                 {!hideContent && CardContent()}
-                <Row className="mt-4 gap-2">
+                {(onlyRead == false) && <Row className="mt-4 gap-2">
                     {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >
                         {!data.dentist ? Strings.assignDentist : Strings.changeDentist}
                     </Button>}
-                    {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus('proceso')} >{Strings.startAppointment}</Button>}
+                    {isValidDentist() && <Button type="primary" loading={isActionLoading} onClick={() => handleUpdateAppointmentStatus(Constants.STATUS_PROCESS)} >{Strings.startAppointment}</Button>}
                     {canReschedule() && <Button type="dashed" onClick={() => handleOnReschedueAppointment()} >{Strings.rescheduleAppointment}</Button>}
                     {canFinish() && <Button type="primary" loading={isActionLoading} onClick={() => { handleSetModalFinish() }} >{Strings.finishAppointment}</Button>}
                     {canExtendAppointment() && <Button type="dashed" onClick={() => handleOnExtendAppointment()} >{Strings.extendAppointment}</Button>}
                     {canRegisterNextAppointment() && <Button onClick={() => handleOnNextAppointment()} >{Strings.scheduleNextAppointment}</Button>}
-                    {canRegisterNextAppointment() && <FormCall patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange('finalizada')} />}
-
-                </Row>
+                    {canRegisterNextAppointment() && <FormCall appointmentId={data.appointment.id} patientId={data.patient?.id} showPatients={false} onFinish={() => onStatusChange(Constants.STATUS_FINISHED)} />}
+                    {isProspect() && <Button loading={isActionLoading} onClick={() => setModalRegisterPatient(true)} type="dashed">Registrar paciente</Button>}
+                </Row>}
 
             </Card>
 
-            <Modal width={'85%'} title={Strings.finishAppointment} confirmLoading={isActionLoading} onOk={() => {
+            <Modal width={'85%'} title={
+                `${Strings.finishAppointment} - ${buildPatientName(data.patient)} - ${buildPatientPad(data.patient)}`
+            } confirmLoading={isActionLoading} onOk={() => {
                 confirm({
                     content: <span>{Strings.askFinishAppointment}</span>,
                     onOk() {
-                        handleUpdateAppointmentStatus('finalizada');
+                        handleUpdateAppointmentStatus(Constants.STATUS_FINISHED);
                     },
                     okText: Strings.finish,
                     cancelText: Strings.cancel,
                 });
-            }} onCancel={() => setModalFinish(false)} open={modalFinish} okText={Strings.finish} >
-                <span className="flex mt-2">{Strings.paymentMethod}</span>
-                <Select style={{ minWidth: '100%' }} size="large" placeholder={Strings.paymentMethod} onChange={(event) => setPaymentMethodId(event)}>
-                    {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
-                </Select>
-
+            }} onCancel={() => setModalFinish(false)} okButtonProps={
+                {
+                    disabled: (paymentDataTable?.length == 0 || dataTable?.length == 0)
+                }} open={modalFinish} okText={Strings.finish} >
 
                 <span className="flex mt-2">{Strings.serviceType}</span>
                 <SelectSearch icon={<></>} placeholder={Strings.services} items={serviceList} onChange={(event) => handleOnServiceChange(event)} />
@@ -829,42 +1056,64 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 {!isTableLoading && <EditableTable onChange={handleOnTableChange} isLoading={isTableLoading} data={dataTable} />}
                 {isTableLoading && <Spinner />}
 
+                <div className="flex flex-col">
+                    <div className="flex flex-row w-full items-end justify-end gap-2 mt-2">
+                        <span className="text font-bold text-base text-gray-600">
+                            {Strings.receivedAmount}:
+                        </span>
+                        <span className="text font-semibold text-base">
+                            {formatPrice(getReceivedAmount())}
+                        </span>
+                    </div>
+
+                    <div className="flex flex-row w-full items-end justify-end gap-2">
+                        <span className="text font-bold text-base text-gray-600">
+                            {Strings.total}:
+                        </span>
+                        <span className="text font-semibold text-base">
+                            {formatPrice(getTotalFromServices())}
+                        </span>
+                    </div>
 
 
-                <span className="flex mt-2 mb-1">{Strings.receivedAmount}</span>
-                <Input addonBefore="$"
-                    size="large"
-                    value={amountReceived}
-                    onChange={((event) => handleOnPriceChange(event))}
-                    onPressEnter={() => updateServiceTable(dataTable)}
-                    prefix={<></>}
-                    placeholder='10.00' />
-
-                <div className="flex flex-row w-full items-end justify-end gap-2 mt-2">
-                    <span className="text font-bold text-base text-gray-600">
-                        {Strings.receivedAmount}:
-                    </span>
-                    <span className="text font-semibold text-base">
-                        {formatPrice(Number(amountReceived))}
-                    </span>
+                    {showExchange && <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
+                        <span className="text font-bold text-base text-gray-600">
+                            {validateExchange()}
+                        </span>
+                        <span className="text font-semibold text-base">
+                            {getExchange()}
+                        </span>
+                    </div>}
                 </div>
 
-                <div className="flex flex-row w-full items-end justify-end gap-2">
-                    <span className="text font-bold text-base text-gray-600">
-                        {Strings.total}:
-                    </span>
-                    <span className="text font-semibold text-base">
-                        {formatPrice(getTotalFromServices())}
-                    </span>
+
+                <div className="flex flex-row gap-6">
+                    <div className="flex flex-col">
+                        <span className="flex mt-2">{Strings.paymentMethod}</span>
+                        <Select style={{ minWidth: 250 }} size="large" placeholder={Strings.paymentMethod} onChange={(event) => setPaymentMethodId(event)}>
+                            {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
+                        </Select>
+                    </div>
+
+                    <div className="flex flex-col">
+                        <span className="flex mt-2">{Strings.receivedAmount}</span>
+                        <Input addonBefore="$"
+                            size="large"
+                            value={amountReceived}
+                            onChange={((event) => setAmountReceived(event.target.value))}
+                            prefix={<></>}
+                            placeholder='10.00' />
+                    </div>
+                    <div className="flex flex-col mt-8">
+                        <Button onClick={() => handleOnPaymentAdd()}>Agregar</Button>
+                    </div>
                 </div>
-                <div className="flex flex-row w-full items-end justify-end gap-2 mb-4">
-                    <span className="text font-bold text-base text-gray-600">
-                        {validateExchange()}
-                    </span>
-                    <span className="text font-semibold text-base">
-                        {getExchange()}
-                    </span>
-                </div>
+
+                <Table className="mt-4" columns={serviceTableColums} dataSource={paymentDataTable} />
+
+
+
+
 
             </Modal>
 
@@ -992,6 +1241,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <Modal confirmLoading={isExtendTimesLoading} title={Strings.extendAppointment} onOk={() => handleExtendAppointment()} open={modalExtendAppointment} onCancel={() => setModalExtendAppointment(false)} okText={Strings.save}>
                 <span className="flex mt-2">{Strings.selectSchedule}</span>
                 <MultiSelectSearch icon={<></>} placeholder={Strings.schedule} items={extendedTimesList} onChange={(event) => setExtendedAvailableTimes(event)} />
+            </Modal>
+
+
+            <Modal confirmLoading={isActionLoading} okButtonProps={{
+                disabled: !isActionLoading
+            }} okText={Strings.accept} onCancel={() => setModalRegisterPatient(false)} open={modalRegisterPatient} title={Strings.formPatient} width={'85%'}>
+                <FormPatient onFinish={(patient) => handleOnSetPatient(patient?.id)} origin={data.appointment.referralId} source={FormPatientSource.APPOINTMENT} type={FormPatientType.REGISTER} rol={rol} />
             </Modal>
         </div>
     );

@@ -15,13 +15,13 @@ export const padService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: PadDetail[] }, _, __) => response.data,
         }),
-        getPadServices: builder.mutation<PadComponentUsed, any>({
+        getPadServices: builder.mutation<any, any>({
             query: (data) => ({
                 url: '/pad/patient',
                 method: "POST",
                 body: { ...data }
             }),
-            transformResponse: (response: { data: PadComponentUsed }, _, __) => response.data,
+            transformResponse: (response: { data: any }, _, __) => response.data,
         }),
         getPadCatalogs: builder.mutation<PadCatalogueDetail[], any>({
             query: (_) => ({
@@ -109,6 +109,14 @@ export const padService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: Service }, _, __) => response.data,
         }),
+        registerAditionalMember: builder.mutation<any, any>({
+            query: (data) => ({
+                url: '/pad/register/aditional',
+                method: "POST",
+                body: { ...data }
+            }),
+            transformResponse: (response: { data: any }, _, __) => response.data,
+        }),
     }),
 });
 
@@ -125,5 +133,6 @@ export const {
     useUpdateServiceMutation,
     useRegisterPadMutation,
     useGetPadsMutation,
-    useGetPadServicesMutation
+    useGetPadServicesMutation,
+    useRegisterAditionalMemberMutation
 } = padService;

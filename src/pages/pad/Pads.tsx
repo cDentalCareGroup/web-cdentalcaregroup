@@ -1,25 +1,58 @@
-import { Button, Card, List, Tag } from "antd";
+import { Button, Card, Divider, List, Modal, Tag } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
+import { RiDeleteBin7Line, RiMentalHealthLine, RiUserHeartLine } from "react-icons/ri";
+import useSessionStorage from "../../core/sessionStorage";
+import { DEFAULT_FILTERS } from "../../data/filter/filters";
+import { FilterEmployeesRequest } from "../../data/filter/filters.request";
 import { PadDetail } from "../../data/pad/pad.detail";
+import { Patient } from "../../data/patient/patient";
 import { buildPatientName } from "../../data/patient/patient.extensions";
-import { useGetPadsMutation } from "../../services/padService";
-import { handleErrorNotification } from "../../utils/Notifications";
+import SelectItemOption from "../../data/select/select.item.option";
+import { patientsToSelectItemOption } from "../../data/select/select.item.option.extensions";
+import User from "../../data/user/user";
+import { useGetPadsMutation, useRegisterAditionalMemberMutation } from "../../services/padService";
+import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
+import Constants from "../../utils/Constants";
+import { UserRoles } from "../../utils/Extensions";
+import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
+import SelectSearch from "../components/SelectSearch";
 import LayoutCard from "../layouts/LayoutCard";
+import PadCard from "./components/PadCard";
 import FormPad from "./FormPad";
 
 
+interface PadsProps {
+    rol: UserRoles
+}
 
-const Pads = () => {
+const Pads = (props: PadsProps) => {
     const [getPads, { isLoading }] = useGetPadsMutation();
     const [data, setData] = useState<PadDetail[]>([]);
     const [padList, setPadList] = useState<PadDetail[]>([]);
+    const [branchId, setBranchId] = useSessionStorage(Constants.BRANCH_ID, 0);
+    const [session, setSession] = useSessionStorage(Constants.SESSION_AUTH, 0);
+    const [getPatients] = useGetPatientsMutation();
+    const [getPatientsByBranchOffice] = useGetPatientsByBranchOfficeMutation();
+    const [patientList, setPatientList] = useState<SelectItemOption[]>([]);
+    const [patient, setPatient] = useState<SelectItemOption>();
+    const [aditionalMembers, setAditionalMembers] = useState<SelectItemOption[]>([]);
+    const [registerAditionalMember] = useRegisterAditionalMemberMutation();
 
+    const [selectedPad, setSelectedPad] = useState<PadDetail>();
+    const [isOpenModal, setIsOpenModal] = useState(false);
+    const [isListLoading, setIsListLoading] = useState(false);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     useEffect(() => {
         handleGetPads();
+        if (props.rol == UserRoles.ADMIN) {
+            handleGetAllPatients();
+        } else {
+            handleGetPatients();
+        }
     }, []);
 
     const handleGetPads = async () => {
@@ -30,27 +63,6 @@ const Pads = () => {
         } catch (error) {
             handleErrorNotification(error);
         }
-    }
-
-
-    const buildPadMembers = (data: PadDetail) => {
-        return data.members.map((value, _) => {
-            if (value.id == data.principalId) {
-                return <span >{`* ${buildPatientName(value)}`}</span>
-            } else {
-                return <span>{`${buildPatientName(value)}`}</span>
-            }
-        })
-    }
-
-    const getStautsTag = (value: PadDetail): JSX.Element => {
-        if (value.pad.status != null && value.pad.status == Strings.statusValueActive) {
-            return <Tag color="success">{value.pad.status}</Tag>
-        }
-        if (value.pad.status != null && value.pad.status == Strings.statusValueInactive) {
-            return <Tag color="error">{value.pad.status}</Tag>
-        }
-        return <></>;
     }
 
     const handleOnSearch = (query: string) => {
@@ -65,9 +77,100 @@ const Pads = () => {
         setPadList(res);
     }
 
+
+    const handleGetPatients = async () => {
+        try {
+            const response = await getPatientsByBranchOffice(Number(branchId)).unwrap();
+            const filterData = response.filter((value, _) => (value.pad == 0 || value.pad == null));
+            setPatientList(patientsToSelectItemOption(filterData));
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
+
+    const handleGetAllPatients = async () => {
+        try {
+            const response = await getPatients(new FilterEmployeesRequest([DEFAULT_FILTERS[3]])).unwrap();
+            const filterData = response.filter((value, _) => (value.pad == 0 || value.pad == null));
+            setPatientList(patientsToSelectItemOption(filterData));
+        } catch (error) {
+            handleErrorNotification(error);
+        }
+    }
+
+
+    const buildPadMembers = () => {
+        return selectedPad?.members.map((value, _) => {
+            if (value.id == selectedPad?.principalId) {
+                return <span >{`* ${buildPatientName(value)}`}</span>
+            } else {
+                return <span>{`${buildPatientName(value)}`}</span>
+            }
+        }) ?? []
+    }
+
+    const handleOnAddPatientToPad = () => {
+        const dataList = aditionalMembers;
+        if (patient == null || patient == undefined) {
+            return
+        }
+
+        if (dataList.find((value, _) => value.id == patient.id)) {
+            handleErrorNotification(Constants.PATIENT_PAD_EXISTS)
+            return;
+        }
+
+        if (selectedPad != null && dataList.length < selectedPad?.catalogue.maxAdditional) {
+            setIsListLoading(true);
+            dataList.push(patient);
+            setTimeout(() => {
+                setAditionalMembers(dataList);
+                setIsListLoading(false);
+            }, 100)
+        } else {
+            handleErrorNotification(Constants.MAX_MEMBERS_PAD);
+        }
+    }
+
+    const handleOnAddAditionalMember = async () => {
+        //console.log(aditionalMembers)
+        try {
+            setIsActionLoading(true);
+            const branch = selectedPad?.members[0].padAcquisitionBranch ?? branchId;
+
+            const ids = aditionalMembers.map((value, _) => value.id);
+            await registerAditionalMember(
+                new RegisterAditionalMemberRequest(
+                    selectedPad?.pad.id ?? 0,
+                    ids, branch
+                )
+            ).unwrap();
+            handleSucccessNotification(NotificationSuccess.UPDATE);
+            setIsOpenModal(false);
+            setIsActionLoading(false);
+            setAditionalMembers([]);
+            handleGetPads();
+        } catch (error) {
+            setIsActionLoading(false);
+            handleErrorNotification(error);
+        }
+    }
+    class RegisterAditionalMemberRequest {
+        padId: number;
+        members: number[];
+        branchOfficeId: number;
+        constructor(padId: number,
+            members: number[], branchOfficeId: number) {
+            this.padId = padId;
+            this.members = members;
+            this.branchOfficeId = branchOfficeId;
+        }
+    }
+
+
     return (
         <LayoutCard
-        title={Strings.pads}
+            title={Strings.pads}
             isLoading={isLoading}
             content={
                 <div className="flex flex-col flex-wrap">
@@ -77,16 +180,63 @@ const Pads = () => {
                     </div>
 
                     <div className="flex flex-row flex-wrap">
-                        {padList.map((value, index) =>
-                            <Card key={index} title={value.catalogue.name} className="m-2 cursor-pointer" actions={[
-
-                            ]}>
-                                <SectionElement label={Strings.price} icon={<></>} value={`$${value.pad.padPrice}`} />
-                                <SectionElement label={Strings.validity} icon={<></>} value={`De ${value.pad.padAdquisitionDate} al  ${value.pad.padDueDate}`} />
-                                <SectionElement label={Strings.members} icon={<></>} value={buildPadMembers(value)} />
-                                {getStautsTag(value)}
-                            </Card>)}
+                        {padList.map((value, index) => <PadCard onEditMembers={() => {
+                            setSelectedPad(value);
+                            setIsOpenModal(true);
+                        }} data={value} key={index} />)}
                     </div>
+
+                    <Modal afterClose={() => {
+                        setAditionalMembers([]);
+                        setSelectedPad(undefined);
+                        setIsListLoading(false);
+                    }}
+                        title={Strings.padInfo}
+                        open={isOpenModal}
+                        okText={Strings.update}
+                        confirmLoading={isActionLoading}
+                        onOk={() => handleOnAddAditionalMember()}
+                        onCancel={() => setIsOpenModal(false)}>
+
+                        <Divider>Información del PAD</Divider>
+                        <SectionElement label={Strings.padName} value={
+                            `${selectedPad?.catalogue?.name}`
+                        } icon={<RiUserHeartLine />} />
+                        <SectionElement label={Strings.padType} value={
+                            `${selectedPad?.catalogue?.type}`
+                        } icon={<RiUserHeartLine />} />
+
+                        <Divider>Mimebros del PAD</Divider>
+                        <SectionElement label={Strings.members} icon={<></>} value={buildPadMembers()} />
+
+
+                        <Divider className="mt-6">{Strings.addMember}</Divider>
+
+                        <SelectSearch
+                            placeholder={Strings.selectMember}
+                            items={patientList}
+                            onChange={(event) => setPatient(event)}
+                            icon={<RiMentalHealthLine />}
+                        />
+                        <div className="flex items-end justify-end mt-2">
+                            <Button onClick={() => handleOnAddPatientToPad()}>{Strings.addMember}</Button>
+                        </div>
+
+                        <List
+                            itemLayout="horizontal"
+                            loading={isListLoading}
+                            dataSource={aditionalMembers}
+                            renderItem={(item, _) => (
+                                <List.Item>
+                                    <List.Item.Meta
+                                        title={item.label}
+                                    />
+                                </List.Item>
+                            )}
+                        />
+                    </Modal>
+
+
                 </div>
             }
         />

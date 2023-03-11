@@ -1,18 +1,15 @@
 import { Button, Card, List, Modal, Row, Tag } from "antd";
-import TextArea from "antd/es/input/TextArea";
-import Paragraph from "antd/es/skeleton/Paragraph";
 import { differenceInDays } from "date-fns";
 import { useEffect, useState } from "react";
-import { RiMailLine, RiPhoneLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { RiMailLine, RiPhoneLine, RiUser3Line, } from "react-icons/ri";
 import { Navigate, useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
 import { Call } from "../../data/call/call";
-import { CallCatalog } from "../../data/call/call.catalog";
 import { GetCalls } from "../../data/call/call.response";
-import { buildPatientEmail, buildPatientName, buildPatientPad, buildPatientPhone } from "../../data/patient/patient.extensions";
-import { useGetCallsMutation } from "../../services/callService";
+import { buildPatientEmail, buildPatientName, buildPatientPhone } from "../../data/patient/patient.extensions";
+import { useGetCallsMutation, useRegisterCallLogMutation } from "../../services/callService";
 import Constants from "../../utils/Constants";
-import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { capitalizeAllCharacters } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import FormAppointment from "../appointments/FormAppointment";
@@ -20,9 +17,11 @@ import NoData from "../components/NoData";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormCall from "./FormCall";
+import { UserRoles } from "../../utils/Extensions";
 
 const Calls = () => {
     const [getCalls, { isLoading }] = useGetCallsMutation();
+    const [registerCallLog] = useRegisterCallLogMutation();
     const [data, setData] = useState<GetCalls[]>([]);
     const navigate = useNavigate();
 
@@ -80,20 +79,30 @@ const Calls = () => {
         }
     }
 
+    const handleRegisterCallLog = async (id: number) => {
+        try {
+            const response = await registerCallLog({ 'id': id }).unwrap();
+            console.log(response);
+        } catch (error) {
+            console.log(`handleRegisterCallLog`, error);
+        }
+    }
+
     return (
         <LayoutCard
             isLoading={isLoading}
             title={`${Strings.callsDay} ${data.length != 0 ? data.length : ''}`}
             content={
                 <div className="flex flex-col">
-                    <FormAppointment />
+                    <FormAppointment rol={UserRoles.CALL_CENTER} />
                     <br />
                     <FormCall showPatients={true} onFinish={() => handleGetCalls()} />
 
                     <div className="flex flex-row flex-wrap gap-2 mt-4">
                         {data.map((value, index) =>
-                            <Card key={index} title={capitalizeFirstLetter(value.catalog.name)}
+                            <Card key={index} title={capitalizeAllCharacters(value.catalog.name)}
                                 actions={[<span onClick={() => {
+                                    handleRegisterCallLog(value.call.id);
                                     setCall(value);
                                     navigate('/callcenter/call')
                                 }}>{Strings.attend}</span>]}

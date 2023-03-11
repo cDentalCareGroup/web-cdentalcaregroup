@@ -81,7 +81,9 @@ const SummaryAppointment = () => {
                         <Button danger type="dashed" target="_blank" onClick={() => {
                             navigation(`/appointment/cancel/${data?.appointment.folio}`)
                         }}>{Strings.cancelAppointment}</Button>
-                        <Button>{Strings.rescheduleAppointment}</Button>
+                        <Button onClick={() => {
+                             navigation(`/appointment/reschedule/${data?.appointment.folio}`)
+                        }}>{Strings.rescheduleAppointment}</Button>
                     </div>
                 </div>
             </div>

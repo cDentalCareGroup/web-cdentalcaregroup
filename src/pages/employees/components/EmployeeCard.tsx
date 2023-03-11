@@ -1,4 +1,5 @@
-import { Card, Tag } from "antd";
+import { Card, Tag, Typography } from "antd";
+import Paragraph from "antd/es/skeleton/Paragraph";
 import { RiHospitalLine, RiMailLine, RiPhoneLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { buildEmployeeEmail, buildEmployeeName, buildEmployeeNumber } from "../../../data/employee/employee.extentions";
@@ -12,7 +13,7 @@ interface EmployeeCardProps {
 const EmployeeCard = ({ data }: EmployeeCardProps) => {
 
     const navigate = useNavigate();
-    
+
     const getStauts = (): JSX.Element => {
         if (data.employee.status == 1) {
             return <Tag color="success">{Strings.statusActive}</Tag>

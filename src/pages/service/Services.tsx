@@ -28,6 +28,7 @@ const Services = () => {
 
     const [name, setName] = useState('');
     const [price, setPrice] = useState('');
+    const [labCost, setLabCost] = useState('');
     const [category, setCategory] = useState<SelectItemOption>();
     const [status, setStatus] = useState('activo');
     const [isEdit, setIsEdit] = useState(false);
@@ -77,11 +78,12 @@ const Services = () => {
         try {
             await registerService(
                 new RegisterServiceRequest(
-                    name, Number(price), category?.id ?? 0
+                    name, Number(price), category?.id ?? 0, Number(labCost)
                 )
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER);
             setIsOpenModal(false);
+            setIsEdit(false);
             handleGetServices();
         } catch (error) {
             handleErrorNotification(error);
@@ -130,10 +132,21 @@ const Services = () => {
 
     const getStautsTag = (service: Service): JSX.Element => {
         if (service.status != null && service.status == Strings.statusValueActive) {
-            return <Tag color="success">{service.status}</Tag>
+            return <Tag color="success">{Strings.statusActive}</Tag>
         } else {
-            return <Tag color="error">Inactivo</Tag>
+            return <Tag color="error">{Strings.statusInactive}</Tag>
         }
+    }
+    const handleOnRegisterOpenModal = () => {
+        setName('');
+        setPrice('');
+        setCategory(undefined);
+        setIsEdit(false);
+        setServiceId(0);
+        setStatus('');
+        setTimeout(() => {
+            setIsOpenModal(true);
+        }, 100)
     }
 
     return (
@@ -144,7 +157,7 @@ const Services = () => {
                 <div className="flex flex-col">
                     <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchService} onSearch={handleOnSearch} enterButton />
                     <div className="flex w-full items-end justify-end mt-4 mb-12">
-                        <Button type="primary" onClick={() => setIsOpenModal(true)}>{Strings.registerService}</Button>
+                        <Button type="primary" onClick={() => handleOnRegisterOpenModal()}>{Strings.registerService}</Button>
                     </div>
                     <List
                         grid={RESPONSIVE_LIST}
@@ -170,6 +183,7 @@ const Services = () => {
                         onCancel={() => setIsOpenModal(false)}>
                         <CustomFormInput value={name} label={Strings.nameLabel} onChange={(value) => setName(value)} placeholder={Strings.generalInquiry} />
                         <CustomFormInput value={price} label={Strings.price} onChange={(value) => setPrice(value)} prefix="$" placeholder="0.0" />
+                        <CustomFormInput value={labCost} label={Strings.labCost} onChange={(value) => setLabCost(value)} prefix="$" placeholder="0.0" />
 
                         <span className="flex mt-2 mb-2">{Strings.selectCategory}</span>
                         <SelectSearch

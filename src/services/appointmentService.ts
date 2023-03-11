@@ -155,7 +155,15 @@ export const appointmentService = apiSlice.injectEndpoints({
         method: "POST",
         body: { ...data }
       }),
-      transformResponse: (response: { data: AppointmentDetail}, meta, arg) => response.data,
+      transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
+    }),
+    registerAppointmentPatient: builder.mutation<AppointmentDetail, any>({
+      query: (data) => ({
+        url: '/appointment/register/patient',
+        method: "POST",
+        body: { ...data }
+      }),
+      transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
     }),
   })
 });
@@ -177,5 +185,6 @@ export const {
   useGetPaymentMethodsMutation,
   useGetServicesMutation,
   useExtendAppointmentMutation,
-  useRegisterCallCenterAppointmentMutation
+  useRegisterCallCenterAppointmentMutation,
+  useRegisterAppointmentPatientMutation
 } = appointmentService;

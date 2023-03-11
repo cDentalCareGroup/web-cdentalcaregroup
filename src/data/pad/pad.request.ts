@@ -65,18 +65,21 @@ export class RegisterPadComponentRequest {
     globalQuantity: number;
     maxPatientQuantity: number;
     discount: number;
+    discountTwo: number;
 
     constructor(
         padCatalogueId: number,
         serviceId: number,
         globalQuantity: number,
         maxPatientQuantity: number,
-        discount: number
+        discount: number,
+        discountTwo: number
     ) {
         this.padCatalogueId = padCatalogueId;
         this.serviceId = serviceId;
         this.globalQuantity = globalQuantity;
         this.maxPatientQuantity = maxPatientQuantity;
         this.discount = discount;
+        this.discountTwo = discountTwo
     }
 }

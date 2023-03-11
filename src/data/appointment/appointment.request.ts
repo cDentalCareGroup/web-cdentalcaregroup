@@ -20,16 +20,19 @@ export class UpdateAppointmentStatusRequest {
   id: number;
   status: string;
   amount: string;
-  paymentMethod: number;
+  paid: string;
   services: any[];
   padId?: number;
-  constructor(id: number, status: string, amount: string, paymentMethod: number, services: any[], padId?: number) {
+  payments: any[];
+
+  constructor(id: number, status: string, amount: string, paid: string, services: any[], payments: any[], padId?: number) {
     this.id = id;
     this.status = status;
     this.amount = amount;
-    this.paymentMethod = paymentMethod;
+    this.paid = paid;
     this.services = services;
     this.padId = padId;
+    this.payments = payments;
   }
 }
 export class GetAppointmentAvailabilityRequest {
@@ -208,17 +211,32 @@ export class RegisterCallCenterAppointmentRequest {
   email?: string;
   branchId?: number;
   patientId?: number;
-
+  prospectId?: number;
+  callId?: number;
+  nofity?: boolean;
   constructor(
     name?: string,
     phone?: string,
-    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number) {
+    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number, prospectId?: number, callId?: number, nofity?: boolean) {
     this.time = time;
     this.name = name;
     this.phone = phone;
     this.date = date;
     this.email = email;
     this.branchId = branchId;
+    this.patientId = patientId;
+    this.prospectId = prospectId;
+    this.callId = callId;
+    this.nofity = nofity;
+  }
+}
+
+export class RegiserAppointmentPatientRequest {
+  appointmentId: number;
+  patientId: number;
+  constructor(appointmentId: number,
+    patientId: number) {
+    this.appointmentId = appointmentId;
     this.patientId = patientId;
   }
 }

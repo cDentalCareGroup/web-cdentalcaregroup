@@ -12,7 +12,7 @@ import { Role } from "../../data/user/role";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetEmployeeRolesMutation, useGetEmployeeTypesMutation, useRegisterEmployeeMutation, useUpdateEmployeeMutation } from "../../services/employeeService";
 import { useGetColoniesFromZipCodeMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
-import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { capitalizeAllCharacters } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import LayoutCard from "../layouts/LayoutCard";
@@ -153,9 +153,9 @@ const FormEmployee = (props: FormEmployeeProps) => {
         if (colony != null) {
             if (colony.stateCities != null && colony.stateCities.length > 0) {
                 if (colony.stateCities[0].cities != null) {
-                    form.setFieldValue('city', capitalizeFirstLetter(colony.stateCities[0].cities[0]));
+                    form.setFieldValue('city', capitalizeAllCharacters(colony.stateCities[0].cities[0]));
                 }
-                form.setFieldValue('state', capitalizeFirstLetter(colony.stateCities[0].state));
+                form.setFieldValue('state', capitalizeAllCharacters(colony.stateCities[0].state));
             }
             setColony(colony);
             googleApiFetchColony(colony.colony ?? '');
@@ -168,10 +168,10 @@ const FormEmployee = (props: FormEmployeeProps) => {
         let city = '';
         let state = '';
         if (colony != null && colony != undefined) {
-            col = capitalizeFirstLetter(colony.colony);
-            city = capitalizeFirstLetter(colony.county?.toLowerCase());
+            col = capitalizeAllCharacters(colony.colony);
+            city = capitalizeAllCharacters(colony.county?.toLowerCase());
             if (colony.stateCities) {
-                state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
+                state = capitalizeAllCharacters(colony.stateCities[0].state?.toLocaleLowerCase());
             }
         } else {
             col = values.colony;
@@ -219,10 +219,10 @@ const FormEmployee = (props: FormEmployeeProps) => {
         let city = '';
         let state = '';
         if (colony != null && colony != undefined) {
-            col = capitalizeFirstLetter(colony.colony);
-            city = capitalizeFirstLetter(colony.county?.toLowerCase());
+            col = capitalizeAllCharacters(colony.colony);
+            city = capitalizeAllCharacters(colony.county?.toLowerCase());
             if (colony.stateCities) {
-                state = capitalizeFirstLetter(colony.stateCities[0].state?.toLocaleLowerCase());
+                state = capitalizeAllCharacters(colony.stateCities[0].state?.toLocaleLowerCase());
             }
         } else {
             col = values.colony;
@@ -353,7 +353,7 @@ const FormEmployee = (props: FormEmployeeProps) => {
                     rules={[{ required: true, message: Strings.requiredField }]}
                 >
                     <Select disabled={colonies.length == 0} size="large" placeholder={Strings.selectColony} onChange={(value) => handleOnColonyChange(value)}>
-                        {colonies?.map((value, index) => <Select.Option key={`${index}`} value={`${index}`}>{capitalizeFirstLetter(value.colony)}</Select.Option>)}
+                        {colonies?.map((value, index) => <Select.Option key={`${index}`} value={`${index}`}>{capitalizeAllCharacters(value.colony)}</Select.Option>)}
                     </Select>
                 </Form.Item>}
 

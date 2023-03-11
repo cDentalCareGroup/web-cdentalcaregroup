@@ -11,7 +11,8 @@ const padCatalogueDetailToDataTable = (response: PadCatalogueDetail): any[] => {
             service: item.serviceName,
             quantityPad: item.globalQuantity,
             quantityPatient: item.maxPatientQuantity,
-            discount: item.discount
+            discount: item.discount,
+            discountTwo: item.discountTwo
         })
     }
     return data;

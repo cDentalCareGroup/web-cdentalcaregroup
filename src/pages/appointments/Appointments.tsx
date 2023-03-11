@@ -1,4 +1,4 @@
-import { Row } from "antd";
+import { Divider, Row } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
 import { DEFAULT_APPOINTMENTS_FILTERS } from "../../data/filter/filters";
@@ -15,9 +15,10 @@ import useSessionStorage from "../../core/sessionStorage";
 import Strings from "../../utils/Strings";
 import BackArrow from "../components/BackArrow";
 import NoData from "../components/NoData";
-import { UserRoles } from "../../utils/Extensions";
+import { formatAppointmentDate, UserRoles } from "../../utils/Extensions";
 import DataLoading from "../components/DataLoading";
 import { sortAppointments } from "../../data/appointment/appointment.extensions";
+import FormAppointment from "./FormAppointment";
 
 interface AppointmentsProps {
     rol: UserRoles
@@ -27,24 +28,26 @@ const Appointments = (props: AppointmentsProps) => {
     const [getAppointmentsByBranchOffice] = useGetAppointmentsByBranchOfficeMutation();
     const [isLoading, setIsLoading] = useState(false);
     const [defaultFilter, setDefaultFilter] = useState(DEFAULT_APPOINTMENTS_FILTERS[0]);
-    const [appointments, setAppointments] = useState<AppointmentDetail[] | undefined>([]);
+    const [appointments, setAppointments] = useState<SectionDateAppointment[] | undefined>([]);
     const [data, setData] = useState<AppointmentDetail[] | undefined>([]);
     const [branchId, setBranchId] = useSessionStorage(
         Constants.BRANCH_ID,
         0
     );
+    //const [sortedData, setSortedData] = useState<SectionDateAppointment[]>([]);
     const [isFiltering, setIsFiltering] = useState(false);
 
     useEffect(() => {
-        handleGetAppointmentsByBranchOffice('activa');
+        handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
     }, []);
 
     const handleGetAppointmentsByBranchOffice = async (status: string) => {
         try {
             setIsLoading(true);
             const response = await getAppointmentsByBranchOffice({ id: Number(branchId), status: status }).unwrap();
+            //setSortedData(groupBy(response, 'appointment'));
             setData(response);
-            setAppointments(sortAppointments(response, status));
+            setAppointments(groupBy(sortAppointments(response, status), 'appointment'));
             setIsLoading(false);
             setIsFiltering(false);
         } catch (error) {
@@ -53,9 +56,32 @@ const Appointments = (props: AppointmentsProps) => {
         }
     }
 
+    var groupBy = function (xs: any, key: any) {
+        let array: any[] = []
+        const objectDates = xs.reduce(function (rv: any, x: any) {
+            (rv[x[key].appointment] = rv[x[key].appointment] || []).push(x);
+            return rv;
+        }, {});
+        for (const [key, value] of Object.entries(objectDates)) {
+            array.push(new SectionDateAppointment(key, value as AppointmentDetail[]))
+        }
+        return array;
+    };
+
+    class SectionDateAppointment {
+        date: string;
+        appointments: AppointmentDetail[];
+
+        constructor(date: string,
+            appointments: AppointmentDetail[]) {
+            this.date = date;
+            this.appointments = appointments;
+        }
+    }
+
     const handleOnSearch = (query: string, shoudlSearch: Boolean) => {
         if (query == '' || query == null) {
-            handleGetAppointmentsByBranchOffice('activa');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
         } else if (shoudlSearch) {
             setAppointments([]);
             setIsFiltering(true);
@@ -65,7 +91,7 @@ const Appointments = (props: AppointmentsProps) => {
                     .replace(/\s+/g, ' ')
                     .includes(query.toLowerCase())
             )
-            setAppointments(result);
+            setAppointments(groupBy(result, 'appointment'));
             setTimeout(() => {
                 setIsFiltering(false);
             }, 200)
@@ -76,46 +102,47 @@ const Appointments = (props: AppointmentsProps) => {
         setData([]);
         setAppointments([]);
         if (value.id == 1) {
-            handleGetAppointmentsByBranchOffice('activa');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
         }
         if (value.id == 2) {
-            handleGetAppointmentsByBranchOffice('proceso');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_PROCESS);
         }
         if (value.id == 3) {
-            handleGetAppointmentsByBranchOffice('finalizada');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_FINISHED);
         }
         if (value.id == 4) {
-            handleGetAppointmentsByBranchOffice('finalizada-cita');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_FINISHED_APPOINTMENT_OR_CALL);
         }
         if (value.id == 5) {
-            handleGetAppointmentsByBranchOffice('no-atendida');
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_NOT_ATTENDED);
         }
     }
-    const onStatusChange = (value: string) => {
-        if (value == 'proceso') {
-            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[1]);
-        } else if (value == 'finalizada-cita') {
-            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[3]);
-        } else if (value == 'activa'){
-            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[0]);
-        }else {
-            setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[2]);
-        }
-        handleGetAppointmentsByBranchOffice(value);
+    const onStatusChange = (value?: string) => {
+        setDefaultFilter(DEFAULT_APPOINTMENTS_FILTERS[0]);
+        handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
     }
 
     return (
         <LayoutCard title={Strings.appointments} isLoading={isLoading} content={
 
             <div className="flex flex-col">
-                {props.rol == UserRoles.ADMIN && <BackArrow />}
+                {(props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) && <BackArrow />}
                 <Search onChange={(event) => handleOnSearch(event.target.value, false)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={(event) => handleOnSearch(event, true)} enterButton />
                 <SingleFilters data={DEFAULT_APPOINTMENTS_FILTERS} onFilterChange={handleOnFilterChange} defaultOption={defaultFilter} />
+                {props.rol != UserRoles.CALL_CENTER && <FormAppointment rol={props.rol} onFinish={() => onStatusChange()} />}
 
-                {!isFiltering && <Row>
-                    {appointments?.map((value, index) => <AppointmentCard hideContent={false} appointment={value} key={index} onStatusChange={onStatusChange} />
+                {!isFiltering && <div className="flex flex-col">
+                    {appointments?.map((item, _) =>
+                        <div className="flex flex-col">
+                            <Divider orientation="left">
+                                <span className="text-red-800">{formatAppointmentDate(item.date, item.appointments.length)}</span>
+                            </Divider>
+                            <Row>
+                                {item.appointments?.map((value, index) => <AppointmentCard rol={props.rol} onlyRead={props.rol == UserRoles.CALL_CENTER} hideContent={false} appointment={value} key={index} onStatusChange={onStatusChange} />)}
+                            </Row>
+                        </div>
                     )}
-                </Row>}
+                </div>}
                 {isFiltering && <DataLoading />}
                 {!isLoading && appointments?.length == 0 && <NoData />}
             </div>

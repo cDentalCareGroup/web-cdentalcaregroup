@@ -26,6 +26,14 @@ export const callService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: any }, _, __) => response.data,
         }),
+        notAttendedCall: builder.mutation<any, any>({
+            query: (data) => ({
+                url: '/calls/notattended',
+                method: "POST",
+                body:{...data}
+            }),
+            transformResponse: (response: { data: any }, _, __) => response.data,
+        }),
         updateCatalog: builder.mutation<any, any>({
             query: (data) => ({
                 url: '/calls/update/catalog',
@@ -58,6 +66,14 @@ export const callService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: GetCallDetail }, _, __) => response.data,
         }),
+        registerCallLog: builder.mutation<any, any>({
+            query: (data) => ({
+                url: '/calls/log',
+                method: "POST",
+                body:{...data}
+            }),
+            transformResponse: (response: { data: any }, _, __) => response.data,
+        }),
     }),
 });
 
@@ -68,5 +84,7 @@ export const {
    useUpdateCatalogMutation,
    useRegisterCatalogMutation,
    useRegisterCallMutation,
-   useGetCallDetailMutation
+   useGetCallDetailMutation,
+   useNotAttendedCallMutation,
+   useRegisterCallLogMutation
 } = callService;

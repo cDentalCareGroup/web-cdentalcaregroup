@@ -1,4 +1,6 @@
-import { addDays, format } from "date-fns";
+import { addDays, addMinutes, format } from "date-fns";
+import Constants from "../../utils/Constants";
+import Strings from "../../utils/Strings";
 import { AppointmentDetail } from "./appointment.detail";
 import { AvailableTime } from "./available.time";
 
@@ -20,7 +22,18 @@ const getAppointmentDentist = (appointment: AppointmentDetail | undefined) => {
 
 
 const getAppointmentStatus = (appointment: AppointmentDetail | undefined) => {
-    return `${appointment?.appointment.status.toUpperCase() ?? ''}`;
+    let status = ''
+
+    if (appointment?.appointment.status == Constants.STATUS_ACTIVE) {
+        status = 'Activa'
+    } else if (appointment?.appointment.status == Constants.STATUS_PROCESS) {
+        status = 'Proceso'
+    } else if (appointment?.appointment.status == Constants.STATUS_FINISHED) {
+        status = 'Finalizada'
+    } else if (appointment?.appointment.status == Constants.STATUS_CANCELLED) {
+        status = 'Cancelada'
+    }
+    return status.toUpperCase();
 }
 
 
@@ -79,7 +92,12 @@ const extendedTimesToShow = (appointment: AppointmentDetail) => {
     if (appointment.extendedTimes != null && appointment.extendedTimes.length > 0) {
         const size = appointment.extendedTimes?.length ?? 0;
         const lastElement = appointment.extendedTimes[size - 1];
-        return `De ${formatTime(appointment.appointment.time)} hasta las ${formatTime(lastElement.time)}`
+        const lastElementArray = lastElement.time.split(":")
+        const date = new Date();
+        date.setHours(Number(lastElementArray[0]));
+        date.setMinutes(Number(lastElementArray[1]));
+        const lastDate = addMinutes(date, 30);
+        return `De ${formatTime(appointment.appointment.time)} hasta las ${formatTime(format(lastDate, 'HH:mm:ss'))}`
     }
     return ``;
 }

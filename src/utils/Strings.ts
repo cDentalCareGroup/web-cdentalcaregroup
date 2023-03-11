@@ -1,3 +1,4 @@
+import Constants from "./Constants";
 
 
 class Strings {
@@ -7,6 +8,8 @@ class Strings {
     static cDentalCare = "CDentalCare";
     static group = "Grupal";
     static groupValue = "grupal";
+
+    static formPatient = "Registro de pacientes"
 
     static street = "Calle"
     static hasLabs = "Tiene laboratorios?";
@@ -19,6 +22,7 @@ class Strings {
     static simpleName = "Nombre";
     static goal = "Meta";
     static price = "Precio"
+    static labCost = "Costo de laboratorio"
     static type = "Tipo"
     static durationDays = "Duración en dias";
 
@@ -33,6 +37,9 @@ class Strings {
     static branchOfficeInformacion = "Información de la clínica"
     static patientName = "Nombre del paciente";
     static nextAppointment = "Fecha proxima visita";
+
+    static followAppointment = "Siguiente cita";
+
     static address = "Dirección";
     static phoneNumber = "Número de teléfono";
     static secondPhoneNumber = "Numero de teléfono secundario";
@@ -41,6 +48,7 @@ class Strings {
 
     static lastName = "Apellido paterno";
     static secondLastName = "Apellido materno";
+    static lastNames = "Apellidos"
 
     static email = "Correo electrónico";
     static birthday = "Fecha de nacimiento";
@@ -54,6 +62,8 @@ class Strings {
     static selectGender = "Selecciona un género";
     static whatsapp = "Whatsapp";
     static folio = "Folio";
+    static folioHistoric = "Folio histórico";
+
     static dentist = "Dentista"
     static status = "Estatus"
     static appointment = "Cita"
@@ -149,14 +159,17 @@ class Strings {
 
     static statusActive = "Activo"
     static statusInactive = "Inactivo"
-    static statusValueActive = "activo"
-    static statusValueInactive = "inactivo"
+    static statusValueActive = Constants.STATUS_ACTIVE
+    static statusValueInactive = Constants.STATUS_INACTIVE
     static statusDisabled = "Deshabilitado"
-    static statusValueDisabled = "deshabilitado"
+    static statusValueDisabled = Constants.STATUS_DISBALED;
 
 
     //prospect
     static prospects = "Prospectos"
+    static prospect = "Prospecto"
+    static patient = "Paciente"
+
     static searchProspect = "Buscar prospecto"
 
     static deletePatient = "Eliminar paciente"
@@ -174,8 +187,10 @@ class Strings {
     static padBenefits = "Beneficios del PAD"
     static selectPadType = "Selecciona un tipo de pad"
     static selectPatient = "Selecciona un paciente"
-
+    static selectMember = "Selecciona un miembro"
+    static addMember = "Agregar miembro"
     static discount = "Descuento"
+    static discountTwo = "Segundo descuento"
     static maxQuantity = "Cantidad máxima"
 
     static origin = "Origen"
@@ -191,6 +206,8 @@ class Strings {
     static maxPatientQuantity = "Cantidad máxima por paciente"
     static formPad = "Registro Pad"
     static formPadUpdate = "Actualizar Pad"
+
+    static formProspect = "Registro de prospectos"
 
     static numberMembers = "Número de integrantes"
     static numberAditionalMembers = "Número de integrantes adicionales"
@@ -242,9 +259,10 @@ class Strings {
     static proccessAppointments = "Citas en proceso "
     static finishedAppointments = "Citas finalizadas"
     static notAttendedAppointments = "Citas no atendidas"
+    static appointmentDelay = "Cita retrasada"
     static notAttendedAppointment = "Cita no atendida"
     static scheduleNewAppointment = "Agendar nueva cita"
-    static cancel  = "Cancelar"
+    static cancel = "Cancelar"
     static cancelationReason = "Motivo de cancelación"
     static successCancelAppointment = "Cita cancelada correctamente"
     static quantity = "Cantidad"
@@ -281,7 +299,12 @@ class Strings {
     static selectSchedule = "Selecciona los horarios"
     static registerProspect = "Agregar prospecto"
 
-    static appVersion = 'v.1.0.20';
+    static scheduleNotAvailable = "No se pueden agendar citas en este horario"
+
+    static disabledSegment = "Deshabilitar horario"
+    static enableSegment = "Habilitar horario"
+
+    static appVersion = 'v.1.0.38.1-QA';
 }
 
 export default Strings;

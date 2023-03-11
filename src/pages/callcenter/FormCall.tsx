@@ -2,7 +2,6 @@ import { Button, DatePicker, Modal, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { CallCatalog } from "../../data/call/call.catalog";
 import { RegisterCallRequest } from "../../data/call/call.request";
@@ -14,7 +13,7 @@ import User from "../../data/user/user";
 import { useGetCatalogsMutation, useRegisterCallMutation } from "../../services/callService";
 import { useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { capitalizeFirstLetter, getUserRol, UserRoles } from "../../utils/Extensions";
+import { capitalizeAllCharacters, getUserRol, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
@@ -26,12 +25,17 @@ interface FormCallProps {
     onFinish: () => void;
     showPatients: boolean;
     patientId?: number;
+    prospectId?: number;
+    callId?: number;
+    appointmentId?: number;
 }
 
 const FormCall = (props: FormCallProps) => {
     const [getCatalogs] = useGetCatalogsMutation();
 
     const [isOpen, setIsOpen] = useState(false);
+    const [isActionLoading, setIsActionLoading] = useState(false);
+
     const [comment, setComment] = useState('');
     const [date, setDate] = useState('');
     const [type, setType] = useState('');
@@ -63,7 +67,7 @@ const FormCall = (props: FormCallProps) => {
     const handleGetCallCatalogs = async () => {
         try {
             const response = await getCatalogs({}).unwrap();
-            setCatalogList(response.filter((value, _) => value.type == 'manual'))
+            setCatalogList(response.filter((value, _) => value.type == Constants.STATUS_MANUAL))
         } catch (error) {
             console.log(error);
             handleErrorNotification(error);
@@ -90,6 +94,7 @@ const FormCall = (props: FormCallProps) => {
 
     const handleRegisterCall = async () => {
         try {
+            setIsActionLoading(true);
             let patientId = 0;
             if (props.showPatients) {
                 patientId = patient?.id ?? 0;
@@ -103,7 +108,7 @@ const FormCall = (props: FormCallProps) => {
                     comment,
                     date,
                     type,
-                    name, phone, email
+                    name, phone, email, props?.prospectId ?? 0, props?.callId ?? 0, props?.appointmentId ?? 0 
                 )
             ).unwrap();
             setComment('');
@@ -114,6 +119,7 @@ const FormCall = (props: FormCallProps) => {
             setPhone('');
             setPatient(undefined);
             setIsOpen(false);
+            setIsActionLoading(false);
             handleSucccessNotification(NotificationSuccess.REGISTER);
             props?.onFinish();
         } catch (error) {
@@ -130,7 +136,7 @@ const FormCall = (props: FormCallProps) => {
                         <Button onClick={() => setIsOpen(true)} type="dashed">{Strings.registerCall}</Button>
                     </div>
 
-                    <Modal confirmLoading={false} okText={Strings.save} open={isOpen} onCancel={() => setIsOpen(false)} title={Strings.registerNewCall} onOk={() => handleRegisterCall()}>
+                    <Modal confirmLoading={isActionLoading} okText={Strings.save} open={isOpen} onCancel={() => setIsOpen(false)} title={Strings.registerNewCall} onOk={() => handleRegisterCall()}>
                         {(props.showPatients && !isProspect) && <SelectSearch
                             placeholder={Strings.selectPatient}
                             items={patientList}
@@ -146,15 +152,15 @@ const FormCall = (props: FormCallProps) => {
                             </div>}
 
 
-                        <div className="flex flex-col items-end justify-end">
+                        {props.showPatients && <div className="flex flex-col items-end justify-end">
                             <Button onClick={() => setIsProspect(!isProspect)} type="link">
                                 {`${isProspect ? Strings.selectPatient : Strings.registerProspect}`}
                             </Button>
-                        </div>
+                        </div>}
 
                         <div className="flex flex-row gap-4 mb-4 mt-4">
                             <Select style={{ minWidth: 220 }} size="large" placeholder={Strings.callType} onChange={(value) => setType(value)}>
-                                {catalogList?.map((value, _) => <Select.Option key={`${value.id}`} value={`${value.id}`}>{capitalizeFirstLetter(value.name)}</Select.Option>)}
+                                {catalogList?.map((value, _) => <Select.Option key={`${value.id}`} value={`${value.id}`}>{capitalizeAllCharacters(value.name)}</Select.Option>)}
                             </Select>
 
                             <DatePicker

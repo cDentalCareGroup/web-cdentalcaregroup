@@ -3,7 +3,7 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { Layout, theme } from 'antd';
+import { Dropdown, Layout, theme } from 'antd';
 import Sidebar from '../components/Sidebar';
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {  getUserSidebar } from '../routes/Routes';
@@ -16,6 +16,7 @@ import { SaveTokenRequest } from '../../data/user/user.request';
 import Spinner from '../components/Spinner';
 import { getUserRol, UserRoles } from '../../utils/Extensions';
 import Strings from '../../utils/Strings';
+import HeaderAccount from '../components/HeaderAccount';
 
 const { Header, Content } = Layout;
 
@@ -33,10 +34,6 @@ const BaseLayout: React.FC = () => {
         return <Spinner  />
     }
 
-    const formatName = (): string => {
-        const user = session as User;
-        return `${user.name} ${user.lastname}`;
-    }
 
   useEffect(() => {
     validateRoute();
@@ -81,8 +78,6 @@ const BaseLayout: React.FC = () => {
   });
 
   const handleNavigateToAppointmentDetail = (folio: String) => {
-    console.log(folio);
-    //navigation(`/admin/appointment/detail/${folio }`);
     const user = session as User;
      const role = getUserRol(user);
     if (role == UserRoles.ADMIN) {
@@ -101,17 +96,22 @@ const BaseLayout: React.FC = () => {
     }
   }
 
+  const formatName = (): string => {
+    const user = session as User;
+    return `${user.name} ${user.lastname}`;
+}
+
     return (
         <Layout className='flex w-full h-screen'>
             <Sidebar items={getUserSidebar(session as User)} collapsed={collapsed} />
             <Layout className="site-layout">
                 <Header style={{ padding: 0, background: colorBgContainer }}>
-                   <div className='flex flex-row justify-between flex-nowrap'>
+                   <div className='flex flex-row justify-between flex-nowrap items-baseline align-baseline'>
                    {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
                         className: 'trigger flex p-4',
                         onClick: () => setCollapsed(!collapsed),
                     })}
-                    <span className='mr-8'>{formatName()}</span>
+                    <HeaderAccount title={formatName()} />
                    </div>
                 </Header>
                 <Content

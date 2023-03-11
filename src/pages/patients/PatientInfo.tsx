@@ -12,7 +12,7 @@ import Strings from "../../utils/Strings";
 import NoData from "../components/NoData";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
-import FormPatient, { FormPatientType } from "./FormPatient";
+import FormPatient, { FormPatientType, FormPatientSource } from "./FormPatient";
 
 interface PatientInfoProps {
     rol: UserRoles;
@@ -62,9 +62,24 @@ const PatientInfo = (props: PatientInfoProps) => {
             ),
         },
         {
+            title: Strings.discountTwo,
+            dataIndex: 'discountTwo',
+            key: 'discountTwo',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span>{formatNumberToPercent(value.discount)}</span>
+                </div>
+            ),
+        },
+        {
             title: Strings.maxQuantity,
             dataIndex: 'quantity',
             key: 'quantity',
+        },
+        {
+            title: Strings.maxPatientQuantity,
+            dataIndex: 'quantityPatient',
+            key: 'quantityPatient',
         },
     ];
 
@@ -110,7 +125,7 @@ const PatientInfo = (props: PatientInfoProps) => {
         {
             label: <div className="flex items-baseline gap-1 justify-center"><RiFileList3Line /><span className="text text-sm">{Strings.patientInformation}</span></div>,
             key: 1,
-            children: <FormPatient rol={props.rol} type={FormPatientType.UPDATE} patient={data} />,
+            children: <FormPatient source={FormPatientSource.FORM} rol={props.rol} type={FormPatientType.UPDATE} patient={data} />,
         },
         {
             label: <div className="flex items-baseline gap-1 justify-center"><RiVipDiamondLine /><span className="text text-sm">{Strings.membership}</span></div>,

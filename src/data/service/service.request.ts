@@ -2,13 +2,15 @@ export class RegisterServiceRequest {
     name: string;
     price: number;
     categoryId: number;
+    labCost: number;
 
     constructor(name: string,
         price: number,
-        categoryId: number) {
+        categoryId: number, labCost: number) {
         this.name = name;
         this.price = price;
         this.categoryId = categoryId;
+        this.labCost = labCost;
     }
 }
 

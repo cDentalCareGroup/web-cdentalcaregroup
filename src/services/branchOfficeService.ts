@@ -1,3 +1,4 @@
+import { AvailableTime } from "../data/appointment/available.time";
 import { BranchOfficeSchedule } from "../data/branchoffice/branch.office.schedule";
 import { ScheduleEmployees } from "../data/branchoffice/branch.office.schedule.employees";
 import { BranchOffice } from "../data/branchoffice/branchoffice";
@@ -36,6 +37,22 @@ export const branchOfficeService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: any }, meta, arg) => response.data,
         }),
+        getAvailableTimesByBranchOffice: builder.mutation<BranchOfficeSchedule[], any>({
+            query: (data) => ({
+                url: '/branchoffice/schedules/id',
+                method: "POST",
+                body:{...data}
+            }),
+            transformResponse: (response: { data: BranchOfficeSchedule[] }, _, __) => response.data,
+        }),
+        updateAvailableTimeStatus: builder.mutation<any, any>({
+            query: (data) => ({
+                url: '/branchoffice/schedule/status',
+                method: "POST",
+                body:{...data}
+            }),
+            transformResponse: (response: { data: any }, _, __) => response.data,
+        }),
     }),
 });
 
@@ -43,5 +60,7 @@ export const {
     useGetBranchOfficesMutation,
     useGetSchedulesByBranchOfficeMutation,
     useRegisterBranchOfficeScheduleMutation,
-    useDeleteBranchOfficeScheduleMutation
+    useDeleteBranchOfficeScheduleMutation,
+    useGetAvailableTimesByBranchOfficeMutation,
+    useUpdateAvailableTimeStatusMutation
 } = branchOfficeService;

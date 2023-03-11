@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import type { InputRef } from 'antd';
-import { Button, Form, Input, Popconfirm, Table } from 'antd';
+import { notification, Form, Input, Popconfirm, Table } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { RiDeleteBin7Line } from 'react-icons/ri';
-import { formatNumberToPercent } from '../../../utils/Extensions';
+import { formatNumberToPercent, formatPrice } from '../../../utils/Extensions';
 import Strings from '../../../utils/Strings';
 
 const EditableContext = React.createContext<FormInstance<any> | null>(null);
@@ -51,6 +51,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     const [editing, setEditing] = useState(false);
     const inputRef = useRef<InputRef>(null);
     const form = useContext(EditableContext)!;
+
 
     useEffect(() => {
         if (editing) {
@@ -122,6 +123,7 @@ interface EditableTableCustomProps {
 const EditableTable = (props: EditableTableCustomProps) => {
     const [dataSource, setDataSource] = useState<any[]>(props.data);
     const [isLoading, setIsLoading] = useState(props.isLoading);
+    const [api, contextHolder] = notification.useNotification();
 
     const handleDelete = (key: React.Key) => {
         const newData = dataSource.filter((item) => item.key !== key);
@@ -147,10 +149,16 @@ const EditableTable = (props: EditableTableCustomProps) => {
         {
             title: Strings.unitPrice,
             dataIndex: 'unitPrice',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span >{formatPrice(value.unitPrice)}</span>
+                </div>
+            ),
         },
         {
             title: Strings.discount,
             dataIndex: 'disscount',
+            editable: false,
             render: (_: any, value: any) => (
                 <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
                     <span>{formatNumberToPercent(value.disscount)}</span>
@@ -160,18 +168,18 @@ const EditableTable = (props: EditableTableCustomProps) => {
         {
             title: Strings.price,
             dataIndex: 'price',
+            render: (_: any, value: any) => (
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span >{formatPrice(value.price)}</span>
+                </div>
+            ),
         },
         {
             title: Strings.subTotal,
             dataIndex: 'subtotal',
-        },
-        {
-            title: Strings.paid,
-            dataIndex: 'paid',
-            editable: true,
             render: (_: any, value: any) => (
-                <div key={value.key} className="flex cursor-pointer flex-wrap justify-center items-center">
-                    <span className='text-blue-800'>{value.paid}</span>
+                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+                    <span >{formatPrice(value.subtotal)}</span>
                 </div>
             ),
         },
@@ -188,17 +196,76 @@ const EditableTable = (props: EditableTableCustomProps) => {
 
 
     const handleSave = (row: any) => {
-        const newData = [...dataSource];
+        let newData = [...dataSource];
         const index = newData.findIndex((item) => row.key === item.key);
         const item = newData[index];
-        row.unitPrice = item.unitPrice;
-        row.disscount = Math.round(item.disscount);
-        row.price = Number(row.quantity) * Number(item.unitPrice);
+        row.unitPrice = row.unitPrice;
+        row.disscount = Math.round(row.disscount);
 
-        if (item.disscount != null && item.disscount != 0 && item.disscount != '0') {
-            row.subtotal = row.price - Math.round((Number(row.price) / 100) * Math.round(Number(item.disscount)));
+
+        const existingService = newData.filter((value, _) => value.serviceId == row.serviceId);
+        if (existingService.length > 1 && row.quantity < row.availableUsage) {
+            const element = existingService[existingService.length - 1];
+            element.quantity = Number(element.quantity) - Number(row.quantity);
+
+            if (element.disscount != null && element.disscount != 0 && element.disscount != '0') {
+                element.price = element.unitPrice - Math.round((Number(element.unitPrice) / 100) * Math.round(Number(element.disscount)));
+                element.subtotal = Number(element.quantity) * Number(element.price);
+            } else {
+                element.price = element.unitPrice;
+                element.subtotal = Number(element.quantity) * Number(element.unitPrice);
+            }
+
+            const res = newData.filter((value, _) => value.key != element.key);
+            if (element.quantity > 0) {
+                res.push(element);
+            }
+            newData = res;
         } else {
-            row.subtotal = Math.round(Number(row.price));
+            const element = existingService[existingService.length - 1];
+            element.quantity = Number(element.quantity) + Number(row.quantity) - 1;
+            if (element.disscount != null && element.disscount != 0 && element.disscount != '0') {
+                element.price = element.unitPrice - Math.round((Number(element.unitPrice) / 100) * Math.round(Number(element.disscount)));
+                element.subtotal = Number(element.quantity) * Number(element.price);
+            } else {
+                element.price = element.unitPrice;
+                element.subtotal = Number(element.quantity) * Number(element.unitPrice);
+            }
+            const res = newData.filter((value, _) => value.key != element.key);
+            if (element.quantity > 0) {
+                res.push(element);
+            }
+            newData = res;
+        }
+
+        //   console.log(`Disponibilidad ${row.availableUsage}, ${row.quantity}`);
+
+        if (row.quantity > row.availableUsage) {
+            notification.open({
+                message: 'Aviso!',
+                description: `Llegaste a la cantidad maxima de este servicio con el descuento de PAD`,
+                type: 'warning',
+                duration: 15
+            });
+            return;
+        }
+        if (row.quantity <= 0) {
+            notification.open({
+                message: 'Aviso!',
+                description: `La cantidad debe ser mayor a cero`,
+                type: 'warning',
+            });
+            return;
+        }
+
+        //  row.price = Number(row.quantity) * Number(item.unitPrice);
+
+        if (row.disscount != null && row.disscount != 0 && row.disscount != '0') {
+            row.price = row.unitPrice - Math.round((Number(row.unitPrice) / 100) * Math.round(Number(row.disscount)));
+            row.subtotal = Number(row.quantity) * Number(row.price);
+        } else {
+            row.price = row.unitPrice;
+            row.subtotal = Number(row.quantity) * Number(row.unitPrice);
         }
         newData.splice(index, 1, {
             ...item,

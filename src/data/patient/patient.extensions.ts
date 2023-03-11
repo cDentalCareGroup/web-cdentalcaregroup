@@ -1,7 +1,7 @@
 import { AppointmentDetail } from "../appointment/appointment.detail"
 import { PadComponentService, Patient } from "./patient"
 import { formatISO } from "date-fns";
-import { capitalizeFirstLetter } from "../../utils/Extensions";
+import { capitalizeAllCharacters } from "../../utils/Extensions";
 
 const DEFAULT_FIELD_VALUE = "-"
 
@@ -26,7 +26,11 @@ const buildPatientBirthday = (patient: Patient | undefined): string => {
   return `${patient?.birthDay?.toString()}`
 }
 const buildPatientPad = (patient: Patient | undefined): string => {
-  return `${patient?.padAcquisitionBranch ?? ''}  ${patient?.padType ?? ''}  ${patient?.padAcquisitionDate?.toString() ?? 'Sin pad'}`
+  if (patient?.pad != null && patient.pad != undefined && patient.pad > 0) {
+    return `PAD ${patient?.padType ?? ''}  ${patient?.padAcquisitionDate?.toString()}`
+  } else {
+    return 'Sin PAD'
+  }
 }
 
 const buildPatientStartedAt = (patient: Patient | undefined): string => {
@@ -35,13 +39,13 @@ const buildPatientStartedAt = (patient: Patient | undefined): string => {
 
 const buildPatientGender = (patient: Patient | undefined): string => {
   if (patient != null) {
-    if(patient.gender == 'male') {
+    if (patient.gender == 'male') {
       return 'Masculino';
     }
-    if(patient.gender == 'male') {
+    if (patient.gender == 'male') {
       return 'Femenino';
     }
-    if(patient.gender == 'other') {
+    if (patient.gender == 'other') {
       return 'Otro';
     }
   }
@@ -50,7 +54,7 @@ const buildPatientGender = (patient: Patient | undefined): string => {
 
 const getPatientName = (appointment: AppointmentDetail | undefined) => {
   const name = appointment?.prospect?.name ??
-    `${capitalizeFirstLetter(appointment?.patient?.name)} ${capitalizeFirstLetter(appointment?.patient?.lastname)} ${capitalizeFirstLetter(appointment?.patient?.secondLastname ?? '')}`;
+    `${capitalizeAllCharacters(appointment?.patient?.name)} ${capitalizeAllCharacters(appointment?.patient?.lastname)} ${capitalizeAllCharacters(appointment?.patient?.secondLastname ?? '')}`;
   return name;
 }
 const getPatientEmail = (appointment: AppointmentDetail | undefined): string => {
@@ -104,7 +108,7 @@ const getHasCabinet = (appointment: AppointmentDetail | undefined) => {
 const getPatientPad = (appointment: AppointmentDetail | undefined) => {
   if (appointment?.patient != null) {
     if (appointment.patient.pad) {
-      const pad = `${capitalizeFirstLetter(appointment?.patient?.padType)} - ${appointment?.patient?.padAcquisitionDate} - ${appointment?.patient?.padExpirationDate}`
+      const pad = `${capitalizeAllCharacters(appointment?.patient?.padType)} - ${appointment?.patient?.padAcquisitionDate} - ${appointment?.patient?.padExpirationDate}`
       return pad;
     } else {
       return `Sin pad`;
@@ -148,13 +152,15 @@ const padComponentsToDataTable = (components: PadComponentService[]): any[] => {
   let data: any[] = [];
   let index = 0;
   for (const item of components) {
-      data.push({
-          key: index,
-          service: item.service.name,
-          discount: item.component.discount,
-          quantity: item.component.maxPatientQuantity,
-      })
-      index++;
+    data.push({
+      key: index,
+      service: item.service.name,
+      discount: item.component.discount,
+      discountTwo: item.component.discountTwo,
+      quantity: item.component.maxPatientQuantity,
+      quantityPatient: item.component.maxPatientQuantity
+    })
+    index++;
   }
   return data;
 }
