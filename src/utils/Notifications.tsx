@@ -141,7 +141,8 @@ const getErrorMessage = (message: string, text?: string): string => {
         return `Error al agregar el servicio del PAD, por favor regresa a la pantalla anterior y vuelve o refresca la página`;
     }
 
-
-
+    if (message == Constants.SET_TEXT) {
+        return `${text}`;
+    }
     return 'Ocurrio un error, intenta mas tarde';
 }

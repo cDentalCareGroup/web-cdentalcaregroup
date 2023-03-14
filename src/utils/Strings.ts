@@ -194,6 +194,12 @@ class Strings {
     static maxQuantity = "Cantidad máxima"
 
     static origin = "Origen"
+    static origins = "Origenes"
+
+    static formRegisterOrigin = "Registrar origen"
+    static formUpdateOrigin = "Actualizar origen"
+
+
     static organization = "Organización"
     static registerDate = "Fecha de registro"
 

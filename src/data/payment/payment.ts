@@ -12,4 +12,5 @@ export interface Payment {
     dueDate: Date;
     status: string;
     isAplicable: boolean;
+    aplicableAmount: number;
 }

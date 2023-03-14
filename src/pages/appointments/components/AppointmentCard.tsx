@@ -48,6 +48,7 @@ import { useGetPatientPaymentsMutation } from "../../../services/paymentService"
 import { DebtInfo, PaymentInfo } from "../../../data/payment/payment.info";
 import { Payment } from "../../../data/payment/payment";
 import PaymentPatientCard from "../../components/PaymentPatientCard";
+import FormPayment, { FormPaymentSource } from "../../payments/FormPayment";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -671,7 +672,9 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             const response = await getPadServices(
                 { 'patientId': appointment.patient?.id }
             ).unwrap();
-            setPadComponent(response);
+            if (response != 'EMPTY_PAD') {
+                setPadComponent(response);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -784,7 +787,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         let discount = 0;
         let subTotal = 0;
         let price = 0;
-        let availableUsage = 100;
+        let availableUsage = 500;
         ///  let quantity = 1;
         //let shouldAdd = true;
         //  let item: any = null;
@@ -898,13 +901,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const handleOnTableChange = (data: any) => {
-        //setDataTable(data);
         if (data != null && data?.length <= 0) {
             setDataTable([]);
         } else {
             setDataTable(data);
         }
-        //  updateServiceTable(data);
     }
 
 
@@ -942,30 +943,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         }
     }
 
-    // const updateServiceTable = (pastData: any) => {
-    //     setIsTableLoading(true);
-    //     setDataTable([]);
-    //     const amount = Number(amountReceived);
-    //     const newData = [];
-    //     let totalAmount = amount;
-    //     for (const item of pastData) {
-    //         if (Number(item.subtotal) > 0 && totalAmount > 0) {
-    //             if (totalAmount >= Number(item.subtotal)) {
-    //                 totalAmount = totalAmount - Number(item.subtotal);
-    //                 item.paid = Number(item.subtotal);
-    //             } else {
-    //                 item.paid = totalAmount;
-    //                 totalAmount = 0;
-    //             }
-    //         } else {
-    //             item.paid = 0;
-    //         }
-    //         newData.push(item);
-    //     }
-    //     setDataTable(newData);
-    //     setIsTableLoading(false);
-    // }
-
 
     const serviceTableColums = [
         {
@@ -993,10 +970,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     ];
 
     const handleOnPaymentAdd = () => {
-        // if (amountReceived == '' || amountReceived == null || amountReceived == '0') {
-        //     handleErrorNotification(Constants.EMPTY_AMOUNT);
-        //     return
-        // }
         const payment = paymentMethodList.find((value, _) => value.id == paymentMethodId);
         const data = paymentDataTable;
         if (data.find((value, _) => value.key == paymentMethodId)) {
@@ -1009,7 +982,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             paymentmethod: payment?.name ?? '',
             amount: amountReceived
         });
-        //validateShowExchange();
         setAmountReceived('0');
 
         const isNotCash = data.filter((value, _) => value.paymentmethod.toLowerCase() != 'Efectivo'.toLowerCase());
@@ -1112,8 +1084,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return !hideContent ? <div className="flex flex-row justify-between">
             <span>{getPatientName(data)}</span>
             {hasPaymentInfo() && <Popover
-                content={<PaymentPatientCard paymentInfo={paymentInfo!!} />}
-                title="Informacion de pagos / abonos / saldos pendientes"
+                content={
+                    <div>
+                        <PaymentPatientCard paymentInfo={paymentInfo!!} />
+                        <FormPayment onClick={() => setShowPaymentInfo(false)} source={FormPaymentSource.APPOINTMENT} patient={data.patient} />
+                    </div>
+                }
+                title="Información de pagos / abonos / saldos pendientes"
                 trigger="click"
                 open={showPaymentInfo}
                 placement="top"
@@ -1233,7 +1210,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 resetSetDentistParams();
                 setModalDentist(false)
             }}>
-                <br />
+                {/* <br />
                 <SelectSearch
                     placeholder={Strings.selectPatient}
                     items={patientList}
@@ -1244,7 +1221,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 <div className="flex w-full items-end justify-end my-2">
                     <Button type="link" size="small" onClick={() => handleGetPatients()}>Actualizar pacientes</Button>
                 </div>
-                <br />
+                <br /> */}
                 <SelectSearch
                     placeholder={Strings.selectDentist}
                     defaultValue={dentist?.id}

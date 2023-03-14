@@ -2,14 +2,16 @@ import { Button, DatePicker, Modal, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { RiMentalHealthLine } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { CallCatalog } from "../../data/call/call.catalog";
 import { RegisterCallRequest } from "../../data/call/call.request";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../data/filter/filters";
 import { FilterEmployeesRequest } from "../../data/filter/filters.request";
 import SelectItemOption from "../../data/select/select.item.option";
-import { patientsToSelectItemOption } from "../../data/select/select.item.option.extensions";
+import { branchOfficesToSelectOptionItem, patientsToSelectItemOption } from "../../data/select/select.item.option.extensions";
 import User from "../../data/user/user";
+import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetCatalogsMutation, useRegisterCallMutation } from "../../services/callService";
 import { useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
@@ -48,6 +50,9 @@ const FormCall = (props: FormCallProps) => {
         Constants.BRANCH_ID,
         0
     );
+    const [branchOffices, setBranchOffices] = useState<SelectItemOption[]>([]);
+    const [branchOffice, setBranchOffice] = useState<SelectItemOption>();
+
     const [session, setSession] = useSessionStorage(
         Constants.SESSION_AUTH,
         null
@@ -56,6 +61,7 @@ const FormCall = (props: FormCallProps) => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
+    const [getBranchOffices] = useGetBranchOfficesMutation();
 
     useEffect(() => {
         handleGetCallCatalogs();
@@ -74,6 +80,15 @@ const FormCall = (props: FormCallProps) => {
         }
     }
 
+    const handleGetBranchOffices = async () => {
+        try {
+            const response = await getBranchOffices({}).unwrap();
+            console.log(response);
+            setBranchOffices(branchOfficesToSelectOptionItem(response));
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const handleGetPatients = async () => {
         try {
@@ -108,7 +123,8 @@ const FormCall = (props: FormCallProps) => {
                     comment,
                     date,
                     type,
-                    name, phone, email, props?.prospectId ?? 0, props?.callId ?? 0, props?.appointmentId ?? 0 
+                    name, phone, email, props?.prospectId ?? 0, props?.callId ?? 0, props?.appointmentId ?? 0,
+                    branchOffice?.id ?? 0
                 )
             ).unwrap();
             setComment('');
@@ -146,6 +162,13 @@ const FormCall = (props: FormCallProps) => {
 
                         {(props.showPatients && isProspect) &&
                             <div className="flex flex-col">
+                                 <span className="flex mb-2">Sucursal prospecto</span>
+                                <SelectSearch
+                                    placeholder={Strings.selectBranchOffice}
+                                    items={branchOffices}
+                                    onChange={(event) => setBranchOffice(event)}
+                                    icon={<></>}
+                                />
                                 <CustomFormInput label={Strings.patientName} value={name} onChange={(value) => setName(value)} />
                                 <CustomFormInput label={Strings.phoneNumber} value={phone} onChange={(value) => setPhone(value)} />
                                 <CustomFormInput label={Strings.email} value={email} onChange={(value) => setEmail(value)} />
@@ -153,7 +176,12 @@ const FormCall = (props: FormCallProps) => {
 
 
                         {props.showPatients && <div className="flex flex-col items-end justify-end">
-                            <Button onClick={() => setIsProspect(!isProspect)} type="link">
+                            <Button onClick={() => {
+                                if(!isProspect && branchOffices.length == 0) {
+                                    handleGetBranchOffices()
+                                }
+                                setIsProspect(!isProspect)
+                            }} type="link">
                                 {`${isProspect ? Strings.selectPatient : Strings.registerProspect}`}
                             </Button>
                         </div>}

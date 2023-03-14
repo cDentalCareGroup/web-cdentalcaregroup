@@ -13,6 +13,7 @@ import {
     RiPhoneLine,
     RiUserHeartLine,
     RiServiceLine,
+    RiBankLine,
 } from "react-icons/ri";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import User from "../../data/user/user";
@@ -44,6 +45,7 @@ import Test from "../components/Test";
 import Dashboard from "../dashboard/Dashboard";
 import { AvailableTime } from "../../data/appointment/available.time";
 import AvailableTimes from "../schedules/AvailableTimes";
+import Origins from "../origins/Origins";
 
 export class Route {
     label: string;
@@ -84,6 +86,7 @@ const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/bra
 const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/branchoffice/appointments/detail/:folio', <AppointmentInfo rol={UserRoles.ADMIN} />, <RiCalendar2Line />);
 const adminService = new Route('Servicios', 'services', '/admin/services/', <Services />, <RiServiceLine />);
 const adminCallsType = new Route('Catalogo llamadas', 'callsType', '/admin/calltypes', <CallsType />, <RiPhoneLine />);
+const adminOrigins = new Route('Origenes', 'origins', '/admin/origins', <Origins />, <RiBankLine />);
 
 const test = new Route('Test', 'test', '/admin/test/', <Test />, <RiUserHeartLine />);
 
@@ -132,6 +135,7 @@ const adminRoutes: Route[] = [
     test,
     adminCallsType,
     adminStatistics,
+    adminOrigins,
     logout
 ];
 
@@ -220,6 +224,14 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
                 getItem(adminCallsType.label, adminCallsType.fullPath, adminCallsType.icon),
             ],
             'group'),
+            getItem(
+                'Pacientes Origenes',
+                'origins',
+                null,
+                [
+                    getItem(adminOrigins.label, adminOrigins.fullPath, adminOrigins.icon),
+                ],
+                'group'),
         getItem(
             'Configuración',
             'cng',

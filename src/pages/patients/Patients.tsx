@@ -123,7 +123,7 @@ const Patients = (props: PatientsProps) => {
             content={
                 <div className="flex flex-col">
                     <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchPatient} onSearch={handleOnSearch} enterButton />
-                    <div className="flex w-full items-end justify-end mt-4 mb-12">
+                    {props.rol != UserRoles.RECEPTIONIST && <div className="flex w-full items-end justify-end mt-4 mb-12">
                         <Button type="primary" onClick={() => {
                             if (props.rol == UserRoles.ADMIN) {
                                 navigate('/admin/patients/register')
@@ -133,7 +133,7 @@ const Patients = (props: PatientsProps) => {
                                 navigate('/receptionist/patients/register')
                             }
                         }}>{Strings.registerPatient}</Button>
-                    </div>
+                    </div>}
                     <Row>
                         {patientList.map((value, index) =>
                             <Card key={index} title={buildPatientName(value)} className="m-2 cursor-pointer" actions={[

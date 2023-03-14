@@ -5,12 +5,14 @@ import { RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../data/filter/filters";
 import { FilterEmployeesRequest } from "../../data/filter/filters.request";
+import { Patient } from "../../data/patient/patient";
+import { buildPatientName } from "../../data/patient/patient.extensions";
 import { Payment } from "../../data/payment/payment";
 import { PaymentInfo, DebtInfo } from "../../data/payment/payment.info";
 import { PaymentMethod } from "../../data/payment/payment.method";
 import { PaymentType } from "../../data/payment/payment.types";
 import SelectItemOption from "../../data/select/select.item.option";
-import { patientsToSelectItemOption } from "../../data/select/select.item.option.extensions";
+import { patientsToSelectItemOption, patientToSelectItemOption } from "../../data/select/select.item.option.extensions";
 import { useGetPaymentMethodsMutation } from "../../services/appointmentService";
 import { useGetPatientsMutation } from "../../services/patientService";
 import { useGetPatientPaymentsMutation, useGetPaymentTypesMutation, useRegisterPatientMovementMutation } from "../../services/paymentService";
@@ -22,18 +24,30 @@ import SectionElement from "../components/SectionElement";
 import SelectSearch from "../components/SelectSearch";
 import LayoutCard from "../layouts/LayoutCard";
 
-const FormPayment = () => {
+
+interface FormPaymentProps {
+    source: FormPaymentSource;
+    patient?: Patient;
+    onClick?: () => void;
+}
+
+export enum FormPaymentSource {
+    FORM, APPOINTMENT
+}
+
+
+const FormPayment = (props: FormPaymentProps) => {
     const [getPaymentMethods] = useGetPaymentMethodsMutation();
     const [getPaymentTypes] = useGetPaymentTypesMutation();
     const [registerPatientMovement] = useRegisterPatientMovementMutation();
 
     const [paymentMethodList, setPaymentMethodList] = useState<PaymentMethod[]>([]);
-    const [paymentMethodId, setPaymentMethodId] = useState(0);
+    const [paymentMethodId, setPaymentMethodId] = useState<number | undefined>(0);
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [amount, setAmount] = useState('');
 
     const [paymentTypesList, setPaymentTypesList] = useState<PaymentType[]>([]);
-    const [paymentTypeId, setPaymentTypeId] = useState(0);
+    const [paymentTypeId, setPaymentTypeId] = useState<number | undefined>(0);
 
     const [getPatients] = useGetPatientsMutation();
     const [branchId, setBranchId] = useSessionStorage(
@@ -50,16 +64,23 @@ const FormPayment = () => {
 
 
     useEffect(() => {
+        console.log(`Loading payment data..`)
         handleGetPaymentMethods();
         handleGetPaymentTypes();
-        handleGetPatients();
+        if (props.source == FormPaymentSource.FORM) {
+            handleGetPatients();
+        } else if (props.patient != null) {
+            handleGetPatientPayments(props?.patient?.id ?? 0);
+            setPaymentMethodId(undefined);
+            setPaymentTypeId(undefined);
+            setPatient(patientToSelectItemOption(props.patient));
+        }
     }, []);
 
 
     const handleGetPaymentMethods = async () => {
         try {
             const response = await getPaymentMethods({}).unwrap();
-            console.log(response);
             setPaymentMethodList(response);
         } catch (error) {
             handleErrorNotification(error);
@@ -69,8 +90,8 @@ const FormPayment = () => {
     const handleGetPaymentTypes = async () => {
         try {
             const response = await getPaymentTypes({}).unwrap();
-            console.log(response);
             setPaymentTypesList(response);
+            setShowDebts(true);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -94,6 +115,7 @@ const FormPayment = () => {
             const response = await getPatientPayments({
                 'patientId': patientId
             }).unwrap();
+            console.log(response);
             setPaymentInfo(response);
             setDebtsInfo(response?.debts ?? []);
         } catch (error) {
@@ -103,14 +125,17 @@ const FormPayment = () => {
 
     const handleRegisterPatientPayment = async () => {
         try {
-
-
             if (checkDebts()) {
-                console.log('tiene deudas y quiere hacer pago')
+                handleErrorNotification(Constants.SET_TEXT, `Debes aplicar el pago a las cuentas por cobrar`);
                 return;
             }
 
-            console.log('all ok')
+            if (hasDebts() && paymentTypesList.find((value, _) => value.id == paymentTypeId)?.name == 'anticipo') {
+                handleErrorNotification(Constants.SET_TEXT, `Debes cubrir el saldo pendiente antes de agregar un anticipo`)
+                return;
+            }
+            console.log(patient);
+            return;
             await registerPatientMovement(
                 {
                     'patientId': patient?.id ?? 0,
@@ -128,39 +153,44 @@ const FormPayment = () => {
     }
     const resetModalParams = () => {
         setPatient(undefined);
-        setPaymentMethodId(0);
-        setPaymentTypeId(0);
+        setPaymentMethodId(undefined);
+        setPaymentTypeId(undefined);
         setPaymentInfo(undefined);
         setAmount('');
         setShowDebts(false);
+        setDebtsInfo([]);
         setIsOpenModal(false);
-    }
-
-
-    const handleCheckPaymentType = (id: number) => {
-        const movement = paymentTypesList.find((value, _) => value.id == id);
-        if (movement != null && movement?.name.toLocaleLowerCase().includes('pago')) {
-            setShowDebts(true);
-        }
     }
 
     const handleOnApplyPayment = (item: DebtInfo, type: string) => {
         const totalDebts = debtsInfo.filter((value, _) => value.debt.isAplicable == true)
             .map((value, _) => Number(value.amountDebt)).reduce((a, b) => a + b, 0);
+        const totalApplicable = Number(amount) - totalDebts;
 
-        console.log(`Ttoal debts`, totalDebts)
-        console.log(Number(amount));
+        console.log(`Total debts`, totalDebts)
+        console.log(`Applicable amount `, totalApplicable)
+        console.log(`Amount `, amount);
+        console.log(`Debt `, item.amountDebt);
+
         if (Number(amount) <= 0) {
-            console.log('Arega cantidad');
+            handleErrorNotification(Constants.SET_TEXT, `El monto debe ser mayor a $0`)
             return;
         }
         var element = JSON.parse(JSON.stringify(item));
-        if (type == 'apply' && Number(amount) >= Number(element.amountDebt) && (Number(amount) - totalDebts) >= Number(element.amountDebt)) {
+
+        if (type == 'apply') {
             element.debt.isAplicable = true;
+            if (totalApplicable >= Number(item.amountDebt)) {
+                element.debt.aplicableAmount = Number(item.amountDebt);
+            } else {
+                element.debt.aplicableAmount = totalApplicable;
+            }
+
         } else {
-            console.log('alert')
             element.debt.isAplicable = null;
+            element.debt.aplicableAmount = 0;
         }
+
         Object.preventExtensions(element);
         const result = debtsInfo.filter((value, _) => value.debt.id != item.debt.id);
         result.push(element);
@@ -172,6 +202,7 @@ const FormPayment = () => {
         debtsInfo.forEach((value, _) => {
             var element = JSON.parse(JSON.stringify(value));
             element.debt.isAplicable = null;
+            element.debt.aplicableAmount = 0;
             Object.preventExtensions(element);
             debtsArray.push(element);
         });
@@ -185,20 +216,35 @@ const FormPayment = () => {
             debtsInfo.filter((value, _) => value.debt.isAplicable == true).length <= 0
     }
 
+    const hasDebts = (): boolean => {
+        return debtsInfo.length > 0;
+    }
+
+    const buildPaymentTitle = (): string => {
+        if (props.source == FormPaymentSource.APPOINTMENT) {
+            return `Transacciones de ${buildPatientName(props.patient)}`;
+        } else {
+            return `Transacciones`;
+        }
+    }
 
     return (
         <LayoutCard
             isLoading={false}
             content={
                 <div className="flex flex-col">
-
                     <div className="flex w-full items-end justify-end">
-                        <Button type="primary" onClick={() => setIsOpenModal(true)}>Registrar Pagos / Abonos</Button>
+                        <Button type="primary" onClick={() => {
+                            if (props.onClick != null) {
+                                props?.onClick();
+                            }
+                            setIsOpenModal(true);
+                        }}>Registrar Pagos / Abonos</Button>
                     </div>
 
-                    <Modal afterClose={() => resetModalParams()} okText='Guardar' title='Transacciones' onOk={() => handleRegisterPatientPayment()} open={isOpenModal} onCancel={() => setIsOpenModal(false)}>
+                    <Modal afterClose={() => resetModalParams()} okText={Strings.save} title={buildPaymentTitle()} onOk={() => handleRegisterPatientPayment()} open={isOpenModal} onCancel={() => setIsOpenModal(false)}>
                         <div className="flex flex-col">
-                            <SelectSearch
+                            {props.source == FormPaymentSource.FORM && <SelectSearch
                                 placeholder={Strings.selectPatient}
                                 items={patientList}
                                 onChange={(value) => {
@@ -207,10 +253,10 @@ const FormPayment = () => {
                                 }}
                                 icon={<></>}
                                 defaultValue={patient?.id}
-                            />
+                            />}
                             <div className="flex flex-col">
                                 <span className="flex mt-2">{Strings.paymentMethod}</span>
-                                <Select style={{ minWidth: 250 }} size="large" placeholder={Strings.paymentMethod} onChange={(event) => setPaymentMethodId(event)}>
+                                <Select value={paymentMethodId} style={{ minWidth: 250 }} size="large" placeholder={Strings.paymentMethod} onChange={(event) => setPaymentMethodId(event)}>
                                     {paymentMethodList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                                 </Select>
                             </div>
@@ -229,9 +275,12 @@ const FormPayment = () => {
 
                             <div className="flex flex-col">
                                 <span className="flex mt-2">Tipo</span>
-                                <Select style={{ minWidth: 250 }} size="large" placeholder={'Tipo'} onChange={(event) => {
-                                    setPaymentTypeId(event);
-                                    handleCheckPaymentType(event);
+                                <Select value={paymentTypeId} style={{ minWidth: 250 }} size="large" placeholder={'Tipo'} onChange={(event) => {
+                                    if (hasDebts() && paymentTypesList.find((value, _) => value.id == Number(event))?.name == 'anticipo') {
+                                        handleErrorNotification(Constants.SET_TEXT, `Debes cubrir el saldo pendiente antes de agregar un anticipo`)
+                                    } else {
+                                        setPaymentTypeId(event);
+                                    }
                                 }}>
                                     {paymentTypesList.map((value, index) => <Select.Option key={index} value={value.id}>{value.name}</Select.Option>)}
                                 </Select>
@@ -240,25 +289,15 @@ const FormPayment = () => {
                             {showDebts && <div className="flex flex-col gap-2 mt-4 w-full items-start justify-start">
                                 {debtsInfo.map((value, index) =>
                                     <div key={index} className="flex flex-row items-baseline justify-center gap-2">
-                                        <SectionElement label={`#${value.debt.id} Saldo por cobrar`} value={formatPrice(Number(value.amountDebt))} icon={<></>} />
+                                        <SectionElement size="sm" label={`#${value.debt.id} Saldo por cobrar`} value={formatPrice(Number(value.amountDebt))} icon={<></>} />
                                         {(value.debt.isAplicable == null) && <Button onClick={() => handleOnApplyPayment(value, 'apply')} type="link">Aplicar</Button>}
                                         {(value.debt.isAplicable == true) && <Button onClick={() => handleOnApplyPayment(value, 'remove')} type="link">Quitar</Button>}
+                                        <SectionElement size="sm" label={`Saldo aplicado`} value={formatPrice(Number(value.debt.aplicableAmount))} icon={<></>} />
                                     </div>
                                 )}
                             </div>}
-
-                            {/* {(paymentInfo != undefined && paymentInfo.deposits != null && paymentInfo.deposits.length > 0) && <div className="flex flex-col flex-wrap gap-2">
-                                <Divider>Depositos</Divider>
-                                {paymentInfo.deposits.map((value, index) => <SectionElement key={index} label={Strings.receivedAmount} value={`${formatPrice(value.amount)}, Fecha ${formatServiceDate(value.createdAt)}`} icon={<></>} />)}
-                            </div>} */}
-
-                            {/* {(paymentInfo != undefined && paymentInfo.debts != null && paymentInfo.debts.length > 0) && <div className="flex flex-col flex-wrap gap-2">
-                                <Divider>Saldo por cobrar</Divider>
-                                {paymentInfo.debts.map((value, index) => <SectionElement key={index} label={'Saldo por cobrar'} value={`${formatPrice(value.amountDebt)}, Fecha ${formatServiceDate(value.debt.createdAt)}`} icon={<></>} />)}
-                            </div>} */}
                         </div>
                     </Modal>
-
                 </div>
             }
         />

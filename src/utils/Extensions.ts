@@ -210,7 +210,11 @@ const formatter = new Intl.NumberFormat('en-US', {
 });
 
 const formatPrice = (price: number): string => {
-  return formatter.format(price);
+  if (price != null && price != undefined && !isNaN(price)) {
+    return formatter.format(price);
+  } else {
+    return formatter.format(Number(0));
+  }
 }
 
 
@@ -239,5 +243,5 @@ export {
   RESPONSIVE_LIST_LARGE,
   formatPrice,
   stringToDate,
-  formatNumberToPercent, formatAppointmentDate,formatServiceDate
+  formatNumberToPercent, formatAppointmentDate, formatServiceDate
 }
