@@ -136,14 +136,14 @@ const PatientInfo = (props: PatientInfoProps) => {
         {
             label: <div className="flex items-baseline gap-1 justify-center"><RiHeartPulseLine /><span className="text text-sm">Estado de cuenta</span></div>,
             key: 3,
-            children: data != null && <PatientPaymentAccountInfo patient={data} />,
+            children: <PatientPaymentAccountInfo patient={data!} />,
         },
     ];
 
     return (
         <LayoutCard showBack={true} isLoading={isLoading} content={
             <div className="flex flex-col">
-                {data && <Tabs
+                {(data != null && data != undefined) && <Tabs
                     size="large"
                     type="card"
                     items={tabs}

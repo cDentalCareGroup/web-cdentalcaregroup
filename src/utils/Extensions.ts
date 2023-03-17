@@ -208,7 +208,7 @@ const formatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
-const formatPrice = (price: number): string => {
+const formatPrice = (price: number|undefined): string => {
   if (price != null && price != undefined && !isNaN(price)) {
     return formatter.format(price);
   } else {

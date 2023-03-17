@@ -30,6 +30,7 @@ interface FormPaymentProps {
     patient?: Patient;
     onClick?: () => void;
     onFinish?: () => void;
+    onGetPatientPayments?: (value: PaymentInfo) => void;
 }
 
 export enum FormPaymentSource {
@@ -59,14 +60,11 @@ const FormPayment = (props: FormPaymentProps) => {
     const [patientList, setPatientList] = useState<SelectItemOption[]>([]);
     const [patient, setPatient] = useState<SelectItemOption | undefined>();
     const [getPatientPayments] = useGetPatientPaymentsMutation();
-    const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
-    const [showDebts, setShowDebts] = useState(false);
     const [debtsInfo, setDebtsInfo] = useState<DebtInfo[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingAction, setIsLoadingAction] = useState(false);
 
 
     useEffect(() => {
-        console.log(`Loading payment data..`)
         handleGetPaymentMethods();
         handleGetPaymentTypes();
         if (props.source == FormPaymentSource.FORM) {
@@ -93,7 +91,7 @@ const FormPayment = (props: FormPaymentProps) => {
         try {
             const response = await getPaymentTypes({}).unwrap();
             setPaymentTypesList(response);
-            setShowDebts(true);
+            //setShowDebts(true);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -117,9 +115,11 @@ const FormPayment = (props: FormPaymentProps) => {
             const response = await getPatientPayments({
                 'patientId': patientId
             }).unwrap();
-            console.log(response);
-            setPaymentInfo(response);
+            console.log(`Getting payments`);
             setDebtsInfo(response?.debts ?? []);
+            if (props.onGetPatientPayments != null) {
+                props.onGetPatientPayments(response);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -145,7 +145,7 @@ const FormPayment = (props: FormPaymentProps) => {
                 handleErrorNotification(Constants.SET_TEXT, `Error en la información del paciente, por favor refresca la página`);
                 return;
             }
-            setIsLoading(true);
+            setIsLoadingAction(true);
             await registerPatientMovement(
                 {
                     'patientId': patient?.id ?? 0,
@@ -169,11 +169,9 @@ const FormPayment = (props: FormPaymentProps) => {
         setPatient(undefined);
         setPaymentMethodId(undefined);
         setPaymentTypeId(undefined);
-        setPaymentInfo(undefined);
         setAmount('');
-        setShowDebts(false);
         setDebtsInfo([]);
-        setIsLoading(false);
+        setIsLoadingAction(false);
         setIsOpenModal(false);
     }
 
@@ -243,6 +241,15 @@ const FormPayment = (props: FormPaymentProps) => {
         }
     }
 
+
+    const handleOnOpenModal = async () => {
+        if (props.patient != null && props.patient != undefined) {
+            await handleGetPatientPayments(props?.patient?.id ?? 0);
+            setPatient(patientToSelectItemOption(props.patient));
+        }
+        setIsOpenModal(true);
+    }
+
     return (
         <LayoutCard
             isLoading={false}
@@ -253,11 +260,11 @@ const FormPayment = (props: FormPaymentProps) => {
                             if (props.onClick != null) {
                                 props?.onClick();
                             }
-                            setIsOpenModal(true);
+                            handleOnOpenModal();
                         }}>Registrar Pagos / Abonos</Button>
                     </div>
 
-                    <Modal confirmLoading={isLoading} afterClose={() => resetModalParams()} okText={Strings.save} title={buildPaymentTitle()} onOk={() => handleRegisterPatientPayment()} open={isOpenModal} onCancel={() => setIsOpenModal(false)}>
+                    <Modal confirmLoading={isLoadingAction} afterClose={() => resetModalParams()} okText={Strings.save} title={buildPaymentTitle()} onOk={() => handleRegisterPatientPayment()} open={isOpenModal} onCancel={() => setIsOpenModal(false)}>
                         <div className="flex flex-col">
                             {props.source == FormPaymentSource.FORM && <SelectSearch
                                 placeholder={Strings.selectPatient}
@@ -301,7 +308,7 @@ const FormPayment = (props: FormPaymentProps) => {
                                 </Select>
                             </div>
 
-                            {showDebts && <div className="flex flex-col gap-2 mt-4 w-full items-start justify-start">
+                            <div className="flex flex-col gap-2 mt-4 w-full items-start justify-start">
                                 {debtsInfo.map((value, index) =>
                                     <div key={index} className="flex flex-row items-baseline justify-center gap-2">
                                         <SectionElement size="sm" label={`#${value.debt.id} Saldo por cobrar`} value={formatPrice(Number(value.amountDebt))} icon={<></>} />
@@ -310,7 +317,7 @@ const FormPayment = (props: FormPaymentProps) => {
                                         <SectionElement size="sm" label={`Saldo aplicado`} value={formatPrice(Number(value.debt.aplicableAmount))} icon={<></>} />
                                     </div>
                                 )}
-                            </div>}
+                            </div>
                         </div>
                     </Modal>
                 </div>

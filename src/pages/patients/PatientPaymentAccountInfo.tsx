@@ -5,6 +5,7 @@ import { getAppointmentStatus } from "../../data/appointment/appointment.extensi
 import { Patient } from "../../data/patient/patient";
 import { buildPatientAddress, buildPatientName, buildPatientPhone, getDentist, getHasCabinet, getHasLabs } from "../../data/patient/patient.extensions";
 import { PatientPaymentAccount, PatientPaymentInfo } from "../../data/patient/patient.payment.account";
+import { PaymentInfo } from "../../data/payment/payment.info";
 import { useGetPatientPaymentAccountMutation } from "../../services/paymentService";
 import Constants from "../../utils/Constants";
 import { formatPrice, formatServiceDate } from "../../utils/Extensions";
@@ -12,6 +13,7 @@ import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard"
+import FormPayment, { FormPaymentSource } from "../payments/FormPayment";
 
 
 interface PatientPaymentAccountProps {
@@ -22,7 +24,7 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
 
     const [getPatientPaymentAccount, { isLoading }] = useGetPatientPaymentAccountMutation();
     const [data, setData] = useState<PatientPaymentAccount[]>([]);
-
+    const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
     useEffect(() => {
         handleGetPatientPaymentAccount()
     }, []);
@@ -103,14 +105,6 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
         }
     }
 
-    const getPendingPayment = (value: PatientPaymentInfo): string => {
-        if (value.payment.status == 'C') {
-            return '$0'
-        } else {
-            const total = value.details.map((value, _) => Number(value.amount)).reduce((a, b) => a + b, 0)
-            return formatPrice(total);
-        }
-    }
 
 
     const getStautsAppointment = ({ appointmentInfo }: PatientPaymentAccount): JSX.Element => {
@@ -140,15 +134,25 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
     }
 
     const getTotalDebts = (): string => {
-        let totalPaid = 0;
-        for (const item of data) {
-            if (item.paymentInfo != null) {
-                if (item.paymentInfo.payment.status == 'A') {
-                    totalPaid += Number(item.paymentInfo.payment.amount) - item.paymentInfo.details.map((value, _) => Number(value.amount)).reduce((a, b) => a + b, 0);
-                }
-            }
-        }
-        return formatPrice(totalPaid);
+        const res = paymentInfo?.debts?.map((value, _) => Number(value.amountDebt)).reduce((a, b) => a + b, 0);
+        return formatPrice(res);
+    }
+
+    const getTotalDeposits = (): string => {
+        const res = paymentInfo?.deposits?.map((value, _) => Number(value.amount)).reduce((a, b) => a + b, 0);
+        return formatPrice(res);
+    }
+
+
+    const getPaidAppointment = (value: PatientPaymentInfo) => {
+        const paid = value.details.map((value, _) => Number(value.amount)).reduce((a, b) => a + b, 0);
+        return formatPrice(paid);
+    }
+
+    
+    const getPendingPayment = (value: PatientPaymentInfo): string => {
+        const paid = value.details.map((value, _) => Number(value.amount)).reduce((a, b) => a + b, 0);
+        return formatPrice(Number(value.payment.amount) - paid);
     }
 
     return (
@@ -158,8 +162,12 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
                     <SectionElement label={Strings.patientName} value={buildPatientName(props.patient)} icon={<></>} />
                     <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(props.patient)} icon={<></>} />
                     <SectionElement label={Strings.address} value={buildPatientAddress(props.patient)} icon={<></>} />
-                    <SectionElement label="Ingresos totales" value={getTotalPayments()} icon={<></>} />
-                    <SectionElement label="Saldo por cobrar" value={getTotalDebts()} icon={<></>} />
+                    <SectionElement label="Ingresos en citas" value={getTotalPayments()} icon={<></>} />
+                    {paymentInfo != null && <SectionElement label="Saldo en cuenta" value={getTotalDeposits()} icon={<></>} />}
+                    {paymentInfo != null && <SectionElement label="Saldo por cobrar" value={getTotalDebts()} icon={<></>} />}
+
+                    <FormPayment onGetPatientPayments={(event) => setPaymentInfo(event)} onFinish={() => setPaymentInfo(undefined)} onClick={() => { }} source={FormPaymentSource.APPOINTMENT} patient={props.patient} />
+
 
                     <Divider>Información de cuenta</Divider>
 
@@ -189,7 +197,8 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
                                     {getStautsAppointment(data[index])}
 
                                     {paymentInfo != null && <div>
-                                        <SectionElement size="sm" label={"Pago"} value={formatPrice(paymentInfo.payment.amount)} icon={<></>} />
+                                        <span onClick={() => {}}>show me</span>
+                                        <SectionElement size="sm" label={"Pagado"} value={getPaidAppointment(paymentInfo)} icon={<></>} />
                                         <SectionElement size="sm" label="Fecha de pago" value={formatServiceDate(paymentInfo.payment.createdAt)} icon={<></>} />
                                         <SectionElement size="sm" label="Saldo por cobrar" value={getPendingPayment(paymentInfo)} icon={<></>} />
                                         {getPaymentStatus(data[index])}

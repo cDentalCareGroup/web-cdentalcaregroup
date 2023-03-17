@@ -43,6 +43,7 @@ const Appointments = (props: AppointmentsProps) => {
 
     const handleGetAppointmentsByBranchOffice = async (status: string) => {
         try {
+            console.log(`BranchID`,branchId);
             setIsLoading(true);
             const response = await getAppointmentsByBranchOffice({ id: Number(branchId), status: status }).unwrap();
             //setSortedData(groupBy(response, 'appointment'));

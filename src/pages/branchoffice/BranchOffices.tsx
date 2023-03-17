@@ -59,16 +59,16 @@ const BranchOffices = (props: BranchOfficesProps) => {
     const buildActions = (value: BranchOffice) => {
         if (props.type == BranchOfficeType.APPOINTMENTS && props.rol == UserRoles.ADMIN) {
             return [
-                <Link onClick={() => {
-                    setBranchId(value.id);
+                <Link onClick={async() => {
+                    await setBranchId(value.id);
                 }} to={'/admin/branchoffice/appointments'}>
                     {Strings.seeAppointments}
                 </Link>
             ]
         } else if (props.type == BranchOfficeType.APPOINTMENTS && props.rol == UserRoles.CALL_CENTER) {
             return [
-                <Link onClick={() => {
-                    setBranchId(value.id);
+                <Link onClick={async() => {
+                    await setBranchId(value.id);
                 }} to={'/callcenter/branchoffice/appointments'}>
                     {Strings.seeAppointments}
                 </Link>

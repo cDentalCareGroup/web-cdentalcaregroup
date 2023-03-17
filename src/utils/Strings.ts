@@ -310,7 +310,7 @@ class Strings {
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
 
-    static appVersion = 'v.1.0.40-DEV';
+    static appVersion = 'v.1.0.40.1-DEV';
 }
 
 export default Strings;

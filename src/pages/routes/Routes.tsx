@@ -238,7 +238,7 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             null,
             [
                 getItem(logout.label, logout.fullPath, logout.icon),
-                getItem(test.label, test.fullPath, test.icon)
+               
             ],
             'group'),
     ];
