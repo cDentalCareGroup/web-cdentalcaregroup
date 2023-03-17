@@ -18,10 +18,18 @@ export const statisticService = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: GetStatisticsCalls }, meta, arg) => response.data,
         }),
+        getPaymentsStatistics: builder.mutation<any[], any>({
+            query: (_) => ({
+                url: '/statistic/balance',
+                method: "GET",
+            }),
+            transformResponse: (response: { data: any[] }, meta, arg) => response.data,
+        }),
     })
 });
 
 export const {
    useGetStatisticsMutation,
-   useGetCallStatisticsMutation
+   useGetCallStatisticsMutation,
+   useGetPaymentsStatisticsMutation
 } = statisticService;

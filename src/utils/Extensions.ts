@@ -1,3 +1,4 @@
+import { format, parseISO } from 'date-fns';
 import User from '../data/user/user';
 
 
@@ -168,9 +169,7 @@ const formatAppointmentDate = (date: string, appointments: number) => {
 
 
 const formatServiceDate = (date: Date): string => {
-  const arrayData = date.toString().split("T");
-  const timeArray = arrayData[1].split(".")
-  return `${arrayData[0]} - ${timeArray[0]}`;
+  return format(parseISO(date.toString()), 'yyy-MM-dd HH:mm')
 }
 
 

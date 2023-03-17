@@ -29,6 +29,7 @@ interface FormPaymentProps {
     source: FormPaymentSource;
     patient?: Patient;
     onClick?: () => void;
+    onFinish?: () => void;
 }
 
 export enum FormPaymentSource {
@@ -61,6 +62,7 @@ const FormPayment = (props: FormPaymentProps) => {
     const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
     const [showDebts, setShowDebts] = useState(false);
     const [debtsInfo, setDebtsInfo] = useState<DebtInfo[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
 
     useEffect(() => {
@@ -130,12 +132,20 @@ const FormPayment = (props: FormPaymentProps) => {
                 return;
             }
 
-            if (hasDebts() && paymentTypesList.find((value, _) => value.id == paymentTypeId)?.name == 'anticipo') {
+            if (hasDebts() && paymentTypesList.find((value, _) => value.id == paymentTypeId)?.name.toLowerCase() == 'anticipo') {
                 handleErrorNotification(Constants.SET_TEXT, `Debes cubrir el saldo pendiente antes de agregar un anticipo`)
                 return;
             }
-            console.log(patient);
-            return;
+
+            if (paymentTypesList.find((value, _) => value.id == paymentTypeId)?.name.toLowerCase() == 'pago' && !hasDebts()) {
+                handleErrorNotification(Constants.SET_TEXT, `No puedes realizar un pago si el paciente no tiene saldo pendiente por cobrar`)
+                return;
+            }
+            if (patient?.id == null || patient?.id == undefined || patient?.id == 0) {
+                handleErrorNotification(Constants.SET_TEXT, `Error en la información del paciente, por favor refresca la página`);
+                return;
+            }
+            setIsLoading(true);
             await registerPatientMovement(
                 {
                     'patientId': patient?.id ?? 0,
@@ -146,8 +156,12 @@ const FormPayment = (props: FormPaymentProps) => {
                 }
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER);
+            if (props.onFinish != null) {
+                props.onFinish();
+            }
             resetModalParams();
         } catch (error) {
+            resetModalParams();
             handleErrorNotification(error);
         }
     }
@@ -159,6 +173,7 @@ const FormPayment = (props: FormPaymentProps) => {
         setAmount('');
         setShowDebts(false);
         setDebtsInfo([]);
+        setIsLoading(false);
         setIsOpenModal(false);
     }
 
@@ -234,7 +249,7 @@ const FormPayment = (props: FormPaymentProps) => {
             content={
                 <div className="flex flex-col">
                     <div className="flex w-full items-end justify-end">
-                        <Button type="primary" onClick={() => {
+                        <Button type="dashed" onClick={() => {
                             if (props.onClick != null) {
                                 props?.onClick();
                             }
@@ -242,7 +257,7 @@ const FormPayment = (props: FormPaymentProps) => {
                         }}>Registrar Pagos / Abonos</Button>
                     </div>
 
-                    <Modal afterClose={() => resetModalParams()} okText={Strings.save} title={buildPaymentTitle()} onOk={() => handleRegisterPatientPayment()} open={isOpenModal} onCancel={() => setIsOpenModal(false)}>
+                    <Modal confirmLoading={isLoading} afterClose={() => resetModalParams()} okText={Strings.save} title={buildPaymentTitle()} onOk={() => handleRegisterPatientPayment()} open={isOpenModal} onCancel={() => setIsOpenModal(false)}>
                         <div className="flex flex-col">
                             {props.source == FormPaymentSource.FORM && <SelectSearch
                                 placeholder={Strings.selectPatient}

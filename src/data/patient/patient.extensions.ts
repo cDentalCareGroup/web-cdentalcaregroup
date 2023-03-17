@@ -3,7 +3,7 @@ import { PadComponentService, Patient } from "./patient"
 import { formatISO } from "date-fns";
 import { capitalizeAllCharacters } from "../../utils/Extensions";
 
-const DEFAULT_FIELD_VALUE = "-"
+export const DEFAULT_FIELD_VALUE = "-"
 
 const buildPatientName = (patient: Patient | undefined): string => {
   return `${patient?.name} ${patient?.lastname} ${patient?.secondLastname}`

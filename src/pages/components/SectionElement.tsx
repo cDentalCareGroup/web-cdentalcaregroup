@@ -14,7 +14,7 @@ const SectionElement = ({ label, value, icon, size }: SectionElementProps) => {
                     {icon}
                     <span className="text-sm font-normal text-gray-500">{label}: </span>
                 </div>
-                <span className="text text-xs text-gray-600 flex flex-wrap flex-col">
+                <span className="text text-xs font-bold text-gray-600 flex flex-wrap flex-col">
                     {value}
                 </span>
             </div>

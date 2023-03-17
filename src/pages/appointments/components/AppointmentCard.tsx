@@ -1,7 +1,7 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
 import { RiCalendar2Line, RiCoinsLine, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
-import { buildPatientName, buildPatientPad, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
+import { buildPatientName, buildPatientPad, DEFAULT_FIELD_VALUE, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
 import { Button, Checkbox, Form, Input, Modal, Popover, Radio, Row, Select, Table, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
@@ -35,7 +35,7 @@ import { Employee } from "../../../data/employee/employee";
 import { PaymentMethod } from "../../../data/payment/payment.method";
 import { servicesToSelectItemOption } from "../../../data/service/service.extentions";
 import MultiSelectSearch from "../../components/MultiSelectSearch";
-import { useGetPadServicesMutation } from "../../../services/padService";
+import { useGetPadServicesMutation, useGetServiceCategoriesMutation } from "../../../services/padService";
 import EditableTable from "./EditableTableService";
 import { Service } from "../../../data/service/service";
 import Spinner from "../../components/Spinner";
@@ -49,6 +49,7 @@ import { DebtInfo, PaymentInfo } from "../../../data/payment/payment.info";
 import { Payment } from "../../../data/payment/payment";
 import PaymentPatientCard from "../../components/PaymentPatientCard";
 import FormPayment, { FormPaymentSource } from "../../payments/FormPayment";
+import { ServiceCategory } from "../../../data/service/service.category";
 
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
@@ -78,7 +79,9 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [getPadServices] = useGetPadServicesMutation();
     const [registerAppointmentPatient] = useRegisterAppointmentPatientMutation();
     const [getPatientPayments] = useGetPatientPaymentsMutation();
+    const [getServiceCategories] = useGetServiceCategoriesMutation();
 
+    const [serviceCategoryList, setServiceCategoryList] = useState<ServiceCategory[]>([]);
     const [paymentMethodList, setPaymentMethodList] = useState<PaymentMethod[]>([]);
     const [paymentMethodId, setPaymentMethodId] = useState(0);
 
@@ -409,12 +412,30 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             if (branchOfficeOption != null) setBranchOfficeList([branchOfficeOption]);
         }
 
+        const previusDentist = dentistList.find((value, _) => value.id == dentistFound.id);
+        if (previusDentist != null) {
+            const isSpecialist = previusDentist.description == Constants.EMPLOYEE_SPECIALIST;
+            if (isSpecialist) {
+                handleGetAppointmentAvailability(
+                    date,
+                    branchOfficeOption?.label ?? ''
+                );
+            } else {
+                handleGetDentistAvailability(
+                    dentistFound.id,
+                    branchOfficeOption?.id ?? 0,
+                    date
+                );
+            }
+        } else {
+            handleGetDentistAvailability(
+                dentistFound.id,
+                branchOfficeOption?.id ?? 0,
+                date
+            );
+        }
+
         await handleGetDentist();
-        handleGetDentistAvailability(
-            dentistFound.id,
-            branchOfficeOption?.id ?? 0,
-            date
-        );
         setModalNextAppointment(true);
         await handleGetServices();
     }
@@ -469,7 +490,9 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleOnCalendarDentistChange = (newDate: Date) => {
         setTime(null);
         setDate(newDate);
-        if (dentist?.description == Constants.EMPLOYEE_SPECIALIST) {
+        const previusDentist = dentistList.find((value, _) => value.id == dentist?.id ?? 0);
+        const isSpecialist = previusDentist?.description == Constants.EMPLOYEE_SPECIALIST;
+        if (isSpecialist) {
             handleGetAppointmentAvailability(newDate, branchOffice?.label ?? '');
         } else {
             handleGetDentistAvailability(
@@ -597,8 +620,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             <SectionElement label={Strings.pad} value={getPatientPad(data)} icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.dateAndTime} value={`${data.appointment.appointment} ${data.appointment.time}`} icon={<RiCalendar2Line />} />
             <SectionElement label={Strings.branchOffice} value={data.branchOffice.name} icon={<RiMentalHealthLine />} />
-            <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />
-            <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
+            {getPatientEmail(data) != DEFAULT_FIELD_VALUE && <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />}            <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
             <SectionElement label={Strings.services} value={buildServices()} icon={<RiServiceLine />} />
             {validateReferral() && <SectionElement label={Strings.origin} value={buildReferralName()} icon={<RiUser3Line />} />}
@@ -661,10 +683,20 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const handleSetModalFinish = async () => {
-        await handleGetServices();
         handleGetPadServices();
+        handleGetServiceCatgories();
         handleGetPaymentMethods();
+        await handleGetServices();
         setModalFinish(true)
+    }
+
+    const handleGetServiceCatgories = async () => {
+        try {
+            const response = await getServiceCategories({}).unwrap();
+            setServiceCategoryList(response);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const handleGetPadServices = async () => {
@@ -778,7 +810,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
 
     const handleOnServiceChange = (service: SelectItemOption) => {
-        // console.log(service);
         setIsTableLoading(true);
         const serviceItem = dataServices.find((value, _) => value.id == service.id);
         let tableInfo = dataTable;
@@ -788,9 +819,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         let subTotal = 0;
         let price = 0;
         let availableUsage = 500;
-        ///  let quantity = 1;
-        //let shouldAdd = true;
-        //  let item: any = null;
 
         const component = padComponent?.components?.find((value: any, _: any) => value.service.id == service.id);
         const serviceExists = tableInfo.filter((value, _) => value.serviceId == service.id);
@@ -829,37 +857,13 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             return;
         }
 
-        // if (component != null) {
-        //     const exits = tableInfo.filter((value, _) => value.description.toLowerCase().includes(service.description?.toLowerCase()));
-        //     //   const alreadyExist = tableInfo.filter((value, _) => value.serviceId == service.id);
-        //     console.log(exits);
-        //     if (Number(component.availableUsage) > exits.length) {
-        //         // console.log(exits[exits.length - 1].disscount);
-        //         //console.log(Number(component.component.discount));
-        //         if (exits.length > 0 && exits[exits.length - 1].disscount == Number(component.component.discount) && exits[exits.length - 1].quantity < component.availableUsage) {
-        //             // console.log('agrego otra con el mism descuentoÏ')
-        //             shouldAdd = false;
-        //             const element = exits[exits.length - 1];
-        //             element.quantity = Number(element.quantity) + 1;
-        //             item = element;
-        //         } else {
-        //             discount = Number(component.component.discountTwo);
-        //             availableUsage = component.availableUsage;
-        //         }
-
-        //     } else {
-        //         console.log('aqui')
-        //         if (exits.length > 0 && exits[exits.length - 1].discountTwo == Number(component.component.discountTwo)) {
-        //             console.log('agrego otra con el mism descuentoÏ')
-        //             shouldAdd = false;
-        //             const element = exits[exits.length - 1];
-        //             element.quantity = Number(element.quantity) + 1;
-        //             item = element;
-        //         } else {
-        //             discount = Number(component.component.discountTwo);
-        //         }
-        //     }
-        // }
+        if (padComponent != null && padComponent != undefined && component == null || component == undefined) {
+            const itemService = dataServices.find((value, _) => value.id == service.id);
+            const category = serviceCategoryList.find((value, _) => value.id == itemService?.categoryId);
+            if (category != null && Number(category.discount) > 0) {
+                discount = Number(category.discount);
+            }
+        }
 
         if (discount > 0) {
             price = servicePrice - Math.round((Number(servicePrice) / 100) * Math.round(Number(discount)));
@@ -868,10 +872,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             price = servicePrice;
             subTotal = price;
         }
-        // setDataTable([]);
-
-        //  if (shouldAdd) {
-        console.log(serviceItem);
         tableInfo.push(
             {
                 key: serviceKey,
@@ -886,18 +886,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 labCost: serviceItem?.labCost
             },
         );
-        // } else if (item != null) {
-        //     const filteredData = tableInfo.filter((value, _) => value.key != item.key);
-        //     item.quantity = quantity;
-        //     item.disscount = discount;
-        //     filteredData.push(item);
-        //     tableInfo = filteredData;
-        // }
+
         setTimeout(() => {
             setDataTable(tableInfo);
             setIsTableLoading(false);
         }, 100)
-        //  }
+
     }
 
     const handleOnTableChange = (data: any) => {
@@ -1075,9 +1069,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const hasPaymentInfo = (): boolean => {
-        return paymentInfo != null && paymentInfo != undefined &&
-            ((paymentInfo.debts != null && paymentInfo.debts.length > 0) ||
-                (paymentInfo.deposits != null && paymentInfo.deposits.length > 0))
+        return paymentInfo != null && paymentInfo != undefined
     }
 
     const buildCardTitle = () => {
@@ -1087,7 +1079,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 content={
                     <div>
                         <PaymentPatientCard paymentInfo={paymentInfo!!} />
-                        <FormPayment onClick={() => setShowPaymentInfo(false)} source={FormPaymentSource.APPOINTMENT} patient={data.patient} />
+                        <FormPayment onFinish={() => handleGetPatientPayments()} onClick={() => setShowPaymentInfo(false)} source={FormPaymentSource.APPOINTMENT} patient={data.patient} />
                     </div>
                 }
                 title="Información de pagos / abonos / saldos pendientes"

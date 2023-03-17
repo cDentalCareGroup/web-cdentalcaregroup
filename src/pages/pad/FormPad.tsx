@@ -292,10 +292,10 @@ const FormPad = (props: FormPadProps) => {
                         <Popover placement="leftTop" content={
                             <div className="flex flex-col flex-wrap">
                                 <span className="text text-xs text-gray-600 mt-2 mb-4">Una vez guardado no se permitiran cambios. Estas seguro que deseas continuar?</span>
-                                <Button type="primary" onClick={() => handleOnRegisterPad()}>{Strings.continue}</Button>
+                                <Button loading={isLoading} type="primary" onClick={() => handleOnRegisterPad()}>{Strings.continue}</Button>
                             </div>
                         } title="Confirmación" trigger="hover">
-                            <Button type="primary">{Strings.save}</Button>
+                            <Button loading={isLoading} type="primary">{Strings.save}</Button>
                         </Popover>
                     </div>
                 </div>
