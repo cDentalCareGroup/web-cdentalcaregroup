@@ -136,7 +136,7 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
     }
 
     const getTotalDeposits = (): string => {
-        const res = paymentInfo?.deposits?.map((value, _) => Number(value.amount)).reduce((a, b) => a + b, 0);
+        const res = paymentInfo?.deposits?.map((value, _) => Number(value.amountDeposit)).reduce((a, b) => a + b, 0);
         return formatPrice(res);
     }
 
