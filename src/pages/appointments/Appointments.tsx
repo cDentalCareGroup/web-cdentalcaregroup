@@ -43,6 +43,7 @@ const Appointments = (props: AppointmentsProps) => {
 
     const handleGetAppointmentsByBranchOffice = async (status: string) => {
         try {
+            console.log(`BranchID`,branchId);
             setIsLoading(true);
             const response = await getAppointmentsByBranchOffice({ id: Number(branchId), status: status }).unwrap();
             //setSortedData(groupBy(response, 'appointment'));
@@ -132,8 +133,8 @@ const Appointments = (props: AppointmentsProps) => {
                 {props.rol != UserRoles.CALL_CENTER && <FormAppointment rol={props.rol} onFinish={() => onStatusChange()} />}
 
                 {!isFiltering && <div className="flex flex-col">
-                    {appointments?.map((item, _) =>
-                        <div className="flex flex-col">
+                    {appointments?.map((item, index) =>
+                        <div className="flex flex-col" key={index}>
                             <Divider orientation="left">
                                 <span className="text-red-800">{formatAppointmentDate(item.date, item.appointments.length)}</span>
                             </Divider>

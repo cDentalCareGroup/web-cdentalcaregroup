@@ -13,6 +13,7 @@ import {
     RiPhoneLine,
     RiUserHeartLine,
     RiServiceLine,
+    RiBankLine,
 } from "react-icons/ri";
 import { ItemType } from "antd/es/menu/hooks/useItems";
 import User from "../../data/user/user";
@@ -44,6 +45,7 @@ import Test from "../components/Test";
 import Dashboard from "../dashboard/Dashboard";
 import { AvailableTime } from "../../data/appointment/available.time";
 import AvailableTimes from "../schedules/AvailableTimes";
+import Origins from "../origins/Origins";
 
 export class Route {
     label: string;
@@ -76,13 +78,15 @@ const adminPatients = new Route('Pacientes', 'patients', '/admin/patients', <Pat
 const adminRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/admin/patients/register', <FormPatient source={FormPatientSource.FORM} type={FormPatientType.REGISTER} rol={UserRoles.ADMIN} />, <RiUser3Line />);
 const adminPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/admin/patients/detail/:id', <PatientInfo rol={UserRoles.ADMIN} />, <RiUser3Line />);
 const adminProspects = new Route('Prospectos', 'prospects', '/admin/prospects', <Prospects />, <RiUser3Line />);
-const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads rol={UserRoles.ADMIN}  />, <RiUserHeartLine />);
+const adminPad = new Route('Pads', 'pad', '/admin/pad/', <Pads rol={UserRoles.ADMIN} />, <RiUserHeartLine />);
 const adminPadCatalogue = new Route('Pad catalogos', 'padCatalogue', '/admin/pad/catalogs/', <PadCatalogues />, <RiUserHeartLine />);
 const adminPadCatalogueForm = new Route('Form pad catalogos', 'formPadCatalogue', '/admin/pad/catalogs/register', <FormPadCatalogue type={FormPadCatalogueType.REGISTER} />, <RiUserHeartLine />);
 const adminPadCatalogueFormUpdate = new Route('Form pad catalogos', 'formPadCatalogue', '/admin/pad/catalogs/detail/:id', <FormPadCatalogue type={FormPadCatalogueType.UPDATE} />, <RiUserHeartLine />);
 const adminAppointments = new Route('CitasSucursal', 'appointments', '/admin/branchoffice/appointments', <Appointments rol={UserRoles.ADMIN} />, <RiCalendar2Line />);
 const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/branchoffice/appointments/detail/:folio', <AppointmentInfo rol={UserRoles.ADMIN} />, <RiCalendar2Line />);
 const adminService = new Route('Servicios', 'services', '/admin/services/', <Services />, <RiServiceLine />);
+const adminCallsType = new Route('Catalogo llamadas', 'callsType', '/admin/calltypes', <CallsType />, <RiPhoneLine />);
+const adminOrigins = new Route('Origenes', 'origins', '/admin/origins', <Origins />, <RiBankLine />);
 
 const test = new Route('Test', 'test', '/admin/test/', <Test />, <RiUserHeartLine />);
 
@@ -95,13 +99,13 @@ const receptionistRegisterPatients = new Route('RegistroPacientes', 'patientsReg
 const receptionistPatients = new Route('Pacientes', 'patients', '/receptionist/patients', <Patients rol={UserRoles.RECEPTIONIST} />, <RiUserHeartLine />);
 const receptionistPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/receptionist/patients/detail/:id', <PatientInfo rol={UserRoles.RECEPTIONIST} />, <RiUser3Line />);
 const receptionistService = new Route('Servicios', 'services', '/receptionist/services/', <Services />, <RiServiceLine />);
-const receptionistPad = new Route('Pads', 'pad', '/receptionist/pad/', <Pads  rol={UserRoles.RECEPTIONIST} />, <RiUserHeartLine />);
+const receptionistPad = new Route('Pads', 'pad', '/receptionist/pad/', <Pads rol={UserRoles.RECEPTIONIST} />, <RiUserHeartLine />);
 
 //const receptionistTimes = new Route('Horarios', 'times', '/receptionist/times/', <AvailableTimes />, <RiCalendarCheckLine />);
 
 const callCenter = new Route('Llamadas', 'callCenter', '/callcenter', <Calls />, <RiUser3Line />);
 const callCenterCalInfo = new Route('Call Center', 'callCenterInfo', '/callcenter/call', <CallInfo />, <RiUser3Line />);
-const callsType = new Route('Catalogo llamadas', 'callsType', '/callcenter/calltypes', <CallsType />, <RiPhoneLine />);
+//const callsType = new Route('Catalogo llamadas', 'callsType', '/callcenter/calltypes', <CallsType />, <RiPhoneLine />);
 const callsPatients = new Route('Pacientes', 'patients', '/callcenter/patients', <Patients rol={UserRoles.CALL_CENTER} />, <RiUserHeartLine />);
 const callsRegisterPatients = new Route('RegistroPacientes', 'patientsRegister', '/callcenter/patients/register', <FormPatient source={FormPatientSource.FORM} type={FormPatientType.REGISTER} rol={UserRoles.CALL_CENTER} />, <RiUser3Line />);
 const callsPatientsInfo = new Route('PacientesInfo', 'patientsInfo', '/callcenter/patients/detail/:id', <PatientInfo rol={UserRoles.CALL_CENTER} />, <RiUser3Line />);
@@ -129,7 +133,9 @@ const adminRoutes: Route[] = [
     adminPadCatalogueFormUpdate,
     adminService,
     test,
+    adminCallsType,
     adminStatistics,
+    adminOrigins,
     logout
 ];
 
@@ -148,7 +154,7 @@ const receptionistRoutes: Route[] = [
 const callCenterRoutes: Route[] = [
     callCenter,
     callCenterCalInfo,
-    callsType,
+    //callsType,
     callsPatients,
     callsRegisterPatients,
     callsPatientsInfo,
@@ -211,12 +217,28 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             ],
             'group'),
         getItem(
+            'Llamadas',
+            'calls',
+            null,
+            [
+                getItem(adminCallsType.label, adminCallsType.fullPath, adminCallsType.icon),
+            ],
+            'group'),
+            getItem(
+                'Pacientes Origenes',
+                'origins',
+                null,
+                [
+                    getItem(adminOrigins.label, adminOrigins.fullPath, adminOrigins.icon),
+                ],
+                'group'),
+        getItem(
             'Configuración',
             'cng',
             null,
             [
                 getItem(logout.label, logout.fullPath, logout.icon),
-                getItem(test.label, test.fullPath, test.icon)
+               
             ],
             'group'),
     ];
@@ -232,7 +254,7 @@ const receptionistRoutesToMenuOptions = (): ItemType[] => {
             [
                 getItem(receptionistAppointments.label, receptionistAppointments.fullPath, receptionistAppointments.icon),
                 getItem(receptionistPatients.label, receptionistPatients.fullPath, receptionistPatients.icon),
-               // getItem(receptionistTimes.label, receptionistTimes.fullPath, receptionistTimes.icon),
+                // getItem(receptionistTimes.label, receptionistTimes.fullPath, receptionistTimes.icon),
             ],
             'group'),
         getItem(
@@ -271,7 +293,7 @@ const callCenterRoutesToMenuOptions = (): ItemType[] => {
             null,
             [
                 getItem(callCenter.label, callCenter.fullPath, callCenter.icon),
-                getItem(callsType.label, callsType.fullPath, callsType.icon),
+               
             ],
             'group'),
         getItem(

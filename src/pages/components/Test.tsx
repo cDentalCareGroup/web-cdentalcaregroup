@@ -1,5 +1,5 @@
 import LayoutCard from "../layouts/LayoutCard";
-import FormPayment from "../payments/FormPayment";
+import FormPayment, { FormPaymentSource } from "../payments/FormPayment";
 
 const Test = () => {
 
@@ -10,7 +10,7 @@ const Test = () => {
                 <div>
                     <span>testing</span>
 
-                    <FormPayment />
+                    <FormPayment source={FormPaymentSource.FORM} />
                 </div>
             }
         />

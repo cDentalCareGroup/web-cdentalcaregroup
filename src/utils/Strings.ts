@@ -194,6 +194,12 @@ class Strings {
     static maxQuantity = "Cantidad máxima"
 
     static origin = "Origen"
+    static origins = "Origenes"
+
+    static formRegisterOrigin = "Registrar origen"
+    static formUpdateOrigin = "Actualizar origen"
+
+
     static organization = "Organización"
     static registerDate = "Fecha de registro"
 
@@ -304,7 +310,7 @@ class Strings {
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
 
-    static appVersion = 'v.1.0.39-PROD';
+    static appVersion = 'v.1.0.40.3-DEV';
 }
 
 export default Strings;

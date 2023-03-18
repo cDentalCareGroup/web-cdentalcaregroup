@@ -204,39 +204,49 @@ const EditableTable = (props: EditableTableCustomProps) => {
 
 
         const existingService = newData.filter((value, _) => value.serviceId == row.serviceId);
-        if (existingService.length > 1 && row.quantity < row.availableUsage) {
-            const element = existingService[existingService.length - 1];
-            element.quantity = Number(element.quantity) - Number(row.quantity);
+        //console.log(existingService);
+        // if (existingService.length > 1 && row.quantity < row.availableUsage) {
+        //     const element = existingService[existingService.length - 1];
+        //    // element.quantity = Number(element.quantity) - Number(row.quantity);
 
-            if (element.disscount != null && element.disscount != 0 && element.disscount != '0') {
-                element.price = element.unitPrice - Math.round((Number(element.unitPrice) / 100) * Math.round(Number(element.disscount)));
-                element.subtotal = Number(element.quantity) * Number(element.price);
-            } else {
-                element.price = element.unitPrice;
-                element.subtotal = Number(element.quantity) * Number(element.unitPrice);
-            }
-
-            const res = newData.filter((value, _) => value.key != element.key);
-            if (element.quantity > 0) {
-                res.push(element);
-            }
-            newData = res;
-        } else {
-            const element = existingService[existingService.length - 1];
-            element.quantity = Number(element.quantity) + Number(row.quantity) - 1;
-            if (element.disscount != null && element.disscount != 0 && element.disscount != '0') {
-                element.price = element.unitPrice - Math.round((Number(element.unitPrice) / 100) * Math.round(Number(element.disscount)));
-                element.subtotal = Number(element.quantity) * Number(element.price);
-            } else {
-                element.price = element.unitPrice;
-                element.subtotal = Number(element.quantity) * Number(element.unitPrice);
-            }
-            const res = newData.filter((value, _) => value.key != element.key);
-            if (element.quantity > 0) {
-                res.push(element);
-            }
-            newData = res;
-        }
+        //     if (element.disscount != null && element.disscount != 0 && element.disscount != '0') {
+        //         element.price = element.unitPrice - Math.round((Number(element.unitPrice) / 100) * Math.round(Number(element.disscount)));
+        //         element.subtotal = Number(element.quantity) * Number(element.price);
+        //     } else {
+        //         element.price = element.unitPrice;
+        //         element.subtotal = Number(element.quantity) * Number(element.unitPrice);
+        //     }
+        //     //  console.log(`Element 1`,element);
+        //     // const res = newData.filter((value, _) => value.key != element.key);
+        //     // if (element.quantity > 0) {
+        //     //     res.push(element);
+        //     // }
+        //     // newData = res;
+        //     console.log(`Element 2`, element);
+        //     row = element;
+        // } else {
+        //     const element = existingService[existingService.length - 1];
+        //     element.quantity = row.quantity;
+        //     if (element.disscount != null && element.disscount != 0 && element.disscount != '0') {
+        //         element.price = element.unitPrice - Math.round((Number(element.unitPrice) / 100) * Math.round(Number(element.disscount)));
+        //         element.subtotal = Number(element.quantity) * Number(element.price);
+        //     } else {
+        //         element.price = element.unitPrice;
+        //         element.subtotal = Number(element.quantity) * Number(element.unitPrice);
+        //     }
+        //     console.log(`Element 1 -- ${Number(element.quantity)} === ${Number(row.quantity)}`);
+            
+        //     // console.log(`Item 2`, element)
+        //     //console.log(`Element 2`,newData.filter((value, _) => value.key != element.key));
+        //     //     const filteredData = newData.filter((value, _) => value.key != element.key);
+        //     // //    console.log(`Filter data`, filteredData);
+        //     //     if (element.quantity > 0) {
+        //     //         filteredData.push(element);
+        //     //     }
+        //     //    // console.log(`Res`, res);
+        //     //     newData = filteredData;
+        //     row = element;
+        // }
 
         //   console.log(`Disponibilidad ${row.availableUsage}, ${row.quantity}`);
 
@@ -267,6 +277,9 @@ const EditableTable = (props: EditableTableCustomProps) => {
             row.price = row.unitPrice;
             row.subtotal = Number(row.quantity) * Number(row.unitPrice);
         }
+
+        console.log(`Row`, row)
+        console.log(`Item`, item)
         newData.splice(index, 1, {
             ...item,
             ...row,

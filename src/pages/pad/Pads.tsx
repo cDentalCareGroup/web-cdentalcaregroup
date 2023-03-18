@@ -120,6 +120,9 @@ const Pads = (props: PadsProps) => {
             return;
         }
 
+       // console.log(dataList.length)
+        //console.log(selectedPad?.catalogue.maxMember);
+
         if (selectedPad != null && dataList.length < selectedPad?.catalogue.maxAdditional) {
             setIsListLoading(true);
             dataList.push(patient);

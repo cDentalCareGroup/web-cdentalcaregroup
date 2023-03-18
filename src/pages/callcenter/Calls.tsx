@@ -67,10 +67,16 @@ const Calls = () => {
                 </div>
             );
         } else {
+            let branchName = '-';
+            if (value.catalog.name.toLowerCase() == 'no-show') {
+                branchName = value.appointment?.branchName ?? '';
+            } else {
+                branchName = value.call?.branchName ?? '';
+            }
             return (
                 <div className="mb-2">
                     <SectionElement label={Strings.patientName} value={value.propspect?.name ?? '-'} icon={<RiUser3Line />} />
-                    <SectionElement label={Strings.branchOffice} value={'-'} icon={<RiMailLine />} />
+                    <SectionElement label={Strings.branchOffice} value={branchName} icon={<RiMailLine />} />
                     <SectionElement label={Strings.email} value={value.propspect?.email ?? '-'} icon={<RiUser3Line />} />
                     <SectionElement label={Strings.phoneNumber} value={value.propspect?.primaryContact ?? '-'} icon={<RiPhoneLine />} />
                     <Tag>Prospecto</Tag>

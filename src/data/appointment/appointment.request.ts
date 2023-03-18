@@ -1,4 +1,7 @@
+import { Payment } from "../payment/payment";
+import { Service } from "../service/service";
 import { AppointmentDetail } from "./appointment.detail";
+import { AppointmentDetailService } from "./appointment.detail.service";
 import { AvailableTime } from "./available.time";
 
 export class RegisterAppointmentDentistRequest {
@@ -24,8 +27,12 @@ export class UpdateAppointmentStatusRequest {
   services: any[];
   padId?: number;
   payments: any[];
+  shouldAddAmount: boolean;
+  deposits?: Payment[];
+  debts?: Payment[];
 
-  constructor(id: number, status: string, amount: string, paid: string, services: any[], payments: any[], padId?: number) {
+  constructor(id: number, status: string, amount: string, paid: string, services: any[], payments: any[], shouldAddAmount: boolean, padId?: number, deposits?: Payment[], debts?: Payment[]
+  ) {
     this.id = id;
     this.status = status;
     this.amount = amount;
@@ -33,6 +40,9 @@ export class UpdateAppointmentStatusRequest {
     this.services = services;
     this.padId = padId;
     this.payments = payments;
+    this.shouldAddAmount = shouldAddAmount;
+    this.deposits = deposits;
+    this.debts = debts;
   }
 }
 export class GetAppointmentAvailabilityRequest {
@@ -88,14 +98,25 @@ export class AppointmentAvailbilityByDentistRequest {
 
 export class GetAppointmentDetail {
   appointment: AppointmentDetail;
-  nextAppointments: AppointmentDetail[];
+  services: AppointmentServiceInfo[];
 
 
   constructor(appointment: AppointmentDetail,
-    nextAppointments: AppointmentDetail[]
+    services: AppointmentServiceInfo[]
   ) {
     this.appointment = appointment;
-    this.nextAppointments = nextAppointments;
+    this.services = services;
+  }
+}
+
+export class AppointmentServiceInfo {
+  service: Service;
+  info: AppointmentDetailService;
+
+  constructor(service: Service,
+    info: AppointmentDetailService) {
+    this.service = service;
+    this.info = info;
   }
 }
 

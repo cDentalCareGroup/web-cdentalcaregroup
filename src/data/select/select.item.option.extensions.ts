@@ -72,6 +72,10 @@ const patientsToSelectItemOption = (list: Patient[]): SelectItemOption[] => {
   return list.map((value, _) => new SelectItemOption(value.id, `${value.name} ${value.lastname} ${value.secondLastname}`, value.id, ``))
 }
 
+const patientToSelectItemOption = (value: Patient): SelectItemOption => {
+  return new SelectItemOption(value.id, `${value.name} ${value.lastname} ${value.secondLastname}`, value.id, ``)
+}
+
 const appointmentToBranchOfficeSelectItemOption = (data: AppointmentDetail | undefined) => {
   if (data != null && data != undefined) {
     return new SelectItemOption(data.branchOffice.id,
@@ -116,5 +120,6 @@ export {
   branchOfficesToSelectOptionItemEmptyDescription,
   appointmentToPatientSelectItemOption,
   timesToSelectItemOption,
-  serviceCategoriesToSelectItemOption
+  serviceCategoriesToSelectItemOption,
+  patientToSelectItemOption
 };

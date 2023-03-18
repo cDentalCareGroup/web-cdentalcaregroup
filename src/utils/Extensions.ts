@@ -1,3 +1,4 @@
+import { format, parseISO } from 'date-fns';
 import User from '../data/user/user';
 
 
@@ -167,6 +168,11 @@ const formatAppointmentDate = (date: string, appointments: number) => {
 }
 
 
+const formatServiceDate = (date: Date): string => {
+  return format(parseISO(date.toString()), 'yyy-MM-dd HH:mm')
+}
+
+
 const RESPONSIVE_LIST = {
   gutter: 4,
   xs: 1,
@@ -202,8 +208,12 @@ const formatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
-const formatPrice = (price: number): string => {
-  return formatter.format(price);
+const formatPrice = (price: number|undefined): string => {
+  if (price != null && price != undefined && !isNaN(price)) {
+    return formatter.format(price);
+  } else {
+    return formatter.format(Number(0));
+  }
 }
 
 
@@ -232,5 +242,5 @@ export {
   RESPONSIVE_LIST_LARGE,
   formatPrice,
   stringToDate,
-  formatNumberToPercent, formatAppointmentDate
+  formatNumberToPercent, formatAppointmentDate, formatServiceDate
 }

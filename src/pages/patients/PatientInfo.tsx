@@ -13,6 +13,7 @@ import NoData from "../components/NoData";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormPatient, { FormPatientType, FormPatientSource } from "./FormPatient";
+import PatientPaymentAccountInfo from "./PatientPaymentAccountInfo";
 
 interface PatientInfoProps {
     rol: UserRoles;
@@ -133,16 +134,16 @@ const PatientInfo = (props: PatientInfoProps) => {
             children: <PatientPadCard />,
         },
         {
-            label: <div className="flex items-baseline gap-1 justify-center"><RiHeartPulseLine /><span className="text text-sm">{Strings.medicalRecord}</span></div>,
+            label: <div className="flex items-baseline gap-1 justify-center"><RiHeartPulseLine /><span className="text text-sm">Estado de cuenta</span></div>,
             key: 3,
-            children: <NoData />,
+            children: <PatientPaymentAccountInfo patient={data!} />,
         },
     ];
 
     return (
         <LayoutCard showBack={true} isLoading={isLoading} content={
             <div className="flex flex-col">
-                {data && <Tabs
+                {(data != null && data != undefined) && <Tabs
                     size="large"
                     type="card"
                     items={tabs}

@@ -10,4 +10,6 @@ export interface Call {
     comments: string;
     result: string;
     callComments: string;
+    branchId?: number;
+    branchName?: string;
 }

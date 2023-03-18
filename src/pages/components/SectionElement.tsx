@@ -12,9 +12,9 @@ const SectionElement = ({ label, value, icon, size }: SectionElementProps) => {
             <div className="flex flex-row gap-2 items-center p-2 flex-wrap">
                 <div className="flex gap-2 items-baseline">
                     {icon}
-                    <span className="text-sm font-normal">{label}: </span>
+                    <span className="text-sm font-normal text-gray-500">{label}: </span>
                 </div>
-                <span className="text text-xs text-gray-600 flex flex-wrap flex-col">
+                <span className="text text-xs font-bold text-gray-600 flex flex-wrap flex-col">
                     {value}
                 </span>
             </div>

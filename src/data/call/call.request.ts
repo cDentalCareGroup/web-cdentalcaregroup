@@ -54,13 +54,14 @@ export class RegisterCallRequest {
     prospectId?: number;
     callId?: number;
     appointmentId?: number;
+    branchOfficeId?: number;
 
     constructor(patientId: number,
         description: string,
         date: string,
         type: string, name?: string,
         phone?: string,
-        email?: string, prospectId?: number, callId?: number, appointmentId?: number
+        email?: string, prospectId?: number, callId?: number, appointmentId?: number, branchOfficeId?: number
     ) {
         this.patientId = patientId;
         this.description = description;
@@ -72,5 +73,6 @@ export class RegisterCallRequest {
         this.prospectId = prospectId;
         this.callId = callId;
         this.appointmentId = appointmentId;
+        this.branchOfficeId = branchOfficeId;
     }
 }

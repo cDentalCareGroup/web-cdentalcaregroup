@@ -1,4 +1,4 @@
-import { Divider, Tag } from "antd";
+import { Divider, List, Tag } from "antd";
 import { RiCalendar2Line, RiFunctionLine, RiMailLine, RiMentalHealthLine, RiPhoneLine, RiSearch2Line, RiStethoscopeLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import Strings from "../../utils/Strings";
@@ -15,7 +15,8 @@ import { AppointmentDetail } from "../../data/appointment/appointment.detail";
 import { getHasCabinet, getHasLabs, getPatientAddress, getPatientBirthDay, getPatientEmail, getPatientGender, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
 import { getAppointmentDate, getAppointmentDentist, getAppointmentFolio, getAppointmentStatus } from "../../data/appointment/appointment.extensions";
 import AppointmentCard from "./components/AppointmentCard";
-import { UserRoles } from "../../utils/Extensions";
+import { formatNumberToPercent, formatPrice, UserRoles } from "../../utils/Extensions";
+import { AppointmentServiceInfo } from "../../data/appointment/appointment.request";
 
 interface AppointmentInfoProps {
     rol: UserRoles;
@@ -25,6 +26,7 @@ const AppointmentInfo = (props: AppointmentInfoProps) => {
     const { folio } = useParams();
     const [getAppointmentInfo, { isLoading }] = useGetAppointmentInfoMutation();
     const [data, setData] = useState<AppointmentDetail>();
+    const [services, setServices] = useState<AppointmentServiceInfo[]>([]);
 
     useEffect(() => {
         handleGetAppointmentInfo();
@@ -33,6 +35,7 @@ const AppointmentInfo = (props: AppointmentInfoProps) => {
     const handleGetAppointmentInfo = async () => {
         try {
             const response = await getAppointmentInfo({ folio: folio }).unwrap();
+            setServices(response.services);
             setData(response.appointment);
         } catch (error) {
             handleErrorNotification(error);
@@ -77,10 +80,26 @@ const AppointmentInfo = (props: AppointmentInfoProps) => {
                     </div>
 
                     <Divider />
-                    <div className="flex w-full items-center justify-center overflow-hidden">
-                        {data != null && <AppointmentCard onlyRead={false} rol={props.rol} hideContent={true} appointment={data} onStatusChange={() => { }} onAppointmentChange={(event) => setData(event)} />}
 
-                    </div>
+                    <List
+                        size="small"
+                        header={<div>
+                            <span className="text-2xl text-gray-500 font-semibold mb-4 flex">{Strings.services}</span>
+
+                        </div>}
+                        dataSource={services}
+                        renderItem={(item) =>
+                            <List.Item actions={[
+                                <span>{`${Strings.price} ${formatPrice(item.info.price)}`}</span>,
+                                <span>{`${Strings.quantity} ${item.info.quantity}`}</span>,
+                                <span>{`${Strings.discount} ${formatNumberToPercent(Number(item.info.discount))}`}</span>,
+                                <span>{`${Strings.total} ${formatPrice(Number(item.info.subTotal))}`}</span>
+                               
+                            ]}>
+                                <span className="text-sm font-normal">{item.service.name}</span>
+                            </List.Item>
+                        }
+                    />
                 </div>
             </div>
         } />
