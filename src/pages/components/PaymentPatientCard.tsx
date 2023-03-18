@@ -13,7 +13,7 @@ const PaymentPatientCard = ({ paymentInfo }: PaymentPatientCardProps) => {
         <div className="flex flex-col">
             {(paymentInfo != undefined && paymentInfo.deposits != null && paymentInfo.deposits.length > 0) && <div className="flex flex-col flex-wrap gap-2">
                 <Divider>Abonos a cuenta</Divider>
-                {paymentInfo.deposits.map((value, index) => <SectionElement size="sm" key={index} label={Strings.receivedAmount} value={`${formatPrice(value.amount)}, Fecha ${formatServiceDate(value.createdAt)}`} icon={<></>} />)}
+                {paymentInfo.deposits.map((value, index) => <SectionElement size="sm" key={index} label={Strings.receivedAmount} value={`${formatPrice(value.amountDeposit)}, Fecha ${formatServiceDate(value.deposit.createdAt)}`} icon={<></>} />)}
             </div>}
 
             {(paymentInfo != undefined && paymentInfo.debts != null && paymentInfo.debts.length > 0) && <div className="flex flex-col flex-wrap gap-2">

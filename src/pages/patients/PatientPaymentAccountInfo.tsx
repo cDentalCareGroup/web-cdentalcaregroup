@@ -52,34 +52,34 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
                 <span className="text-sm font-semibold text-gray-500">{value.name}</span>
             ),
         },
-        {
-            title: 'Cantidad',
-            dataIndex: 'quantity',
-            key: 'quantity',
-            render: (_: any, value: any) => (
-                <span className="text-sm font-normal text-gray-500">{value.quantity}</span>
-            ),
-        },
-        {
-            title: 'Precio Unitario',
-            dataIndex: 'unitPrice',
-            key: 'unitPrice',
-            render: (_: any, value: any) => (
-                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
-                    <span className="text-sm font-normal text-gray-500">{formatPrice(value.unitPrice)}</span>
-                </div>
-            ),
-        },
-        {
-            title: 'Sub total',
-            dataIndex: 'subtotal',
-            key: 'subtotal',
-            render: (_: any, value: any) => (
-                <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
-                    <span className="text-sm font-normal text-gray-500">{formatPrice(value.subtotal)}</span>
-                </div>
-            ),
-        },
+        // {
+        //     title: 'Cantidad',
+        //     dataIndex: 'quantity',
+        //     key: 'quantity',
+        //     render: (_: any, value: any) => (
+        //         <span className="text-sm font-normal text-gray-500">{value.quantity}</span>
+        //     ),
+        // },
+        // {
+        //     title: 'Precio Unitario',
+        //     dataIndex: 'unitPrice',
+        //     key: 'unitPrice',
+        //     render: (_: any, value: any) => (
+        //         <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+        //             <span className="text-sm font-normal text-gray-500">{formatPrice(value.unitPrice)}</span>
+        //         </div>
+        //     ),
+        // },
+        // {
+        //     title: 'Sub total',
+        //     dataIndex: 'subtotal',
+        //     key: 'subtotal',
+        //     render: (_: any, value: any) => (
+        //         <div key={value.key} className="flex flex-wrap cursor-pointer justify-center items-center">
+        //             <span className="text-sm font-normal text-gray-500">{formatPrice(value.subtotal)}</span>
+        //         </div>
+        //     ),
+        // },
     ];
 
 
@@ -89,9 +89,6 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
             dataTable.push({
                 key: index,
                 name: value.service.name,
-                quantity: value.detail.quantity,
-                unitPrice: value.detail.unitPrice,
-                subtotal: value.detail.subTotal
             })
         });
         return dataTable;
@@ -197,7 +194,7 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
                                     {getStautsAppointment(data[index])}
 
                                     {paymentInfo != null && <div>
-                                        <span onClick={() => {}}>show me</span>
+                                       
                                         <SectionElement size="sm" label={"Pagado"} value={getPaidAppointment(paymentInfo)} icon={<></>} />
                                         <SectionElement size="sm" label="Fecha de pago" value={formatServiceDate(paymentInfo.payment.createdAt)} icon={<></>} />
                                         <SectionElement size="sm" label="Saldo por cobrar" value={getPendingPayment(paymentInfo)} icon={<></>} />

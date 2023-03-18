@@ -3,11 +3,16 @@ import { Payment } from "./payment";
 
 
 export interface PaymentInfo {
-    deposits?: Payment[];
+    deposits?: DepositInfo[];
     debts?: DebtInfo[];
 }
 
 export interface DebtInfo {
     amountDebt: number;
     debt: Payment;
+}
+
+export interface DepositInfo {
+    amountDeposit: number;
+    deposit: Payment;
 }

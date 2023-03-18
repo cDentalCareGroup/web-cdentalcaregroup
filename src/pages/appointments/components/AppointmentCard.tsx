@@ -45,7 +45,7 @@ const { confirm } = Modal;
 import { UserRoles } from "../../../utils/Extensions";
 import SectionPrice from "../../components/SectionPrice";
 import { useGetPatientPaymentsMutation } from "../../../services/paymentService";
-import { DebtInfo, PaymentInfo } from "../../../data/payment/payment.info";
+import { DebtInfo, DepositInfo, PaymentInfo } from "../../../data/payment/payment.info";
 import { Payment } from "../../../data/payment/payment";
 import PaymentPatientCard from "../../components/PaymentPatientCard";
 import FormPayment, { FormPaymentSource } from "../../payments/FormPayment";
@@ -137,7 +137,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     //const [patientPaymentInfo, setPaymentPatientInfo] = useState<PaymentInfo>();
     const [showDeposit, setShowDeposit] = useState(false);
-    const [deposits, setDeposits] = useState<Payment[]>([]);
+    const [deposits, setDeposits] = useState<DepositInfo[]>([]);
     const [debtsInfo, setDebtsInfo] = useState<DebtInfo[]>([]);
     const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
     const [showPaymentInfo, setShowPaymentInfo] = useState(false);
@@ -269,7 +269,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleUpdateAppointmentStatus = async (status: string) => {
         try {
             if (status == Constants.STATUS_FINISHED) {
-                if (paymentMethodId == 0 || paymentMethodId == undefined) {
+                if (paymentDataTable.length == 0 && (getDeposits() < getTotalFromServices())) {
                     handleErrorNotification(Constants.EMPTY_PAYMENT_METHOD);
                     return;
                 }
@@ -297,7 +297,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     paymentDataTable,
                     addAmountToAccount,
                     patientPatId,
-                    deposits.filter((value, _) => value.isAplicable == true),
+                    deposits.map((value,_) => value.deposit).filter((value, _) => value.isAplicable == true),
                     debts
                 )).unwrap();
             setData(response);
@@ -725,12 +725,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const showApplicableAmount = (): Boolean => {
-        return deposits.find((value, _) => value.isAplicable == true) != null;
+        return deposits.find((value, _) => value.deposit.isAplicable == true) != null;
     }
 
     const getApplicableAmount = (): number => {
-        return deposits.filter((value, _) => value.isAplicable == true)
-            .map((value, _) => Number(value.amount)).reduce((a, b) => a + b, 0);
+        return deposits.filter((value, _) => value.deposit.isAplicable == true)
+            .map((value, _) => Number(value.amountDeposit)).reduce((a, b) => a + b, 0);
     }
 
 
@@ -924,7 +924,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const getExchange = (): number => {
-        return getTotalFromPaymentMethod() - getTotalFromServices() - getDebtsAmount();
+        if (getDeposits() >= getTotalFromServices()) {
+            return 0;
+        } else {
+            return getTotalFromPaymentMethod() - getTotalFromServices() - getDebtsAmount();
+        }
     }
 
     const validateExchange = (): string => {
@@ -937,6 +941,14 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         }
     }
 
+    const getDeposits = (): number => {
+        const total = deposits.filter((value, _) => value.deposit.isAplicable == true).map((value, _) => Number(value.amountDeposit)).reduce((a, b) => a + b, 0);
+        if (total >= getTotalFromServices()) {
+            return total;
+        } else {
+            return 0;
+        }
+    }
 
     const serviceTableColums = [
         {
@@ -996,21 +1008,27 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const getReceivedAmount = (): number => {
+
         let total = 0;
-        paymentDataTable.forEach((value, _) => total += Number(value.amount));
+        if (getDeposits() > 0 && paymentDataTable.length == 0) {
+            total = getTotalFromServices();
+        } else {
+            paymentDataTable.forEach((value, _) => total += Number(value.amount));
+        }
         return total;
     }
 
 
-    const handleOnApplyPayment = (item: Payment, type: string) => {
+    const handleOnApplyPayment = (item: DepositInfo, type: string) => {
         var element = JSON.parse(JSON.stringify(item));
+        console.log(`Element`,element)
         if (type == 'add') {
-            element.isAplicable = true;
+            element.deposit.isAplicable = true;
         } else {
-            element.isAplicable = null;
+            element.deposit.isAplicable = null;
         }
         Object.preventExtensions(element);
-        const result = deposits.filter((value, _) => value.id != item.id);
+        const result = deposits.filter((value, _) => value.deposit.id != item.deposit.id);
         result.push(element);
         setDeposits(result);
     }
@@ -1019,11 +1037,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const buildDepositContent = (): JSX.Element => {
         return (
             <div className="flex flex-col gap-2">
-                {deposits.map((value: Payment, index: number) =>
+                {deposits.map((value: DepositInfo, index: number) =>
                     <div key={index} className="flex flex-row items-baseline justify-center gap-2">
-                        <span className="font-bold text-base text-gray-600">{formatPrice(Number(value.amount))}</span>
-                        {(value.isAplicable == null) && <Button onClick={() => handleOnApplyPayment(value, 'add')} type="link">Aplicar</Button>}
-                        {(value.isAplicable == true) && <Button onClick={() => handleOnApplyPayment(value, 'remove')} type="link">Quitar</Button>}
+                        <span className="font-bold text-base text-gray-600">{formatPrice(Number(value.amountDeposit))}</span>
+                        {(value.deposit.isAplicable == null) && <Button onClick={() => handleOnApplyPayment(value, 'add')} type="link">Aplicar</Button>}
+                        {(value.deposit.isAplicable == true) && <Button onClick={() => handleOnApplyPayment(value, 'remove')} type="link">Quitar</Button>}
                     </div>
                 )}
                 <span className="flex items-start justify-start" onClick={() => setShowDeposit(!showDeposit)}>
@@ -1135,7 +1153,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 });
             }} onCancel={() => setModalFinish(false)} okButtonProps={
                 {
-                    disabled: (paymentDataTable?.length == 0 || dataTable?.length == 0)
+                    // disabled: (paymentDataTable?.length == 0 || dataTable?.length == 0 || getTotalFromServices() >= getde)
                 }} open={modalFinish} okText={Strings.finish} >
 
                 <span className="flex mt-2">{Strings.serviceType}</span>
