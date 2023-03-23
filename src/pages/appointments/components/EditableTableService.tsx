@@ -200,10 +200,10 @@ const EditableTable = (props: EditableTableCustomProps) => {
         const index = newData.findIndex((item) => row.key === item.key);
         const item = newData[index];
         row.unitPrice = row.unitPrice;
-        row.disscount = Math.round(row.disscount);
+        row.disscount = row.disscount;
 
 
-        const existingService = newData.filter((value, _) => value.serviceId == row.serviceId);
+        // const existingService = newData.filter((value, _) => value.serviceId == row.serviceId);
         //console.log(existingService);
         // if (existingService.length > 1 && row.quantity < row.availableUsage) {
         //     const element = existingService[existingService.length - 1];
@@ -235,7 +235,7 @@ const EditableTable = (props: EditableTableCustomProps) => {
         //         element.subtotal = Number(element.quantity) * Number(element.unitPrice);
         //     }
         //     console.log(`Element 1 -- ${Number(element.quantity)} === ${Number(row.quantity)}`);
-            
+
         //     // console.log(`Item 2`, element)
         //     //console.log(`Element 2`,newData.filter((value, _) => value.key != element.key));
         //     //     const filteredData = newData.filter((value, _) => value.key != element.key);
@@ -271,11 +271,11 @@ const EditableTable = (props: EditableTableCustomProps) => {
         //  row.price = Number(row.quantity) * Number(item.unitPrice);
 
         if (row.disscount != null && row.disscount != 0 && row.disscount != '0') {
-            row.price = row.unitPrice - Math.round((Number(row.unitPrice) / 100) * Math.round(Number(row.disscount)));
-            row.subtotal = Number(row.quantity) * Number(row.price);
+            row.price = Math.round(row.unitPrice - (Number(row.unitPrice) / 100) * Number(row.disscount));
+            row.subtotal = Math.round(Number(row.quantity) * Number(row.price));
         } else {
-            row.price = row.unitPrice;
-            row.subtotal = Number(row.quantity) * Number(row.unitPrice);
+            row.price = Math.round(row.unitPrice);
+            row.subtotal = Math.round(Number(row.quantity) * Number(row.unitPrice));
         }
 
         console.log(`Row`, row)

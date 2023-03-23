@@ -864,12 +864,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 discount = Number(category.discount);
             }
         }
-        console.log(padComponent);
-        console.log(component);
+        console.log(servicePrice);
         console.log(discount);
+        console.log(Number(servicePrice) - ((Number(servicePrice) / 100) * Number(discount)));
 
         if (discount > 0) {
-            price = servicePrice - Math.round((Number(servicePrice) / 100) * Math.round(Number(discount)));
+            price = Number(servicePrice) - ((Number(servicePrice) / 100) * Number(discount));
             subTotal = price;
         } else {
             price = servicePrice;
@@ -882,8 +882,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 quantity: 1,
                 unitPrice: servicePrice,
                 disscount: discount,
-                price: price,
-                subtotal: subTotal,
+                price: Math.round(price),
+                subtotal: Math.round(subTotal),
                 serviceId: serviceItem?.id,
                 availableUsage: availableUsage,
                 labCost: serviceItem?.labCost

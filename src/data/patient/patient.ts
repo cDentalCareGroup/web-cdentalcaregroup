@@ -29,7 +29,7 @@ export interface Patient {
     status: string;
     patientStatus: number;
     sourceBranch: string;
-    currentBranch: string;
+    currentBranchOfficeId: number;
     startDate: Date;
     sourceClient: string;
     organizationClient: string;

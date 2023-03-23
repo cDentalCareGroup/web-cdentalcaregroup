@@ -58,11 +58,28 @@ const Pads = (props: PadsProps) => {
     const handleGetPads = async () => {
         try {
             const response = await getPads({}).unwrap();
-            setData(response);
-            setPadList(response);
+            if (props.rol == UserRoles.RECEPTIONIST) {
+                console.log(`Process rep pads`)
+                const processResponse = processPadsInBranchOffice(branchId, response);
+                setData(processResponse);
+                setPadList(processResponse);
+            } else {
+                setData(response);
+                setPadList(response);
+            }
         } catch (error) {
             handleErrorNotification(error);
         }
+    }
+
+    const processPadsInBranchOffice = (branch: number, response: PadDetail[]): PadDetail[] => {
+        let newData = [];
+        for (const item of response) {
+            if (item.members.filter((value, _) => value.currentBranchOfficeId == branch).length > 0) {
+                newData.push(item);
+            }
+        }
+        return newData;
     }
 
     const handleOnSearch = (query: string) => {
@@ -120,7 +137,7 @@ const Pads = (props: PadsProps) => {
             return;
         }
 
-       // console.log(dataList.length)
+        // console.log(dataList.length)
         //console.log(selectedPad?.catalogue.maxMember);
 
         if (selectedPad != null && dataList.length < selectedPad?.catalogue.maxAdditional) {
@@ -229,8 +246,8 @@ const Pads = (props: PadsProps) => {
                             itemLayout="horizontal"
                             loading={isListLoading}
                             dataSource={aditionalMembers}
-                            renderItem={(item, _) => (
-                                <List.Item>
+                            renderItem={(item, index) => (
+                                <List.Item key={index}>
                                     <List.Item.Meta
                                         title={item.label}
                                     />
