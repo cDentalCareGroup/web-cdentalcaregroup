@@ -101,7 +101,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
     const handleGetAppointmentAvailability = async (date: Date, branchOffice: string) => {
         try {
             const response = await getAppointmentAvailability(
-                new GetAppointmentAvailabilityRequest(branchOffice.split('-')[0], dayName(date), date)).unwrap();
+                new GetAppointmentAvailabilityRequest(branchOffice.split('-')[0], dayName(date), date, true)).unwrap();
             setTimes(availableTimesToTimes(response));
             setDate(date);
             setAvailableTimes(response);

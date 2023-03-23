@@ -857,13 +857,16 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             return;
         }
 
-        if (padComponent != null && padComponent != undefined && component == null || component == undefined) {
+        if (padComponent != null && padComponent != undefined && (component == null || component == undefined)) {
             const itemService = dataServices.find((value, _) => value.id == service.id);
             const category = serviceCategoryList.find((value, _) => value.id == itemService?.categoryId);
             if (category != null && Number(category.discount) > 0) {
                 discount = Number(category.discount);
             }
         }
+        console.log(padComponent);
+        console.log(component);
+        console.log(discount);
 
         if (discount > 0) {
             price = servicePrice - Math.round((Number(servicePrice) / 100) * Math.round(Number(discount)));
@@ -1021,7 +1024,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const handleOnApplyPayment = (item: DepositInfo, type: string) => {
         var element = JSON.parse(JSON.stringify(item));
-        console.log(`Element`,element)
+        
         if (type == 'add') {
             element.deposit.isAplicable = true;
         } else {
@@ -1220,7 +1223,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 resetSetDentistParams();
                 setModalDentist(false)
             }}>
-                {/* <br />
+                <br />
                 <SelectSearch
                     placeholder={Strings.selectPatient}
                     items={patientList}
@@ -1231,7 +1234,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 <div className="flex w-full items-end justify-end my-2">
                     <Button type="link" size="small" onClick={() => handleGetPatients()}>Actualizar pacientes</Button>
                 </div>
-                <br /> */}
+                <br />
                 <SelectSearch
                     placeholder={Strings.selectDentist}
                     defaultValue={dentist?.id}
