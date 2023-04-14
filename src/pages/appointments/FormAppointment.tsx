@@ -54,6 +54,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
     const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
     const [email, setEmail] = useState('');
+    const [comments, setComments] = useState('');
     const [registerCallCenterAppointment] = useRegisterCallCenterAppointmentMutation();
     const [isActionLoading, setIsActionLoading] = useState(false);
     const [branchId, setBranchId] = useSessionStorage(
@@ -101,7 +102,8 @@ const FormAppointment = (props: FormAppointmentProps) => {
     const handleGetAppointmentAvailability = async (date: Date, branchOffice: string) => {
         try {
             const response = await getAppointmentAvailability(
-                new GetAppointmentAvailabilityRequest(branchOffice.split('-')[0], dayName(date), date, true)).unwrap();
+                new GetAppointmentAvailabilityRequest(branchOffice.split('-')[0], dayName(date), date,
+                    props.rol == UserRoles.CALL_CENTER)).unwrap();
             setTimes(availableTimesToTimes(response));
             setDate(date);
             setAvailableTimes(response);
@@ -152,7 +154,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
                     email,
                     branchOffice?.id,
                     finalPatientId,
-                    props?.prospect?.id ?? 0, props.callId ?? 0, notify
+                    props?.prospect?.id ?? 0, props.callId ?? 0, notify, props.rol == UserRoles.CALL_CENTER, comments
                 )
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER_APPOINTMENT);
@@ -259,6 +261,11 @@ const FormAppointment = (props: FormAppointmentProps) => {
                                 <Checkbox value={notify} checked={notify} onChange={(event) => setNotify(event.target.checked)} />
                             </div>
                         </div>}
+
+                        {(time != '' && time != null) && <div className="flex w-full flex-col mt-4 mb-6">
+                            <CustomFormInput isArea={true} label={'Comentarios'} value={comments} onChange={(value) => setComments(value)} />
+                        </div>}
+
                     </Modal>
                 </div>
             } />

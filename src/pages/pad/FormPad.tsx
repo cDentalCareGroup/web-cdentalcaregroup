@@ -181,6 +181,7 @@ const FormPad = (props: FormPadProps) => {
     const handleOnRegisterPad = async () => {
         setIsLoading(true);
         try {
+          //  if(padc)
             await registerPad(
                 new RegisterPadRequest(
                     padCatalogue?.id ?? 0, data.map((value, _) => Number(value.id)),

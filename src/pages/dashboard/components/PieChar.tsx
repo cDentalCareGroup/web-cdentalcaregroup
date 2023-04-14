@@ -40,13 +40,11 @@ const PieChar = (props: PieCharProps): JSX.Element => {
 
     return (
         <div className="flex flex-col w-96">
-            <Card bordered={false}>
-                <Pie legend={{
+             <Pie legend={{
                     layout: 'vertical',
-                    position: 'top'
+                    position: 'right'
 
                 }} autoFit={true} data={props.data} {...config} onEvent={(_, event) => handleOnEvent(event)} />
-            </Card>
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import { Button, Card, List, Modal, Row, Tag } from "antd";
+import { Button, Card, Divider, List, Modal, Row, Tag } from "antd";
 import { differenceInDays } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiMailLine, RiPhoneLine, RiUser3Line, } from "react-icons/ri";
@@ -9,7 +9,7 @@ import { GetCalls } from "../../data/call/call.response";
 import { buildPatientEmail, buildPatientName, buildPatientPhone } from "../../data/patient/patient.extensions";
 import { useGetCallsMutation, useRegisterCallLogMutation } from "../../services/callService";
 import Constants from "../../utils/Constants";
-import { capitalizeAllCharacters } from "../../utils/Extensions";
+import { capitalizeAllCharacters, dayName, monthName } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import FormAppointment from "../appointments/FormAppointment";
@@ -22,7 +22,7 @@ import { UserRoles } from "../../utils/Extensions";
 const Calls = () => {
     const [getCalls, { isLoading }] = useGetCallsMutation();
     const [registerCallLog] = useRegisterCallLogMutation();
-    const [data, setData] = useState<GetCalls[]>([]);
+    const [data, setData] = useState<any[]>([]);
     const navigate = useNavigate();
 
     const [call, setCall] = useSessionStorage(
@@ -38,9 +38,33 @@ const Calls = () => {
     const handleGetCalls = async () => {
         try {
             const response = await getCalls({}).unwrap();
-            setData(response);
+            setData(groupBy(response, 'call'));
+            console.log(groupBy(response, 'call'))
         } catch (error) {
             handleErrorNotification(error);
+        }
+    }
+
+    var groupBy = function (xs: any, key: any) {
+        let array: any[] = []
+        const objectDates = xs.reduce(function (rv: any, x: any) {
+            (rv[x[key].dueDate] = rv[x[key].dueDate] || []).push(x);
+            return rv;
+        }, {});
+        for (const [key, value] of Object.entries(objectDates)) {
+            array.push(new SectionDateCalls(key, value as GetCalls[]))
+        }
+        return array;
+    };
+
+    class SectionDateCalls {
+        date: string;
+        calls: GetCalls[];
+
+        constructor(date: string,
+            calls: GetCalls[]) {
+            this.date = date;
+            this.calls = calls;
         }
     }
 
@@ -94,30 +118,46 @@ const Calls = () => {
         }
     }
 
+    const formatAppointmentDate = (date: string, appointments: number) => {
+        const previusDate = new Date(date);
+        previusDate.setDate(previusDate.getDate() + 1);
+        return `${dayName(previusDate)} ${previusDate.getDate()} de ${monthName(previusDate)}, Llamadas: ${appointments}`;
+      }
     return (
         <LayoutCard
             isLoading={isLoading}
-            title={`${Strings.callsDay} ${data.length != 0 ? data.length : ''}`}
+            title={Strings.callsDay}
             content={
                 <div className="flex flex-col">
                     <FormAppointment rol={UserRoles.CALL_CENTER} />
                     <br />
                     <FormCall showPatients={true} onFinish={() => handleGetCalls()} />
 
-                    <div className="flex flex-row flex-wrap gap-2 mt-4">
-                        {data.map((value, index) =>
-                            <Card key={index} title={capitalizeAllCharacters(value.catalog.name)}
-                                actions={[<span onClick={() => {
-                                    handleRegisterCallLog(value.call.id);
-                                    setCall(value);
-                                    navigate('/callcenter/call')
-                                }}>{Strings.attend}</span>]}
-                            >
-                                {buildInfo(value)}
-                                {buildPriority(value.call)}
-                            </Card>
-                        )
-                        }
+
+                    {data.map((item, index) =>
+                            <div className="flex flex-col w-full" key={index}>
+                                <Divider orientation="left">
+                                    <span className="text-red-800">{formatAppointmentDate(item.date, item.calls.length)}</span>
+                                </Divider>
+                                <Row>
+                                    {item.calls?.map((value: GetCalls, index: number) =>
+                                        <Card key={index} title={capitalizeAllCharacters(value.catalog.name)}
+                                            actions={[<span onClick={() => {
+                                                handleRegisterCallLog(value.call.id);
+                                                setCall(value);
+                                                window.open(`${location.origin}/callcenter/call`, '_blank')
+                                            }}>{Strings.attend}</span>]}
+                                        >
+                                            {buildInfo(value)}
+                                            {buildPriority(value.call)}
+                                        </Card>
+                                    
+                                    )}
+                                </Row>
+                            </div>
+                        )}
+
+                    <div className="flex flex-row flex-wrap">
                         {data.length == 0 &&
                             <div className="flex flex-col items-center justify-center w-full">
                                 <NoData />

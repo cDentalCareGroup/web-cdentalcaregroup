@@ -33,8 +33,8 @@ const Origins = () => {
 
     const buildReferralLinkCode = (value: Origin): JSX.Element => {
         if (value.referralCode != null && value.referralCode != '') {
-            return <Typography.Paragraph className="text text-base text-gray-500 p-2" 
-            copyable={{ text: `https://cdentalcaregroup-fcdc9.web.app/appointment/${value.referralCode}` }}>Link de referido</Typography.Paragraph>
+            return <Typography.Paragraph className="text text-base text-gray-500 p-2"
+                copyable={{ text: `https://cdentalcaregroup-fcdc9.web.app/appointment/${value.referralCode}` }}>Link de referido</Typography.Paragraph>
         }
         return <></>
     }
@@ -55,15 +55,16 @@ const Origins = () => {
             isLoading={isLoading}
             title={Strings.origins}
             content={<div className="flex flex-col">
-                <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchPatient} onSearch={handleOnSearch} enterButton />
+                <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={'Buscar origen'} onSearch={handleOnSearch} enterButton />
                 <br />
                 <FormOrigins type={FormOriginsType.REGISTER} onFinish={() => handleGetOrigins()} />
                 <Row>
                     {origins.map((value, index) =>
                         <Card
+                            title={value.name}
                             actions={[
                                 <FormOrigins type={FormOriginsType.UPDATE} origin={value} onFinish={() => handleGetOrigins()} />
-                            ]} style={{ minWidth: 300 }} key={index} className="m-2">
+                            ]} style={{ minWidth: 350, maxWidth: 350 }} key={index} className="m-2">
                             <SectionElement label={Strings.nameLabel} value={value.name} icon={<></>} />
                             <SectionElement label={Strings.description} value={value.description ?? '-'} icon={<></>} />
                             {buildReferralLinkCode(value)}

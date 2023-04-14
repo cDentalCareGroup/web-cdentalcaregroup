@@ -106,7 +106,7 @@ const timesToSelectItemOption = (data: AvailableTime[]): SelectItemOption[] => {
 }
 
 const serviceCategoriesToSelectItemOption = (data: ServiceCategory[]): SelectItemOption[] => {
-  return data.map((value, index) => new SelectItemOption(index, value.name, index, value.name));
+  return data.map((value, index) => new SelectItemOption(value.id, value.name, value.id, value.name));
 }
 
 export {

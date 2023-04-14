@@ -2,6 +2,7 @@ const SESSION_AUTH = "cookies"
 
 
 const BRANCH_ID = "branch_id"
+const BRANCH_NAME = "branch_name"
 
 const CALL = "call"
 
@@ -82,6 +83,7 @@ export default {
     PAYMENT_DEBT_ACTIVE,
     REQUIRED_FIELDS,
     ERROR_ADDING_PAD_COMPONENT,
-    SET_TEXT
+    SET_TEXT,
+    BRANCH_NAME
 
 }

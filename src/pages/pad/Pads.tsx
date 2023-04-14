@@ -137,8 +137,8 @@ const Pads = (props: PadsProps) => {
             return;
         }
 
-        // console.log(dataList.length)
-        //console.log(selectedPad?.catalogue.maxMember);
+         console.log(dataList.length)
+        console.log(selectedPad?.catalogue);
 
         if (selectedPad != null && dataList.length < selectedPad?.catalogue.maxAdditional) {
             setIsListLoading(true);

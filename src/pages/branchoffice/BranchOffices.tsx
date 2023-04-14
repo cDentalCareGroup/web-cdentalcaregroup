@@ -32,6 +32,7 @@ const BranchOffices = (props: BranchOfficesProps) => {
         Constants.BRANCH_ID,
         0
     );
+
     const navigate = useNavigate();
     useEffect(() => {
         handleGetBranchOffices();
@@ -59,17 +60,21 @@ const BranchOffices = (props: BranchOfficesProps) => {
     const buildActions = (value: BranchOffice) => {
         if (props.type == BranchOfficeType.APPOINTMENTS && props.rol == UserRoles.ADMIN) {
             return [
-                <Link onClick={async() => {
+                <Link onClick={async () => {
                     await setBranchId(value.id);
-                }} to={'/admin/branchoffice/appointments'}>
+                }} to={'/admin/branchoffice/appointments'} state={{
+                    'branchName': value.name
+                }}>
                     {Strings.seeAppointments}
                 </Link>
             ]
         } else if (props.type == BranchOfficeType.APPOINTMENTS && props.rol == UserRoles.CALL_CENTER) {
             return [
-                <Link onClick={async() => {
+                <Link onClick={async () => {
                     await setBranchId(value.id);
-                }} to={'/callcenter/branchoffice/appointments'}>
+                }} to={'/callcenter/branchoffice/appointments'} state={{
+                    'branchName': value.name
+                }}>
                     {Strings.seeAppointments}
                 </Link>
             ]

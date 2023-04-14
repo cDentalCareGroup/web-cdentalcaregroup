@@ -44,8 +44,10 @@ import Prospects from "../prospect/Prospects";
 import Test from "../components/Test";
 import Dashboard from "../dashboard/Dashboard";
 import { AvailableTime } from "../../data/appointment/available.time";
-import AvailableTimes from "../schedules/AvailableTimes";
+import AvailableTimes from "../schedules/FormAvailableTimes";
 import Origins from "../origins/Origins";
+import FormAvailableTimes from "../schedules/FormAvailableTimes";
+import Organizations from "../organization/Organizations";
 
 export class Route {
     label: string;
@@ -65,7 +67,7 @@ export class Route {
     }
 
 }
-const adminStatistics = new Route('Statistics', 'statistics', '/admin/dashboard', <Dashboard />, <RiMap2Line />);
+const adminStatistics = new Route('Estadisticas', 'statistics', '/admin/dashboard', <Dashboard />, <RiMap2Line />);
 
 const adminMap = new Route('Maps', 'maps', '/admin/maps', <MapFilter />, <RiMap2Line />);
 const adminBranchOfficesAppointments = new Route('Citas', 'branchoffices', '/admin/branchoffices/appointments', <BranchOffices rol={UserRoles.ADMIN} type={BranchOfficeType.APPOINTMENTS} />, <RiCalendar2Line />);
@@ -87,8 +89,9 @@ const adminAppointmentDetails = new Route('Citas', 'appointmentinfo', '/admin/br
 const adminService = new Route('Servicios', 'services', '/admin/services/', <Services />, <RiServiceLine />);
 const adminCallsType = new Route('Catalogo llamadas', 'callsType', '/admin/calltypes', <CallsType />, <RiPhoneLine />);
 const adminOrigins = new Route('Origenes', 'origins', '/admin/origins', <Origins />, <RiBankLine />);
+const adminOrganization = new Route('Organizaciones', 'organizations', '/admin/organizations', <Organizations />, <RiBankLine />);
 
-const test = new Route('Test', 'test', '/admin/test/', <Test />, <RiUserHeartLine />);
+const test = new Route('Test', 'test', '/admin/test/', <FormAvailableTimes />, <RiUserHeartLine />);
 
 
 const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLogoutBoxLine />);
@@ -136,6 +139,7 @@ const adminRoutes: Route[] = [
     adminCallsType,
     adminStatistics,
     adminOrigins,
+    adminOrganization,
     logout
 ];
 
@@ -224,12 +228,20 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
                 getItem(adminCallsType.label, adminCallsType.fullPath, adminCallsType.icon),
             ],
             'group'),
+        getItem(
+            'Pacientes Origenes',
+            'origins',
+            null,
+            [
+                getItem(adminOrigins.label, adminOrigins.fullPath, adminOrigins.icon),
+            ],
+            'group'),
             getItem(
-                'Pacientes Origenes',
-                'origins',
+                'Organizaciones',
+                'organizations',
                 null,
                 [
-                    getItem(adminOrigins.label, adminOrigins.fullPath, adminOrigins.icon),
+                    getItem(adminOrganization.label, adminOrganization.fullPath, adminOrganization.icon),
                 ],
                 'group'),
         getItem(
@@ -238,7 +250,8 @@ const adminRoutesToMenuOptions = (): ItemType[] => {
             null,
             [
                 getItem(logout.label, logout.fullPath, logout.icon),
-               
+                // getItem(test.label, test.fullPath, test.icon),
+
             ],
             'group'),
     ];
@@ -293,7 +306,7 @@ const callCenterRoutesToMenuOptions = (): ItemType[] => {
             null,
             [
                 getItem(callCenter.label, callCenter.fullPath, callCenter.icon),
-               
+
             ],
             'group'),
         getItem(

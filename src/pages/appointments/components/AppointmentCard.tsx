@@ -1,6 +1,6 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
-import { RiCalendar2Line, RiCoinsLine, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { RiCalendar2Line, RiCoinsLine, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiStickyNoteLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
 import { buildPatientName, buildPatientPad, DEFAULT_FIELD_VALUE, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
 import { Button, Checkbox, Form, Input, Modal, Popover, Radio, Row, Select, Table, Tag } from "antd";
@@ -141,6 +141,8 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [debtsInfo, setDebtsInfo] = useState<DebtInfo[]>([]);
     const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>();
     const [showPaymentInfo, setShowPaymentInfo] = useState(false);
+
+    const [modalNotes, setModalNotes] = useState(false);
 
 
     useEffect(() => {
@@ -297,7 +299,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     paymentDataTable,
                     addAmountToAccount,
                     patientPatId,
-                    deposits.map((value,_) => value.deposit).filter((value, _) => value.isAplicable == true),
+                    deposits.map((value, _) => value.deposit).filter((value, _) => value.isAplicable == true),
                     debts
                 )).unwrap();
             setData(response);
@@ -614,16 +616,23 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         return data.patient == null || data.patient == undefined;
     }
 
+    const validateNotes = (): boolean => {
+        return data.appointment.notesCallCenter != null && data.appointment.notesCallCenter != ''
+    }
+
     const CardContent = (): JSX.Element => {
         return <>
             {data.patient && <SectionElement label={Strings.patientId} value={`${data.patient?.id}`} icon={<RiHashtag />} />}
             <SectionElement label={Strings.pad} value={getPatientPad(data)} icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.dateAndTime} value={`${data.appointment.appointment} ${data.appointment.time}`} icon={<RiCalendar2Line />} />
-            <SectionElement label={Strings.branchOffice} value={data.branchOffice.name} icon={<RiMentalHealthLine />} />
-            {getPatientEmail(data) != DEFAULT_FIELD_VALUE && <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />}            <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
+            {/* <SectionElement label={Strings.branchOffice} value={data.branchOffice.name} icon={<RiMentalHealthLine />} /> */}
+            {/* {getPatientEmail(data) != DEFAULT_FIELD_VALUE && <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />} */}
+            <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
             <SectionElement label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
             <SectionElement label={Strings.services} value={buildServices()} icon={<RiServiceLine />} />
             {validateReferral() && <SectionElement label={Strings.origin} value={buildReferralName()} icon={<RiUser3Line />} />}
+            {validateNotes() &&  <SectionElement label="Notas" value={[<Button type="link" onClick={() => setModalNotes(true)}>Ver notas</Button>]} icon={<RiStickyNoteLine />} />}
+            
             {data.extendedTimes != null && data.extendedTimes.length > 0 &&
                 <SectionElement label={'Cita extendida'} value={extendedTimesToShow(data)} icon={<RiCalendar2Line />} />}
             {data.appointment.status != Constants.STATUS_FINISHED && data.appointment.status != Constants.STATUS_NOT_ATTENDED && onlyRead == false &&
@@ -713,12 +722,18 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
     const handleGetPatientPayments = async () => {
         try {
-            const response = await getPatientPayments({
-                'patientId': data.patient?.id ?? 0
-            }).unwrap();
-            setPaymentInfo(response);
-            setDebtsInfo(response?.debts ?? []);
-            setDeposits(response?.deposits ?? []);
+            if (data.patient != null && data.patient != undefined &&
+                data.patient.id != 0) {
+                const response = await getPatientPayments({
+                    'patientId': data.patient.id
+                }).unwrap();
+                setPaymentInfo(response);
+                setDebtsInfo(response?.debts ?? []);
+                setDeposits(response?.deposits ?? []);
+            } else {
+                setDebtsInfo([]);
+                setDeposits([]);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -1024,7 +1039,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const handleOnApplyPayment = (item: DepositInfo, type: string) => {
         var element = JSON.parse(JSON.stringify(item));
-        
+
         if (type == 'add') {
             element.deposit.isAplicable = true;
         } else {
@@ -1350,6 +1365,12 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 disabled: !isActionLoading
             }} okText={Strings.accept} onCancel={() => setModalRegisterPatient(false)} open={modalRegisterPatient} title={Strings.formPatient} width={'85%'}>
                 <FormPatient onFinish={(patient) => handleOnSetPatient(patient?.id)} origin={data.appointment.referralId} source={FormPatientSource.APPOINTMENT} type={FormPatientType.REGISTER} rol={rol} />
+            </Modal>
+
+            <Modal title='Notas' okText={Strings.accept} onOk={() => setModalNotes(false)} open={modalNotes} onCancel={() => setModalNotes(false)}>
+                <span className="text text-gray-600 flex flex-wrap flex-col mt-4 mb-4">
+                    {data.appointment.notesCallCenter}
+                </span>
             </Modal>
         </div>
     );

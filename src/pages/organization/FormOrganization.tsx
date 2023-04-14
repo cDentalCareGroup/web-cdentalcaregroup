@@ -1,47 +1,51 @@
 import { Button, Checkbox, Modal } from "antd";
 import { useEffect, useState } from "react";
-import { Origin } from "../../data/origins/origin";
-import { RegisterOriginRequest, UpdateOriginRequest } from "../../data/origins/origin.request";
-import { useRegisterOriginMutation, useUpdateOriginMutation } from "../../services/originService";
+import { Organization } from "../../data/organization/organization";
+import { RegisterOrganizationRequest, UpdateOrganizationRequest } from "../../data/organization/organization.request";
+import { useRegisterOrganizationMutation, useUpdateOrganizationMutation } from "../../services/organizationService";
+import Constants from "../../utils/Constants";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
 import LayoutCard from "../layouts/LayoutCard";
 
 
-interface FormOriginsProps {
-    type: FormOriginsType;
+interface FormOrganizationProps {
+    type: FormOrganizationType;
     onFinish: () => void;
-    origin?: Origin;
+    organization?: Organization;
 }
 
-export enum FormOriginsType {
+export enum FormOrganizationType {
     REGISTER, UPDATE
 }
 
-const FormOrigins = (props: FormOriginsProps) => {
-    const [registerOrigin] = useRegisterOriginMutation();
-    const [updateOrigin] = useUpdateOriginMutation();
+const FormOrganization = (props: FormOrganizationProps) => {
+    const [registerOrganization] = useRegisterOrganizationMutation();
+    const [updateOrganization] = useUpdateOrganizationMutation();
     const [isOpenModal, setIsOpenModal] = useState(false);
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [checkReferralCode, setCheckReferralCode] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
 
     const handleOpenModal = () => {
-        if (props.type == FormOriginsType.UPDATE && props.origin != null) {
-            setName(props.origin.name);
-            setDescription(props.origin.description);
+        if (props.type == FormOrganizationType.UPDATE && props.organization != null) {
+            setName(props.organization.name);
+            setDescription(props.organization.description);
         }
         setIsOpenModal(true)
     }
 
 
-    const handleOnRegisterOrigin = async () => {
+    const handleOnRegisterOrganization = async () => {
         try {
+            if (validateForm()) {
+                handleErrorNotification(Constants.REQUIRED_FIELDS);
+                return
+            }
             setIsLoading(true);
-            await registerOrigin(new RegisterOriginRequest(name, description, checkReferralCode)).unwrap();
+            await registerOrganization(new RegisterOrganizationRequest(name, description)).unwrap();
             resetParams();
             handleSucccessNotification(NotificationSuccess.REGISTER);
             props.onFinish();
@@ -51,10 +55,14 @@ const FormOrigins = (props: FormOriginsProps) => {
         }
     }
 
-    const handleOnUpdateOrigin = async () => {
+    const handleOnUpdateOrganization = async () => {
         try {
+            if (props.organization == null) {
+                handleErrorNotification(Constants.SET_TEXT,`Ocurrió un error, actualiza la página para continuar`);
+                return
+            }
             setIsLoading(true);
-            await updateOrigin(new UpdateOriginRequest(props.origin?.id ?? 0 ,name, description, checkReferralCode)).unwrap();
+            await updateOrganization(new UpdateOrganizationRequest(props.organization.id, name, description)).unwrap();
             resetParams();
             handleSucccessNotification(NotificationSuccess.UPDATE);
             props.onFinish();
@@ -67,41 +75,38 @@ const FormOrigins = (props: FormOriginsProps) => {
     const resetParams = () => {
         setName('');
         setDescription('');
-        setCheckReferralCode(false);
         setIsLoading(false);
         setIsOpenModal(false);
     }
 
 
     const buildTitle = (): string => {
-        if (props.type == FormOriginsType.REGISTER) {
-            return Strings.formRegisterOrigin;
+        if (props.type == FormOrganizationType.REGISTER) {
+            return 'Registrar organizacion'
         } else {
-            return Strings.formUpdateOrigin;
+            return 'Actualizar organizacion'
         }
     }
 
     const buildButtonText = (): string => {
-        if (props.type == FormOriginsType.REGISTER) {
+        if (props.type == FormOrganizationType.REGISTER) {
             return Strings.save;
         } else {
             return Strings.update;
         }
     }
-    const validateReferralCode = () => {
-        return props.origin != null && props.origin.referralCode != null &&
-            props.origin.referralCode != ''
-    }
+
 
     const handleCheckFormType = () => {
-        if (props.type == FormOriginsType.REGISTER) {
-            handleOnRegisterOrigin()
+        if (props.type == FormOrganizationType.REGISTER) {
+            handleOnRegisterOrganization()
         } else {
-            handleOnUpdateOrigin();
+            handleOnUpdateOrganization();
         }
     }
+
     const validateForm = (): boolean => {
-        return name == '' ||  name == undefined
+        return name == '' || name == undefined
     }
     return (
         <LayoutCard
@@ -109,9 +114,9 @@ const FormOrigins = (props: FormOriginsProps) => {
             content={
                 <div className="flex flex-col">
                     <div className="flex w-full items-end justify-end">
-                        {props.type == FormOriginsType.REGISTER && <Button type="primary" onClick={() => handleOpenModal()}>{Strings.formRegisterOrigin}</Button>}
+                        {props.type == FormOrganizationType.REGISTER && <Button type="primary" onClick={() => handleOpenModal()}>{'Registrar organizacion'}</Button>}
                     </div>
-                    {props.type == FormOriginsType.UPDATE && <span onClick={() => handleOpenModal()}>{Strings.edit}</span>}
+                    {props.type == FormOrganizationType.UPDATE && <span onClick={() => handleOpenModal()}>{Strings.edit}</span>}
 
                     <Modal okButtonProps={{
                         disabled: validateForm()
@@ -119,7 +124,6 @@ const FormOrigins = (props: FormOriginsProps) => {
                         <div className="flex flex-col">
                             <CustomFormInput value={name} label={Strings.nameLabel} onChange={(event) => setName(event)} />
                             <CustomFormInput value={description} label={Strings.description} onChange={(event) => setDescription(event)} />
-                            {!validateReferralCode() && <Checkbox value={checkReferralCode} checked={checkReferralCode} onChange={(event) => setCheckReferralCode(event.target.checked)} className="mt-2">Generar código de referido</Checkbox>}
                         </div>
                     </Modal>
                 </div>
@@ -130,4 +134,4 @@ const FormOrigins = (props: FormOriginsProps) => {
 
 }
 
-export default FormOrigins;
+export default FormOrganization;

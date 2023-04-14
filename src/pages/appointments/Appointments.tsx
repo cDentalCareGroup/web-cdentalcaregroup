@@ -19,6 +19,8 @@ import { formatAppointmentDate, UserRoles } from "../../utils/Extensions";
 import DataLoading from "../components/DataLoading";
 import { sortAppointments } from "../../data/appointment/appointment.extensions";
 import FormAppointment from "./FormAppointment";
+import { RiContactsBookLine } from "react-icons/ri";
+import { useLocation } from "react-router-dom";
 
 interface AppointmentsProps {
     rol: UserRoles
@@ -30,20 +32,20 @@ const Appointments = (props: AppointmentsProps) => {
     const [defaultFilter, setDefaultFilter] = useState(DEFAULT_APPOINTMENTS_FILTERS[0]);
     const [appointments, setAppointments] = useState<SectionDateAppointment[] | undefined>([]);
     const [data, setData] = useState<AppointmentDetail[] | undefined>([]);
-    const [branchId, setBranchId] = useSessionStorage(
-        Constants.BRANCH_ID,
-        0
-    );
+    const [branchId, setBranchId] = useSessionStorage(Constants.BRANCH_ID, 0);
+
     //const [sortedData, setSortedData] = useState<SectionDateAppointment[]>([]);
     const [isFiltering, setIsFiltering] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
     }, []);
 
+
     const handleGetAppointmentsByBranchOffice = async (status: string) => {
         try {
-            console.log(`BranchID`,branchId);
+            console.log(`BranchID`, branchId);
             setIsLoading(true);
             const response = await getAppointmentsByBranchOffice({ id: Number(branchId), status: status }).unwrap();
             //setSortedData(groupBy(response, 'appointment'));
@@ -123,8 +125,16 @@ const Appointments = (props: AppointmentsProps) => {
         handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
     }
 
+
+    const buildCardTitle = (): string => {
+        if (props.rol == UserRoles.RECEPTIONIST) {
+            return Strings.appointments;
+        } else {
+            return `${Strings.appointments} - ${location.state?.branchName ?? ''}`
+        }
+    }
     return (
-        <LayoutCard title={Strings.appointments} isLoading={isLoading} content={
+        <LayoutCard title={buildCardTitle()} isLoading={isLoading} content={
 
             <div className="flex flex-col">
                 {(props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) && <BackArrow />}

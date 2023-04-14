@@ -27,4 +27,5 @@ export interface Appointment {
     referralCode?: string;
     referralName?: string;
     referralId?: number;
+    notesCallCenter: string;
 }

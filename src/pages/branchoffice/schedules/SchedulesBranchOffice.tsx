@@ -149,7 +149,7 @@ const SchedulesBranchOffice = () => {
             const response = await getEmployeesByBranchOffice(
                 new GetEmployeeByTypeRequest('Medico/Especialista')
             ).unwrap();
-           setDentistList(employeesToSelectItemOptionsEmpty(response.filter((value,_) => value.branchOfficeId == Number(id))));
+           setDentistList(employeesToSelectItemOptionsEmpty(response));
         } catch (error) {
             handleErrorNotification(error);
         }
