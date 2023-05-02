@@ -71,7 +71,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
             const response = await getPatients(
                 new FilterEmployeesRequest(DEFAULT_PATIENTS_ACTIVE)
             ).unwrap();
-            setPatientList(patientsToSelectItemOption(response.filter((value, _) => value.originBranchOfficeId == branchId)));
+            setPatientList(patientsToSelectItemOption(response.filter((value: any, _: number) => value.originBranchOfficeId == branchId)));
         } catch (error) {
             console.log(error);
             handleErrorNotification(error);
@@ -145,6 +145,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
             } else {
                 finalPatientId = patient?.id ?? 0;
             }
+
             await registerCallCenterAppointment(
                 new RegisterCallCenterAppointmentRequest(
                     name,

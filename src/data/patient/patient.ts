@@ -18,6 +18,7 @@ export interface Patient {
     colony: string;
     cp: string;
     primaryContact: string;
+    secondaryContact: string;
     email: string;
     folio: string;
     historicalFolio: string;

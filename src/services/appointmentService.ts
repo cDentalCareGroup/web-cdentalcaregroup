@@ -1,3 +1,4 @@
+import { Appointment } from "../data/appointment/appointment";
 import { AppointmentDetail } from "../data/appointment/appointment.detail";
 import { GetAppointmentDetail } from "../data/appointment/appointment.request";
 import { AvailableTime } from "../data/appointment/available.time";
@@ -165,6 +166,22 @@ export const appointmentService = apiSlice.injectEndpoints({
       }),
       transformResponse: (response: { data: AppointmentDetail }, meta, arg) => response.data,
     }),
+    notAttendedAppointment: builder.mutation<any, any>({
+      query: (data) => ({
+        url: '/appointment/update/notattended',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: any }, meta, arg) => response.data,
+    }),
+    getAppointmentHistory: builder.mutation<any, any>({
+      query: (data) => ({
+        url: '/appointment/history',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: Appointment }, meta, arg) => response.data,
+    }),
   })
 });
 
@@ -186,5 +203,7 @@ export const {
   useGetServicesMutation,
   useExtendAppointmentMutation,
   useRegisterCallCenterAppointmentMutation,
-  useRegisterAppointmentPatientMutation
+  useRegisterAppointmentPatientMutation,
+  useNotAttendedAppointmentMutation,
+  useGetAppointmentHistoryMutation
 } = appointmentService;

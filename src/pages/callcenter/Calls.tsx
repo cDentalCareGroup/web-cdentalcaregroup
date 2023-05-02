@@ -18,11 +18,14 @@ import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormCall from "./FormCall";
 import { UserRoles } from "../../utils/Extensions";
+import Search from "antd/es/input/Search";
+import { Patient } from "../../data/patient/patient";
 
 const Calls = () => {
     const [getCalls, { isLoading }] = useGetCallsMutation();
     const [registerCallLog] = useRegisterCallLogMutation();
     const [data, setData] = useState<any[]>([]);
+    const [calls, setCalls] = useState<any[]>([]);
     const navigate = useNavigate();
 
     const [call, setCall] = useSessionStorage(
@@ -38,8 +41,9 @@ const Calls = () => {
     const handleGetCalls = async () => {
         try {
             const response = await getCalls({}).unwrap();
-            setData(groupBy(response, 'call'));
-            console.log(groupBy(response, 'call'))
+            const res = groupBy(response, 'call')
+            setData(res);
+            setCalls(res);
         } catch (error) {
             handleErrorNotification(error);
         }
@@ -122,40 +126,73 @@ const Calls = () => {
         const previusDate = new Date(date);
         previusDate.setDate(previusDate.getDate() + 1);
         return `${dayName(previusDate)} ${previusDate.getDate()} de ${monthName(previusDate)}, Llamadas: ${appointments}`;
-      }
+    }
+
+
+    const handleOnSearch = (query: string, shoudlSearch: Boolean) => {
+        if (query == '' || query == null) {
+            setData(calls);
+        } else if (shoudlSearch) {
+            setData([]);
+            const newData: any[] = [];
+            for (const value of calls) {
+                for (const call of value.calls) {
+                    if (call.patient != null) {
+                        if (buildPatientName(call.patient as Patient).toLowerCase()
+                            .replace(/\s+/g, ' ')
+                            .includes(query.toLowerCase())) {
+                            newData.push(value);
+                        }
+                    } else if (call.prospect != null) {
+                        if (call.prospect.name.toLowerCase()
+                            .replace(/\s+/g, ' ')
+                            .includes(query.toLowerCase())) {
+                            newData.push(value);
+                        }
+                    }
+                }
+            }
+            setTimeout(() => {
+                setData(newData);
+            }, 200)
+        }
+    }
+
     return (
         <LayoutCard
             isLoading={isLoading}
             title={Strings.callsDay}
             content={
                 <div className="flex flex-col">
+                    <Search onChange={(event) => handleOnSearch(event.target.value, false)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={(event) => handleOnSearch(event, true)} enterButton />
+                    <br />
                     <FormAppointment rol={UserRoles.CALL_CENTER} />
                     <br />
                     <FormCall showPatients={true} onFinish={() => handleGetCalls()} />
 
 
                     {data.map((item, index) =>
-                            <div className="flex flex-col w-full" key={index}>
-                                <Divider orientation="left">
-                                    <span className="text-red-800">{formatAppointmentDate(item.date, item.calls.length)}</span>
-                                </Divider>
-                                <Row>
-                                    {item.calls?.map((value: GetCalls, index: number) =>
-                                        <Card key={index} title={capitalizeAllCharacters(value.catalog.name)}
-                                            actions={[<span onClick={() => {
-                                                handleRegisterCallLog(value.call.id);
-                                                setCall(value);
-                                                window.open(`${location.origin}/callcenter/call`, '_blank')
-                                            }}>{Strings.attend}</span>]}
-                                        >
-                                            {buildInfo(value)}
-                                            {buildPriority(value.call)}
-                                        </Card>
-                                    
-                                    )}
-                                </Row>
-                            </div>
-                        )}
+                        <div className="flex flex-col w-full" key={index}>
+                            <Divider orientation="left">
+                                <span className="text-red-800">{formatAppointmentDate(item.date, item.calls.length)}</span>
+                            </Divider>
+                            <Row>
+                                {item.calls?.map((value: GetCalls, index: number) =>
+                                    <Card className="m-2" key={index} title={capitalizeAllCharacters(value.catalog.name)}
+                                        actions={[<span onClick={() => {
+                                            handleRegisterCallLog(value.call.id);
+                                            setCall(value);
+                                            window.open(`${location.origin}/callcenter/call`, '_blank')
+                                        }}>{Strings.attend}</span>]}
+                                    >
+                                        {buildInfo(value)}
+                                        {buildPriority(value.call)}
+                                    </Card>
+
+                                )}
+                            </Row>
+                        </div>
+                    )}
 
                     <div className="flex flex-row flex-wrap">
                         {data.length == 0 &&

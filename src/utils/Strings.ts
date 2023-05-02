@@ -42,7 +42,7 @@ class Strings {
 
     static address = "Dirección";
     static phoneNumber = "Número de teléfono";
-    static secondPhoneNumber = "Numero de teléfono secundario";
+    static secondPhoneNumber = "Número de teléfono secundario";
     static phoneNumberBranchOffice = "Número de teléfono sucursal";
     static postalCode = "Código postal"
 
@@ -289,6 +289,8 @@ class Strings {
 
     static askFinishAppointment = "¿Deseas finalizar la cita?"
 
+    static notAttendedAppointmentConfirm = "La cita se marcará como no atendida, ¿Deseas continuar?"
+
     static paymentMethod = "Método de pago"
 
     static receivedAmount = "Monto recibido"
@@ -310,7 +312,7 @@ class Strings {
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
 
-    static appVersion = 'v.1.0.40.16-PROD';
+    static appVersion = 'v.1.0.41.0-PROD';
 }
 
 export default Strings;

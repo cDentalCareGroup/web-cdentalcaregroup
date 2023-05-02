@@ -52,6 +52,7 @@ const Patients = (props: PatientsProps) => {
         try {
             setIsLoading(true);
             const response = await getPatientsByBranchOffice(Number(branchId)).unwrap();
+            console.log(response);
             setPatientList(response);
             setData(response);
             setIsLoading(false);

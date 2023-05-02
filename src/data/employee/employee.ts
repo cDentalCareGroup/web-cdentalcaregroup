@@ -27,4 +27,5 @@
     city: string;
     user:string;
     password: string;
+    dentistColor: string;
   }

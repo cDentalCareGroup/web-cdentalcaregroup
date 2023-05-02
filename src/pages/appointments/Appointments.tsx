@@ -1,4 +1,4 @@
-import { Divider, Row } from "antd";
+import { Button, Divider, Row, Tag } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
 import { DEFAULT_APPOINTMENTS_FILTERS } from "../../data/filter/filters";
@@ -21,6 +21,10 @@ import { sortAppointments } from "../../data/appointment/appointment.extensions"
 import FormAppointment from "./FormAppointment";
 import { RiContactsBookLine } from "react-icons/ri";
 import { useLocation } from "react-router-dom";
+import { useGetEmployeesByTypeMutation } from "../../services/employeeService";
+import { GetEmployeeByTypeRequest } from "../../data/employee/employee.request";
+import { employeesToSelectItemOptions } from "../../data/employee/employee.extentions";
+import { Employee } from "../../data/employee/employee";
 
 interface AppointmentsProps {
     rol: UserRoles
@@ -33,6 +37,8 @@ const Appointments = (props: AppointmentsProps) => {
     const [appointments, setAppointments] = useState<SectionDateAppointment[] | undefined>([]);
     const [data, setData] = useState<AppointmentDetail[] | undefined>([]);
     const [branchId, setBranchId] = useSessionStorage(Constants.BRANCH_ID, 0);
+    const [getEmployeesByType] = useGetEmployeesByTypeMutation();
+    const [dentistList, setDentistList] = useState<SelectItemOption[]>([]);
 
     //const [sortedData, setSortedData] = useState<SectionDateAppointment[]>([]);
     const [isFiltering, setIsFiltering] = useState(false);
@@ -40,23 +46,28 @@ const Appointments = (props: AppointmentsProps) => {
 
     useEffect(() => {
         handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE);
+        
     }, []);
 
 
     const handleGetAppointmentsByBranchOffice = async (status: string) => {
         try {
-            console.log(`BranchID`, branchId);
             setIsLoading(true);
             const response = await getAppointmentsByBranchOffice({ id: Number(branchId), status: status }).unwrap();
-            //setSortedData(groupBy(response, 'appointment'));
             setData(response);
             setAppointments(groupBy(sortAppointments(response, status), 'appointment'));
             setIsLoading(false);
             setIsFiltering(false);
+        
+          //  setDentistList(employeesToSelectItemOptions(filterDentist(response)))
         } catch (error) {
             console.log(error);
             handleErrorNotification(error);
         }
+    }
+
+    const filterDentist = (response: AppointmentDetail[]) => {
+        return [...new Set(response.filter((value,_) => value.dentist != null && value.dentist != undefined).map((value,_)=> value.dentist))] as Employee[]
     }
 
     var groupBy = function (xs: any, key: any) {
@@ -133,6 +144,8 @@ const Appointments = (props: AppointmentsProps) => {
             return `${Strings.appointments} - ${location.state?.branchName ?? ''}`
         }
     }
+
+
     return (
         <LayoutCard title={buildCardTitle()} isLoading={isLoading} content={
 
@@ -142,6 +155,9 @@ const Appointments = (props: AppointmentsProps) => {
                 <SingleFilters data={DEFAULT_APPOINTMENTS_FILTERS} onFilterChange={handleOnFilterChange} defaultOption={defaultFilter} />
                 {props.rol != UserRoles.CALL_CENTER && <FormAppointment rol={props.rol} onFinish={() => onStatusChange()} />}
 
+                {/* <div className="flex flex-row gap-2">
+                    {dentistList.map((value, _) => <Tag color="#f50">{value.label}</Tag>)}
+                </div> */}
                 {!isFiltering && <div className="flex flex-col">
                     {appointments?.map((item, index) =>
                         <div className="flex flex-col" key={index}>

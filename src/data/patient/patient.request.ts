@@ -11,6 +11,7 @@ export class RegisterPatientRequest {
     birthDate: string;
     gender: string;
     phone: string;
+    secondPhone: string;
     email: string;
     street: string;
     streetNumber: string;
@@ -34,6 +35,7 @@ export class RegisterPatientRequest {
         this.birthDate = values.birthday;
         this.gender = values.gender;
         this.phone = values.phone;
+        this.secondPhone = values.secondPhone;
         this.email = values.email ?? "";
         this.street = values.street;
         this.colony = capitalizeAllCharacters(colony);
@@ -70,6 +72,7 @@ export class UpdatePatientRequest {
     birthDate: string;
     gender: string;
     phone: string;
+    secondPhone: string;
     email: string;
     street: string;
     streetNumber: string;
@@ -95,6 +98,7 @@ export class UpdatePatientRequest {
         this.birthDate = birthday;
         this.gender = values.gender;
         this.phone = values.phone;
+        this.secondPhone = values.secondPhone;
         this.email = values.email ?? "";
         this.street = values.street;
         this.colony = colony;

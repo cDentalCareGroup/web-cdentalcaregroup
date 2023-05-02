@@ -5,7 +5,7 @@ const DEV = "https://service-c-dental-care-group-development.up.railway.app";
 //const QA = "https://service-c-dental-care-group-qa.up.railway.app";
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: PROD,
+    baseUrl: LOCAL_DEV,
     credentials: 'same-origin',
     prepareHeaders: (headers, { getState }) => {
         const { auth }: any = getState();

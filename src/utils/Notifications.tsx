@@ -140,6 +140,9 @@ const getErrorMessage = (message: string, text?: string): string => {
     if (message == Constants.ERROR_ADDING_PAD_COMPONENT) {
         return `Error al agregar el servicio del PAD, por favor regresa a la pantalla anterior y vuelve o refresca la página`;
     }
+    if(message == 'EMPTY_PATIENT') {
+        return `Ocurrio un error al asignar el paciente, refresca la página e intenta nuevamente`;
+    }
 
     if (message == Constants.SET_TEXT) {
         return `${text}`;
