@@ -174,13 +174,13 @@ export const appointmentService = apiSlice.injectEndpoints({
       }),
       transformResponse: (response: { data: any }, meta, arg) => response.data,
     }),
-    getAppointmentHistory: builder.mutation<any, any>({
+    getAppointmentHistory: builder.mutation<Appointment[], any>({
       query: (data) => ({
         url: '/appointment/history',
         method: "POST",
         body: { ...data },
       }),
-      transformResponse: (response: { data: Appointment }, meta, arg) => response.data,
+      transformResponse: (response: { data: Appointment[] }, meta, arg) => response.data,
     }),
   })
 });

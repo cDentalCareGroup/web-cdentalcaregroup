@@ -140,7 +140,7 @@ const PatientInfo = (props: PatientInfoProps) => {
             children: <PatientPaymentAccountInfo patient={data!} />,
         },
         {
-            label: <div className="flex items-baseline gap-1 justify-center"><RiCalendar2Line /><span className="text text-sm">Historial de citas</span></div>,
+            label: <div className="flex items-baseline gap-1 justify-center"><RiCalendar2Line /><span className="text text-sm">Historial del paciente</span></div>,
             key: 4,
             children: <PatientHistory patient={data!} />,
         },

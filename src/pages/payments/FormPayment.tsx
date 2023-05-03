@@ -115,7 +115,7 @@ const FormPayment = (props: FormPaymentProps) => {
             const response = await getPatientPayments({
                 'patientId': patientId
             }).unwrap();
-            console.log(`Getting payments`);
+           // console.log(`Getting payments`);
             setDebtsInfo(response?.debts ?? []);
             if (props.onGetPatientPayments != null) {
                 props.onGetPatientPayments(response);
@@ -180,10 +180,10 @@ const FormPayment = (props: FormPaymentProps) => {
             .map((value, _) => Number(value.amountDebt)).reduce((a, b) => a + b, 0);
         const totalApplicable = Number(amount) - totalDebts;
 
-        console.log(`Total debts`, totalDebts)
-        console.log(`Applicable amount `, totalApplicable)
-        console.log(`Amount `, amount);
-        console.log(`Debt `, item.amountDebt);
+        //console.log(`Total debts`, totalDebts)
+       // console.log(`Applicable amount `, totalApplicable)
+       // console.log(`Amount `, amount);
+       // console.log(`Debt `, item.amountDebt);
 
         if (Number(amount) <= 0) {
             handleErrorNotification(Constants.SET_TEXT, `El monto debe ser mayor a $0`)

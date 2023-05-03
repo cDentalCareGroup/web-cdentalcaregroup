@@ -5,6 +5,8 @@ import LayoutCard from "../layouts/LayoutCard"
 import { Patient } from "../../data/patient/patient";
 import { Appointment } from "../../data/appointment/appointment";
 import { Timeline } from "antd";
+import Constants from "../../utils/Constants";
+import { getAppointmentStatus, getAppointmentStatusFromAppointment } from "../../data/appointment/appointment.extensions";
 
 
 
@@ -16,6 +18,7 @@ const PatientHistory = (props: PatientHistoryProps) => {
 
     const [getAppointmentHistory] = useGetAppointmentHistoryMutation();
     const [data, setData] = useState<Appointment[]>([]);
+    const [timelineData, setTimelineData] = useState<any[]>([])
 
     useEffect(() => {
         handleGetAppointmentHistory();
@@ -28,18 +31,35 @@ const PatientHistory = (props: PatientHistoryProps) => {
                 'patientId': props.patient.id
             }).unwrap();
             setData(response);
+            let newData: any[] = [];
+            for (const item of response) {
+                const comments = item.comments.split("\n").map((value, _) => value.trim())
+                newData.push({
+                    key: item.id,
+                    color: `#001628`,
+                    children: <div className="flex flex-col flex-wrap">
+                        <span className="text-normal font-bold text-gray-600">{`Fecha y Hora: ${item.appointment} ${item.time}`}</span>
+                        <span className="text-normal font-bold text-gray-600">{`Estatus: ${getAppointmentStatusFromAppointment(item)}`}</span>
+                        {comments.map((value, index) => <span key={index} className="text-xs font-normal text-gray-500">{value}</span>)}
+                    </div>
+
+                });
+            }
+            setTimelineData(newData);
         } catch (error) {
             console.log(error);
             handleErrorNotification(error);
         }
     }
-    const items = [{ children: 'sample', label: 'sample' }];
 
 
-    return (<LayoutCard title="Historial de citas" isLoading={false} content={
-        <></>
+    return (<LayoutCard title="Historial del paciente" isLoading={false} content={
+        <Timeline
+            items={timelineData}
+            mode="alternate"
+        />
     }
-     /> )
+    />)
 }
 
 export default PatientHistory;
