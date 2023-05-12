@@ -168,7 +168,8 @@ const formatAppointmentDate = (date: string, appointments: number) => {
 }
 
 
-const formatServiceDate = (date: Date): string => {
+const formatServiceDate = (date?: Date): string => {
+  if (date == null || date == undefined) return 'Sin fecha'
   return format(parseISO(date.toString()), 'yyy-MM-dd HH:mm')
 }
 
@@ -208,7 +209,7 @@ const formatter = new Intl.NumberFormat('en-US', {
   currency: 'USD',
 });
 
-const formatPrice = (price: number|undefined): string => {
+const formatPrice = (price: number | undefined): string => {
   if (price != null && price != undefined && !isNaN(price)) {
     return formatter.format(price);
   } else {

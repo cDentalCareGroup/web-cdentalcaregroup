@@ -10,10 +10,10 @@ const buildPatientName = (patient: Patient | undefined): string => {
 }
 
 const buildPatientAddress = (patient: Patient | undefined): string => {
-  return `${patient?.street} ${patient?.number} ${patient?.colony} ${patient?.cp}`
+  return `${patient?.street} ${patient?.number} ${patient?.colony}, ${patient?.city} ${patient?.state} ${patient?.cp}`
 }
 const buildPatientPhone = (patient: Patient | undefined): string => {
-  return `${patient?.primaryContact ?? DEFAULT_FIELD_VALUE}`
+  return `${patient?.primaryContact ?? DEFAULT_FIELD_VALUE} - ${patient?.secondaryContact ?? ''}`
 }
 const buildPatientEmail = (patient: Patient | undefined): string => {
   if (patient?.email != null && patient.email != "") {
@@ -73,7 +73,7 @@ const getPatientPrimaryContact = (appointment: AppointmentDetail | undefined): s
   }
   if (appointment?.patient != null) {
     if (appointment.patient.primaryContact != "") {
-      return appointment.patient.primaryContact;
+      return `${appointment.patient.primaryContact} - ${appointment.patient?.secondaryContact ?? ''}`
     } else {
       return DEFAULT_FIELD_VALUE;
     }

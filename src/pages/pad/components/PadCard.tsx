@@ -29,11 +29,11 @@ const PadCard = ({ data, onEditMembers }: PadCardProps) => {
 
 
     const buildPadMembers = () => {
-        return data.members.map((value, _) => {
+        return data.members.map((value, index) => {
             if (value.id == data.principalId) {
-                return <span >{`* ${buildPatientName(value)}`}</span>
+                return <span key={index}>{`* ${buildPatientName(value)}`}</span>
             } else {
-                return <span>{`${buildPatientName(value)}`}</span>
+                return <span key={index}>{`${buildPatientName(value)}`}</span>
             }
         })
     }

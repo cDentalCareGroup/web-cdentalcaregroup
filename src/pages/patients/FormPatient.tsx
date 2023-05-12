@@ -48,7 +48,7 @@ const FormPatient = (props: FormPatientProps) => {
     const [colonies, setColonies] = useState<Colony[]>([]);
     const [colony, setColony] = useState<Colony>();
     const [form] = Form.useForm();
-    const [latitudes, setLatitudes] = useState<Latitudes>();
+    //const [latitudes, setLatitudes] = useState<Latitudes>();
     const [origins, setOrigins] = useState<PatientOrigin[] | undefined>([]);
     const [organizations, setOrganizations] = useState<PatientOrganization[] | undefined>([]);
     const [showNormalInputs, setShowNormalInputs] = useState(false);
@@ -108,7 +108,7 @@ const FormPatient = (props: FormPatientProps) => {
             form.setFieldValue('startDate', dayjs(props.patient?.startDate, 'YYYY-MM-DD'));
         }
         form.setFieldValue('birthday', dayjs(props.patient?.birthDay, 'YYYY-MM-DD'));
-        setLatitudes(new Latitudes(Number(props.patient?.lat), Number(props.patient?.lng)));
+        //setLatitudes(new Latitudes(Number(props.patient?.lat), Number(props.patient?.lng)));
         if (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) {
             setBranchId(Number(props.patient?.originBranchOfficeId));
         }
@@ -146,6 +146,7 @@ const FormPatient = (props: FormPatientProps) => {
             setColonies([]);
             if (cp.length < 5) return
             const response = await getColoniesFromZipCode({ cp: cp }).unwrap();
+           
             if (response.neighborhood != null && response.neighborhood.colonies != null) {
                 setColonies(response.neighborhood?.colonies);
                 setShowNormalInputs(false);
@@ -158,35 +159,33 @@ const FormPatient = (props: FormPatientProps) => {
         }
     }
 
-    const googleApiFetchColony = async (colony: string) => {
-        try {
+    const googleApiFetchColony = async () => {
+        try { 
+            const address = `${capitalizeAllCharacters(form.getFieldValue('street'))} ${capitalizeAllCharacters(form.getFieldValue('streetNumber'))} ${capitalizeAllCharacters(colony?.colony)} ${capitalizeAllCharacters(form.getFieldValue('city'))} ${capitalizeAllCharacters(form.getFieldValue('state'))} ${capitalizeAllCharacters(form.getFieldValue('zipCode'))}`;
+            let strGoogleMaps = `https://maps.google.com/maps/api/geocode/json?address=${address}&key=AIzaSyDB5WyzdGWnx3JspWuwTmdKN0TURq8QIBA`
+            strGoogleMaps = strGoogleMaps.replaceAll(' ', '%20' );
+           
             const response = await fetch(
-                `https://maps.google.com/maps/api/geocode/json?address=${colony}&key=AIzaSyDB5WyzdGWnx3JspWuwTmdKN0TURq8QIBA`,
-                {
-                    method: "GET"
-                }
-            ).then((response) => response.json().catch((error) => error));
-
+                strGoogleMaps,
+                { method: "GET" })
+                .then((response) => response.json().catch((error) => error));
+           
             if (response.status === "OK" && response.results.length > 0) {
-                console.log(response[0]);
                 const address = response.results[0];
                 const lat = address.geometry.location.lat;
                 const lng = address.geometry.location.lng;
-                setLatitudes(new Latitudes(lat, lng));
+                return new Latitudes(lat, lng);
             }
-            if (response.status == 'ZERO_RESULTS') {
-                setLatitudes(new Latitudes(0, 0));
-            }
-            // return [];
+            return new Latitudes(0, 0);
         } catch (error) {
             console.error(`Failed to get addrress from ${colony}, ${error}`);
-            //  return [];
+            return new Latitudes(0, 0);
         }
     };
 
     const handleOnColonyChange = async (value: any) => {
         const colony = colonies?.find((_, index) => Number(value) == index);
-        console.log(colony);
+  
         if (colony != null) {
             if (colony.stateCities != null && colony.stateCities.length > 0) {
                 if (colony.stateCities[0].cities != null) {
@@ -195,7 +194,6 @@ const FormPatient = (props: FormPatientProps) => {
                 form.setFieldValue('state', capitalizeAllCharacters(colony.stateCities[0].state));
             }
             setColony(colony);
-            googleApiFetchColony(colony.colony ?? '');
         }
     }
 
@@ -214,12 +212,15 @@ const FormPatient = (props: FormPatientProps) => {
             city = values.city;
             state = values.state;
         }
+
         setIsLoading(true);
+        const latlng = await googleApiFetchColony();
+
         try {
             const response = await registerPatient(
                 new RegisterPatientRequest(
                     values,
-                    latitudes!,
+                    latlng,
                     (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) ? branchOfficeId : Number(branchId),
                     city, col, state
                 )).unwrap();
@@ -258,10 +259,12 @@ const FormPatient = (props: FormPatientProps) => {
             state = values.state;
         }
         setIsLoading(true);
+        const latlng = await googleApiFetchColony();
+
         try {
             await updatePatient(new UpdatePatientRequest(
                 values, props.patient?.originBranchOfficeId,
-                col, city, state, latitudes!, props.patient?.id ?? 0, props.patient?.birthDay.toString() ?? ''
+                col, city, state, latlng, props.patient?.id ?? 0, props.patient?.birthDay.toString() ?? ''
             )).unwrap();
             setIsLoading(false);
             handleSucccessNotification(NotificationSuccess.UPDATE);
@@ -367,6 +370,21 @@ const FormPatient = (props: FormPatientProps) => {
                         size="large"
                         prefix={<RiPhoneLine />}
                         placeholder={Strings.phoneNumber}
+                    />
+                </Form.Item>
+
+                <Form.Item
+                    name="secondPhone"
+                    label={Strings.secondPhoneNumber}
+                    style={{ minWidth: 200, padding: 10 }}
+                    rules={[
+                        { min: 10, message: Strings.invalidPhoneNumber }
+                    ]}>
+                    <Input
+                        type="number"
+                        size="large"
+                        prefix={<RiPhoneLine />}
+                        placeholder={Strings.secondPhoneNumber}
                     />
                 </Form.Item>
 

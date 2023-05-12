@@ -158,7 +158,7 @@ const CallInfo = () => {
                                 <List.Item>
                                     <div className="flex flex-col">
                                         <span className="text text-sm font-semibold">{`${Strings.date} ${item?.callDueDate ?? 'Sin fecha'} - Motivo ${item?.catalogName}`}</span>
-                                        <span className="text text-sm font-normal">{`${Strings.description} - ${item.description}`}</span>
+                                        <span className="text text-sm font-normal">{`${Strings.description} - ${item.description ?? 'Sin descripción'}`}</span>
                                     </div>
                                 </List.Item>
                             )}
@@ -204,11 +204,12 @@ const CallInfo = () => {
     }
 
     const notAttendedInfoContent = (): JSX.Element => {
+        console.log(call);
         return (
             <div>
                 {call.patient && <SectionElement label={Strings.patientName} value={buildPatientName(call?.patient)} icon={<RiUser3Line />} size='sm' />}
                 {call.propspect && <SectionElement label={Strings.patientName} value={call?.propspect?.name} icon={<RiUser3Line />} size='sm' />}
-                <SectionElement label={Strings.dateTimeAppointent} value={call?.appointment?.scheduledAt.toString() ?? ''} icon={<RiUserHeartLine />} size='sm' />
+                <SectionElement label={Strings.dateTimeAppointent} value={`${call?.appointment?.appointment} - ${call?.appointment?.time}`} icon={<RiUserHeartLine />} size='sm' />
                 <SectionElement label={Strings.daysDue} value={buildNotAttendedDate()} icon={<RiUserHeartLine />} size='sm' />
             </div>
         );

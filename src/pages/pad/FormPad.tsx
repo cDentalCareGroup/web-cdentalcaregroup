@@ -1,4 +1,4 @@
-import { Button, Modal, Popover, RowProps, Table } from "antd";
+import { Button, DatePicker, DatePickerProps, Modal, Popover, RowProps, Table } from "antd";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiCouponLine, RiDeleteBin7Line, RiMentalHealthLine } from "react-icons/ri";
@@ -54,6 +54,7 @@ const FormPad = (props: FormPadProps) => {
     const [isLoadingContent, setIsLoadingContent] = useState(false);
 
     const [isOpenModal, setIsOpenModal] = useState(false);
+    const [dueDate, setDueDate] = useState('');
 
 
     useEffect(() => {
@@ -118,7 +119,7 @@ const FormPad = (props: FormPadProps) => {
         } else {
             console.log(selectedPadCatalogue?.maxMemebers);
             const maxMembers = (selectedPadCatalogue?.maxMemebers ?? 1) - 1;
-            
+
             if (dataList.length <= maxMembers) {
                 setIsTableLoading(true);
                 setData([]);
@@ -180,10 +181,11 @@ const FormPad = (props: FormPadProps) => {
     const handleOnRegisterPad = async () => {
         setIsLoading(true);
         try {
+          //  if(padc)
             await registerPad(
                 new RegisterPadRequest(
                     padCatalogue?.id ?? 0, data.map((value, _) => Number(value.id)),
-                    format(new Date(), 'yyyy-MM-dd'), Number(branchId)
+                    format(new Date(), 'yyyy-MM-dd'), Number(branchId), dueDate
                 )
             ).unwrap();
             setIsLoading(false);
@@ -205,15 +207,17 @@ const FormPad = (props: FormPadProps) => {
         members: number[];
         adquisitionDate: string;
         branchId: number;
+        dueDate: string;
 
         constructor(padCatalogueId: number,
             members: number[],
             adquisitionDate: string,
-            branchId: number) {
+            branchId: number, dueDate: string) {
             this.padCatalogueId = padCatalogueId;
             this.members = members;
             this.adquisitionDate = adquisitionDate;
             this.branchId = branchId;
+            this.dueDate = dueDate;
         }
 
     }
@@ -244,6 +248,10 @@ const FormPad = (props: FormPadProps) => {
         }
     };
 
+    const onDateChange: DatePickerProps['onChange'] = (_, dateString) => {
+        setDueDate(dateString);
+    };
+
     return (<LayoutCard isLoading={false} content={
         <div className="flex flex-col">
             <div className="flex w-full items-end justify-end">
@@ -253,7 +261,6 @@ const FormPad = (props: FormPadProps) => {
                 <div className="flex flex-col">
                     <div className="flex flex-row items-baseline gap-4 my-4">
                         <SelectSearch
-                        
                             placeholder={Strings.selectPadType}
                             items={padCatalogList}
                             disabled={disabledSelect()}
@@ -269,6 +276,10 @@ const FormPad = (props: FormPadProps) => {
                             onChange={(event) => setPatient(event)}
                             icon={<RiMentalHealthLine />}
                         />
+
+                        <DatePicker disabled={disabledSelect()}
+                            size="large" className="flex w-[40%]" placeholder="Fecha de vencimiento" onChange={onDateChange} />
+
                         <Button onClick={() => handleOnAddPatientToPad()}>{Strings.add}</Button>
                     </div>
 

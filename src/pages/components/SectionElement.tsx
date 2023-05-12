@@ -10,7 +10,7 @@ const SectionElement = ({ label, value, icon, size }: SectionElementProps) => {
     if (size == 'sm') {
         return (
             <div className="flex flex-row gap-2 items-center p-2 flex-wrap">
-                <div className="flex gap-2 items-baseline">
+                <div className="flex gap-1 items-baseline align-baseline">
                     {icon}
                     <span className="text-sm font-normal text-gray-500">{label}: </span>
                 </div>

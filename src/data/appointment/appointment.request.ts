@@ -235,10 +235,12 @@ export class RegisterCallCenterAppointmentRequest {
   prospectId?: number;
   callId?: number;
   nofity?: boolean;
+  isCallCenter?: boolean;
+  comments?: string;
   constructor(
     name?: string,
     phone?: string,
-    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number, prospectId?: number, callId?: number, nofity?: boolean) {
+    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number, prospectId?: number, callId?: number, nofity?: boolean, isCallCenter?: boolean, comments?: string) {
     this.time = time;
     this.name = name;
     this.phone = phone;
@@ -249,6 +251,8 @@ export class RegisterCallCenterAppointmentRequest {
     this.prospectId = prospectId;
     this.callId = callId;
     this.nofity = nofity;
+    this.isCallCenter = isCallCenter;
+    this.comments = comments;
   }
 }
 

@@ -109,6 +109,16 @@ const FormCall = (props: FormCallProps) => {
 
     const handleRegisterCall = async () => {
         try {
+
+            if (date == '' || date == undefined || date == null) {
+                handleErrorNotification(Constants.SET_TEXT, `Debes agregar una fecha`)
+                return;
+            }
+            if (type == '' || type == null || type == undefined) {
+                handleErrorNotification(Constants.SET_TEXT, `Debes agregar un tipo de llamada`)
+                return;
+            }
+
             setIsActionLoading(true);
             let patientId = 0;
             if (props.showPatients) {
@@ -162,7 +172,7 @@ const FormCall = (props: FormCallProps) => {
 
                         {(props.showPatients && isProspect) &&
                             <div className="flex flex-col">
-                                 <span className="flex mb-2">Sucursal prospecto</span>
+                                <span className="flex mb-2">Sucursal prospecto</span>
                                 <SelectSearch
                                     placeholder={Strings.selectBranchOffice}
                                     items={branchOffices}
@@ -177,7 +187,7 @@ const FormCall = (props: FormCallProps) => {
 
                         {props.showPatients && <div className="flex flex-col items-end justify-end">
                             <Button onClick={() => {
-                                if(!isProspect && branchOffices.length == 0) {
+                                if (!isProspect && branchOffices.length == 0) {
                                     handleGetBranchOffices()
                                 }
                                 setIsProspect(!isProspect)

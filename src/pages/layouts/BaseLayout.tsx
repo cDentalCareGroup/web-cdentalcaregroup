@@ -124,7 +124,7 @@ const BaseLayout: React.FC = () => {
                     <Outlet />
                 </Content>
                <div className='flex w-full items-end justify-end'>
-               <span className='mr-2 mb-1 text-xs text-gray-300'>{Strings.appVersion}</span>
+               <span className='mr-2 mb-1 text-xs text-gray-600'>{Strings.appVersion}</span>
                </div>
             </Layout>
         </Layout>

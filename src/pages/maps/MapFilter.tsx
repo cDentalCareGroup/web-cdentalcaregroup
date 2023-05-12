@@ -69,6 +69,8 @@ const MapFilter = () => {
                 patients.find((value, _) => value.id === Number(event.title))
             );
             setIsOpen(!isOpen);
+        } else {
+            alert(`Sucursal ${event.title}`)
         }
     };
 

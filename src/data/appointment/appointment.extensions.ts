@@ -3,6 +3,7 @@ import Constants from "../../utils/Constants";
 import Strings from "../../utils/Strings";
 import { AppointmentDetail } from "./appointment.detail";
 import { AvailableTime } from "./available.time";
+import { Appointment } from "./appointment";
 
 const getAppointmentDate = (appointment: AppointmentDetail | undefined) => {
     return `${appointment?.appointment.appointment ?? ''} ${appointment?.appointment.time ?? ''}`;
@@ -32,6 +33,22 @@ const getAppointmentStatus = (appointment: AppointmentDetail | undefined) => {
         status = 'Finalizada'
     } else if (appointment?.appointment.status == Constants.STATUS_CANCELLED) {
         status = 'Cancelada'
+    }
+    return status.toUpperCase();
+}
+
+const getAppointmentStatusFromAppointment = (appointment: Appointment | undefined) => {
+    let status = ''
+    if (appointment?.status == Constants.STATUS_ACTIVE) {
+        status = 'Activa'
+    } else if (appointment?.status == Constants.STATUS_PROCESS) {
+        status = 'Proceso'
+    } else if (appointment?.status == Constants.STATUS_FINISHED) {
+        status = 'Finalizada'
+    } else if (appointment?.status == Constants.STATUS_CANCELLED) {
+        status = 'Cancelada'
+    } else if (appointment?.status == Constants.STATUS_NOT_ATTENDED) {
+        status = 'No Asistió'
     }
     return status.toUpperCase();
 }
@@ -112,5 +129,6 @@ export {
     getAppointmentStatus,
     sortAppointments,
     extendedTimesToShow,
-    filterExtendedAvailableTimes
+    filterExtendedAvailableTimes,
+    getAppointmentStatusFromAppointment
 }

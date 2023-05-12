@@ -1,3 +1,4 @@
+import Strings from "../../utils/Strings";
 import SelectItemOption from "../select/select.item.option";
 import { Employee } from "./employee";
 
@@ -36,10 +37,24 @@ const buildEmployeeNumber = (employee: Employee): string => {
   return `${employee?.primaryContact ?? '-'}`;
 }
 
+const getDentistColorOfDefault = (employee?: Employee) => {
+  if (employee != null && employee.dentistColor != null && employee.dentistColor != '') {
+    return `#${employee.dentistColor}`
+  } else if(employee != null && employee.gender == 'male') {
+    return '#82E5F3'
+  } else if(employee != null && employee.gender == 'female') {
+    return `#F29DF2`
+  } else {
+    return `#ffffff`
+  }
+  
+}
+
 export { 
   employeesToSelectItemOptions, 
   buildEmployeeName,
   employeesToSelectItemOptionsEmpty,
   buildEmployeeEmail,
-  buildEmployeeNumber
+  buildEmployeeNumber,
+  getDentistColorOfDefault
  };

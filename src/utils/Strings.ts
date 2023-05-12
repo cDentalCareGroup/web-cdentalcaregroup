@@ -42,7 +42,7 @@ class Strings {
 
     static address = "Dirección";
     static phoneNumber = "Número de teléfono";
-    static secondPhoneNumber = "Numero de teléfono secundario";
+    static secondPhoneNumber = "Número de teléfono secundario";
     static phoneNumberBranchOffice = "Número de teléfono sucursal";
     static postalCode = "Código postal"
 
@@ -57,6 +57,8 @@ class Strings {
     static searchPadMember = "Buscar por integrante del pad"
     static patientSince = "Paciente desde"
     static dateAndTime = "Fecha y Hora";
+    static time = "Hora"
+    static phone = "Teléfono"
     static branchOffice = "Sucursal"
     static gender = "Género";
     static selectGender = "Selecciona un género";
@@ -289,6 +291,8 @@ class Strings {
 
     static askFinishAppointment = "¿Deseas finalizar la cita?"
 
+    static notAttendedAppointmentConfirm = "La cita se marcará como no atendida, ¿Deseas continuar?"
+
     static paymentMethod = "Método de pago"
 
     static receivedAmount = "Monto recibido"
@@ -310,7 +314,7 @@ class Strings {
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
 
-    static appVersion = 'v.1.0.40.3-DEV';
+    static appVersion = 'v.1.0.41.3-PROD';
 }
 
 export default Strings;

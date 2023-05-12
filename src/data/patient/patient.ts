@@ -18,6 +18,7 @@ export interface Patient {
     colony: string;
     cp: string;
     primaryContact: string;
+    secondaryContact: string;
     email: string;
     folio: string;
     historicalFolio: string;
@@ -29,7 +30,7 @@ export interface Patient {
     status: string;
     patientStatus: number;
     sourceBranch: string;
-    currentBranch: string;
+    currentBranchOfficeId: number;
     startDate: Date;
     sourceClient: string;
     organizationClient: string;
