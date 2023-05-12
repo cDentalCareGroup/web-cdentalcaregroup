@@ -57,6 +57,8 @@ class Strings {
     static searchPadMember = "Buscar por integrante del pad"
     static patientSince = "Paciente desde"
     static dateAndTime = "Fecha y Hora";
+    static time = "Hora"
+    static phone = "Teléfono"
     static branchOffice = "Sucursal"
     static gender = "Género";
     static selectGender = "Selecciona un género";
@@ -312,7 +314,7 @@ class Strings {
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
 
-    static appVersion = 'v.1.0.41.0-PROD';
+    static appVersion = 'v.1.0.41.3-PROD';
 }
 
 export default Strings;

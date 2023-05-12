@@ -662,7 +662,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 </div>
             } */}
             {/* {getStautsTag()} */}
-            {/* {getTypeOfUser()} */}
+            {getTypeOfUser()}
             {/* {checkDueDate()} */}
             {/* {showNextAppointment() &&
                 <SectionElement label={Strings.followAppointment} value={buildNextAppointmentText()} icon={<RiCalendar2Line />} />
@@ -1131,15 +1131,15 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const buildCardTitle = () => {
         return !hideContent ? <div className="flex flex-row items-center">
             <div className="flex flex-col flex-wrap max-w-md">
-                <div className="flex flex-row  items-baseline">
-                    <span className="ml-2">{getPatientName(data)}</span>
-                    {data.patient && <SectionElement size="sm" label={Strings.patientId} value={`${data.patient?.id}`} icon={<RiHashtag />} />}
+                <div className="flex flex-row items-baseline">
+                    <span>{getPatientName(data)}</span>
+                    {data.patient && <SectionElement size="sm" label={Strings.folio} value={`${data.patient?.id}`} icon={<RiHashtag />} />}
                 </div>
                 <div className="flex flex-row  items-baseline">
-                    <SectionElement size="sm" label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
-                    <SectionElement size="sm" label={Strings.dateAndTime} value={`${data.appointment.appointment} ${data.appointment.time}`} icon={<RiCalendar2Line />} />
+                    <SectionElement size="sm" label={Strings.phone} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
+                    <SectionElement size="sm" label={Strings.time} value={`${data.appointment.time}`} icon={<RiCalendar2Line />} />
                 </div>
-                
+
             </div>
             {hasPaymentInfo() && <Popover
                 className="cursor-pointer"
@@ -1160,19 +1160,41 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         </div> : ''
     }
 
+    const getActions = (): JSX.Element[] => {
+        if (isProspect()) {
+            return [
+                <span onClick={() => {
+                    if (rol == UserRoles.ADMIN) {
+                        navigate(`/admin/branchoffice/appointments/detail/${data?.appointment.folio}`)
+                    } else {
+                        navigate(`/receptionist/appointments/detail/${data?.appointment.folio}`)
+                    }
+                }}>{Strings.appointmentInfo}</span>,
+            ]
+        } else {
+            return [
+                <span onClick={() => {
+                    if (rol == UserRoles.ADMIN) {
+                        navigate(`/admin/branchoffice/appointments/detail/${data?.appointment.folio}`)
+                    } else {
+                        navigate(`/receptionist/appointments/detail/${data?.appointment.folio}`)
+                    }
+                }}>{Strings.appointmentInfo}</span>,
+                <span onClick={() => {
+                    if (rol == UserRoles.ADMIN) {
+                        navigate(`/admin/patients/detail/${data?.patient?.id}`)
+                    } else {
+                        navigate(`/receptionist/patients/detail/${data?.patient?.id}`)
+                    }
+                }}>{Strings.patientInformation}</span>
+            ]
+        }
+    }
+
     return (
         <div className="m-2">
             <Card className="max-w-md" title={buildCardTitle()} bordered={!hideContent} actions={
-                (hideContent || onlyRead == true) ? [] : [
-                    <span onClick={() => {
-                        if (rol == UserRoles.ADMIN) {
-                            navigate(`/admin/branchoffice/appointments/detail/${data?.appointment.folio}`)
-                        } else {
-                            navigate(`/receptionist/appointments/detail/${data?.appointment.folio}`)
-                        }
-                    }}>{Strings.details}</span>
-                ]}>
-
+                (hideContent|| onlyRead == true) ? [] : getActions()}>
                 {!hideContent && CardContent()}
                 {(onlyRead == false) && <Row className="mt-4 gap-2 max-w-md">
                     {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >

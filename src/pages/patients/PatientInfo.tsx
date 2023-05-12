@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { RiCalendar2Line, RiFileList3Line, RiFunctionLine, RiHeartPulseLine, RiMailLine, RiPhoneLine, RiUser3Line, RiUserHeartLine, RiVipDiamondLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import { PadData, Patient } from "../../data/patient/patient";
-import {  padComponentsToDataTable } from "../../data/patient/patient.extensions";
+import {  DEFAULT_FIELD_VALUE, padComponentsToDataTable } from "../../data/patient/patient.extensions";
 import { useGetPatientMutation } from "../../services/patientService";
 import { formatNumberToPercent, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
@@ -89,19 +89,19 @@ const PatientInfo = (props: PatientInfoProps) => {
     const PatientPadCard = () => {
         return (<>
             <SectionElement label={Strings.padName} value={
-                `${pad?.padCatalog?.name}`
+                `${pad?.padCatalog?.name ?? DEFAULT_FIELD_VALUE}`
             } icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.padType} value={
-                `${pad?.padCatalog?.type}`
+                `${pad?.padCatalog?.type ?? DEFAULT_FIELD_VALUE}`
             } icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.adquisitionDate} value={
-                `${pad?.pad?.padAdquisitionDate}`
+                `${pad?.pad?.padAdquisitionDate ?? DEFAULT_FIELD_VALUE}`
             } icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.dueDate} value={
-                `${pad?.pad?.padDueDate}`
+                `${pad?.pad?.padDueDate ?? DEFAULT_FIELD_VALUE}`
             } icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.validDays} value={
-                `${pad?.padCatalog?.day}`
+                `${pad?.padCatalog?.day ?? DEFAULT_FIELD_VALUE}`
             } icon={<RiUserHeartLine />} />
             <SectionElement label={Strings.daysDueDate} value={
                 `${differenceInDays(new Date(pad?.pad?.padDueDate ?? ''), new Date(pad?.pad?.padAdquisitionDate ?? ''))}`

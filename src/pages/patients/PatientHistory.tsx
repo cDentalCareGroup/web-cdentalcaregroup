@@ -7,6 +7,7 @@ import { Appointment } from "../../data/appointment/appointment";
 import { Timeline } from "antd";
 import Constants from "../../utils/Constants";
 import { getAppointmentStatus, getAppointmentStatusFromAppointment } from "../../data/appointment/appointment.extensions";
+import NoData from "../components/NoData";
 
 
 
@@ -16,7 +17,7 @@ interface PatientHistoryProps {
 
 const PatientHistory = (props: PatientHistoryProps) => {
 
-    const [getAppointmentHistory] = useGetAppointmentHistoryMutation();
+    const [getAppointmentHistory,{isLoading}] = useGetAppointmentHistoryMutation();
     const [data, setData] = useState<Appointment[]>([]);
     const [timelineData, setTimelineData] = useState<any[]>([])
 
@@ -53,11 +54,14 @@ const PatientHistory = (props: PatientHistoryProps) => {
     }
 
 
-    return (<LayoutCard title="Historial del paciente" isLoading={false} content={
-        <Timeline
-            items={timelineData}
-            mode="alternate"
-        />
+    return (<LayoutCard title="Historial del paciente" isLoading={isLoading} content={
+        <div className="flex w-full items-center justify-center">
+            <Timeline
+                items={timelineData}
+                mode="alternate"
+            />
+            {isLoading == false && timelineData.length == 0 && <NoData />}
+        </div>
     }
     />)
 }
