@@ -62,6 +62,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
         0
     );
     const [notify, setNotify] = useState(true);
+    const [blockCalendar, setBlockCalendar] = useState(true);
     useEffect(() => {
         handleGetBranchOffices();
     }, []);
@@ -139,11 +140,16 @@ const FormAppointment = (props: FormAppointmentProps) => {
             const dateTime = availableTimes.find((value, _) => value.time == time);
 
             let finalPatientId = 0;
-
+            let prospectId = 0;
             if (props.patient != null && props.patient != undefined) {
                 finalPatientId = props.patient.id;
-            } else {
-                finalPatientId = patient?.id ?? 0;
+            } else if (patient != null && patient != undefined) {
+                finalPatientId = patient.id;
+            } else if (props.prospect != null && props.prospect != undefined) {
+                prospectId = props.prospect.id;
+            } else if (name == '' || name == undefined || name == null) {
+                handleErrorNotification(Constants.SET_TEXT, `Ocurrió un error, refresca la página e intenta nuevamente`)
+                return;
             }
 
             await registerCallCenterAppointment(
@@ -155,7 +161,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
                     email,
                     branchOffice?.id,
                     finalPatientId,
-                    props?.prospect?.id ?? 0, props.callId ?? 0, notify, props.rol == UserRoles.CALL_CENTER, comments
+                    prospectId, props.callId ?? 0, notify, props.rol == UserRoles.CALL_CENTER, comments, blockCalendar
                 )
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.REGISTER_APPOINTMENT);
@@ -183,7 +189,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
             content={
                 <div className="flex flex-col">
                     <div className="flex flex-col items-end justify-end">
-                        <Button type="primary" onClick={() => setIsOpen(true)}>Registrar cita</Button>
+                        <Button size="small" type="primary" onClick={() => setIsOpen(true)}>Registrar cita</Button>
                     </div>
                     <Modal confirmLoading={isActionLoading} okText={Strings.save} onOk={() => handleOnRegisterAppointment()} width={'85%'} open={isOpen} onCancel={() => handleResetParams()} title={buildTitle()}>
                         <SelectSearch
@@ -217,7 +223,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
                             </div>
                         }
 
-                        {(isProspect && name != null && phone != null && time != '') &&
+                        {(isProspect && name != null && phone != null && time != '' && time != undefined) &&
                             <ScheduleAppointmentInfoCard
                                 name={name ?? ''}
                                 primaryContact={phone ?? ''}
@@ -226,7 +232,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
                                 time={time}
                                 branchOfficeName={branchOffice?.label.split('-')[0] ?? ''} />
                         }
-                        {(props.patient != null && props.patient != undefined && time != '' && branchOffice != null) &&
+                        {(props.patient != null && props.patient != undefined && time != '' && time != undefined && branchOffice != null) &&
                             <ScheduleAppointmentInfoCard
                                 name={buildPatientName(props.patient)}
                                 primaryContact={buildPatientPhone(props.patient)}
@@ -235,7 +241,7 @@ const FormAppointment = (props: FormAppointmentProps) => {
                                 time={time}
                                 branchOfficeName={branchOffice?.label.split('-')[0] ?? ''} />
                         }
-                        {(props.prospect != null && props.prospect != undefined && time != '' && branchOffice != null) &&
+                        {(props.prospect != null && props.prospect != undefined && time != '' && time != undefined && branchOffice != null) &&
                             <ScheduleAppointmentInfoCard
                                 name={props.prospect.name}
                                 primaryContact={props.prospect.primaryContact}
@@ -254,12 +260,19 @@ const FormAppointment = (props: FormAppointmentProps) => {
                                 <SectionElement label={Strings.branchOffice} value={`${branchOffice?.label}`} icon={<RiHospitalLine />} />
 
                             </div>}
-                        {(time != '' && time != null) && (patient != null || props.prospect != null || phone != '' || props.patient != null) && <div className="flex w-full mt-2">
+                        {(time != '' && time != null) && (patient != null || props.prospect != null || phone != '' || props.patient != null) && <div className="flex flex-col w-full mt-2 gap-4">
                             <div className="flex flex-row">
                                 <Tag className="cursor-pointer" icon={<WhatsAppOutlined />} color="#25D366">
                                     Notificar por whastapp
                                 </Tag>
                                 <Checkbox value={notify} checked={notify} onChange={(event) => setNotify(event.target.checked)} />
+                            </div>
+
+                            <div className="flex flex-row">
+                                <Tag className="cursor-pointer" icon={<RiCalendar2Line />} color="#5EA9FF">
+                                    Bloquear calendario
+                                </Tag>
+                                <Checkbox value={blockCalendar} checked={blockCalendar} onChange={(event) => setBlockCalendar(event.target.checked)} />
                             </div>
                         </div>}
 

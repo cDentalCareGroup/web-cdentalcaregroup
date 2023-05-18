@@ -16,7 +16,7 @@ const Dashboard = () => {
     const [callsReport, setCallsReport] = useState<GetCallsReports[]>([]);
 
     useEffect(() => {
-        getCallReport();
+        //  getCallReport();
     }, []);
 
     const getCallReport = async () => {
@@ -38,28 +38,7 @@ const Dashboard = () => {
             isLoading={isLoading}
             title='Dashboard'
             content={
-                <div>
-
-
-                    <Collapse
-                        bordered={false}
-                        className="flex flex-col w-full"
-                        defaultActiveKey={['0']}
-                        expandIcon={({ isActive }) => isActive ? <RiArrowDownSLine /> : <RiArrowRightSLine />}>
-
-                        <Collapse.Panel header="Reporte llamadas efectuadas" key="1">
-                            <CallCenterReport data={callsReport} />
-                        </Collapse.Panel>
-
-
-                        <Collapse.Panel header="Venta de servicios por categoria" key="12">
-                            <ServicesSalesReport />
-                        </Collapse.Panel>
-
-                    </Collapse>
-
-
-                </div>
+                <iframe frameBorder={0} className="flex flex-col w-full h-full" src="https://analytics-cdentalcaregroup.web.app/" />
             }
         />
     );

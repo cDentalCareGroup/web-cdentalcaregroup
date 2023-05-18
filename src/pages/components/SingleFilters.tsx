@@ -28,7 +28,7 @@ const SingleFilters = ({ data, onFilterChange, defaultOption }: SingleFiltersPro
             <div className="flex flex-row items-center justify-center">
                     <div className="flex flex-row items-center justify-center flex-wrap  ">
                         {options.map((value, index) =>
-                            <Button key={index} onClick={() => handleFilter(value)} type={`${value.id == filter?.id ? 'primary' : 'text'}`}>{value.label}</Button>
+                            <Button size="small" key={index} onClick={() => handleFilter(value)} type={`${value.id == filter?.id ? 'primary' : 'text'}`}>{value.label}</Button>
                         )}
                     </div>
                 </div>

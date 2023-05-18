@@ -8,7 +8,7 @@ class Strings {
     static cDentalCare = "CDentalCare";
     static group = "Grupal";
     static groupValue = "grupal";
-
+    static calendar = "Calendario"
     static formPatient = "Registro de pacientes"
 
     static street = "Calle"
@@ -314,7 +314,7 @@ class Strings {
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
 
-    static appVersion = 'v.1.0.41.3-PROD';
+    static appVersion = 'v.1.0.41.4-PROD';
 }
 
 export default Strings;

@@ -245,7 +245,7 @@ const CallInfo = () => {
             <div className="flex flex-row items-center justify-evenly mt-6 w-full">
                 <FormCall callId={data?.call.id} patientId={data?.patient?.id} prospectId={data?.propspect?.id} showPatients={false} onFinish={() => navigate(-1)} />
                 <div className="flex w-full items-end justify-end mx-4">
-                    <Button loading={isLoadingAction} onClick={() => handleCallNotAttended()} type="dashed">Llamada no contestada</Button>
+                    <Button size="small" loading={isLoadingAction} onClick={() => handleCallNotAttended()} type="dashed">Llamada no contestada</Button>
                 </div>
                 <FormAppointment title={buildTitle()} rol={UserRoles.CALL_CENTER} callId={data?.call.id} patient={data?.patient} prospect={data?.propspect} onFinish={() => navigate(-1)} />
 

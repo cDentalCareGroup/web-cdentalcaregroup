@@ -65,16 +65,26 @@ export class RescheduleAppointmentRequest {
   date?: Date;
   time?: AvailableTime;
   branchName?: string;
+  nofity?: boolean;
+  comments?: string;
+  blockCalendar?: boolean;
 
   constructor(
     id: number,
     date?: Date,
     time?: AvailableTime,
-    branchName?: string) {
+    branchName?: string,
+    nofity?: boolean,
+    comments?: string,
+    blockCalendar?: boolean
+  ) {
     this.time = time;
     this.id = id;
     this.date = date;
     this.branchName = branchName;
+    this.nofity = nofity;
+    this.comments = comments;
+    this.blockCalendar = blockCalendar;
   }
 }
 
@@ -131,6 +141,9 @@ export class RegisterNextAppointmentRequest {
   hasCabinet: number;
   services: number[];
   nextAppointmentId: number;
+  nofity?: boolean;
+  comments?: string;
+  blockCalendar?: boolean;
 
   constructor(
     patientId: number,
@@ -141,7 +154,10 @@ export class RegisterNextAppointmentRequest {
     services: number[],
     nextAppointmentId: number,
     date?: Date,
-    time?: AvailableTime) {
+    time?: AvailableTime,
+    nofity?: boolean,
+    comments?: string,
+    blockCalendar?: boolean) {
     this.date = date;
     this.time = time;
     this.patientId = patientId;
@@ -151,6 +167,9 @@ export class RegisterNextAppointmentRequest {
     this.hasCabinet = hasCabinet;
     this.services = services;
     this.nextAppointmentId = nextAppointmentId;
+    this.nofity = nofity;
+    this.comments = comments;
+    this.blockCalendar = blockCalendar;
   }
 
 }
@@ -237,10 +256,11 @@ export class RegisterCallCenterAppointmentRequest {
   nofity?: boolean;
   isCallCenter?: boolean;
   comments?: string;
+  blockCalendar?: boolean;
   constructor(
     name?: string,
     phone?: string,
-    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number, prospectId?: number, callId?: number, nofity?: boolean, isCallCenter?: boolean, comments?: string) {
+    date?: Date, time?: AvailableTime, email?: string, branchId?: number, patientId?: number, prospectId?: number, callId?: number, nofity?: boolean, isCallCenter?: boolean, comments?: string, blockCalendar?: boolean) {
     this.time = time;
     this.name = name;
     this.phone = phone;
@@ -253,6 +273,7 @@ export class RegisterCallCenterAppointmentRequest {
     this.nofity = nofity;
     this.isCallCenter = isCallCenter;
     this.comments = comments;
+    this.blockCalendar = blockCalendar;
   }
 }
 

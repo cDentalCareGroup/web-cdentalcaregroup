@@ -17,6 +17,7 @@ import Spinner from '../components/Spinner';
 import { getUserRol, UserRoles } from '../../utils/Extensions';
 import Strings from '../../utils/Strings';
 import HeaderAccount from '../components/HeaderAccount';
+import ModalReleaseNotes from '../components/ModalReleaseNotes';
 
 const { Header, Content } = Layout;
 
@@ -123,9 +124,10 @@ const BaseLayout: React.FC = () => {
                 >
                     <Outlet />
                 </Content>
-               <div className='flex w-full items-end justify-end'>
+               {/* <div className='flex w-full items-end justify-end'>
                <span className='mr-2 mb-1 text-xs text-gray-600'>{Strings.appVersion}</span>
-               </div>
+               </div> */}
+               <ModalReleaseNotes />
             </Layout>
         </Layout>
     );

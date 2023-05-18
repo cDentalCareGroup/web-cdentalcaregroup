@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const LOCAL_DEV = "http://localhost:3000"
 const PROD = "https://service-c-dental-care-group-production.up.railway.app";
-const DEV = "https://service-c-dental-care-group-development.up.railway.app";
+const DEV = "https://cdental-care-group-development.up.railway.app";
 //const QA = "https://service-c-dental-care-group-qa.up.railway.app";
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: PROD,
+    baseUrl: DEV,
     credentials: 'same-origin',
     prepareHeaders: (headers, { getState }) => {
         const { auth }: any = getState();
