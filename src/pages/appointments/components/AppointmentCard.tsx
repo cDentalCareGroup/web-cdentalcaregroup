@@ -295,6 +295,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             if (debtsInfo.length > 0) {
                 debts = debtsInfo.map((value, _) => value.debt);
             }
+            let shouldAddAmount = addAmountToAccount;
+
+            if (getDebtsAmount() > 0) {
+                shouldAddAmount = false;
+            }
             setIsActionLoading(true);
             const response = await updateAppointmentStatus(
                 new UpdateAppointmentStatusRequest(
@@ -304,7 +309,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     getTotalFromPaymentMethod().toString(),
                     dataTable,
                     paymentDataTable,
-                    addAmountToAccount,
+                    shouldAddAmount,
                     patientPatId,
                     deposits.map((value, _) => value.deposit).filter((value, _) => value.isAplicable == true),
                     debts
@@ -1166,7 +1171,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 placement="top"
                 onOpenChange={(event) => setShowPaymentInfo(event)}
             >
-                <RiCoinsLine size={22} />
+                <RiCoinsLine size={20} />
             </Popover>}
         </div> : ''
     }

@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const LOCAL_DEV = "http://localhost:3000"
-const PROD = "https://service-c-dental-care-group-production.up.railway.app";
+const PROD = "https://cdental-care-group-production.up.railway.app";
 const DEV = "https://cdental-care-group-development.up.railway.app";
 //const QA = "https://service-c-dental-care-group-qa.up.railway.app";
 

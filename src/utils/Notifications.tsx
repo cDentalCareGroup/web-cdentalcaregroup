@@ -147,5 +147,8 @@ const getErrorMessage = (message: string, text?: string): string => {
     if (message == Constants.SET_TEXT) {
         return `${text}`;
     }
+    if(message == 'APPOINTMENT_EXISTS') {
+        return `Ya existe una cita registrada para ese paciente en el mismo horario`;
+    }
     return 'Ocurrio un error, intenta mas tarde';
 }

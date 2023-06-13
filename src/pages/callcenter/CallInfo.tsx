@@ -92,7 +92,13 @@ const CallInfo = () => {
 
 
     const buildCardTitle = (): string => {
-        return `${data?.catalog.name}`;
+        if (data?.patient != null && data.patient != undefined) {
+            return `${buildPatientName(data.patient)} - ${data?.catalog.name}`;
+        } else if(data?.propspect != null && data.propspect != undefined) {
+            return `${data.propspect.name} - ${data?.catalog.name}`;
+        } else {
+            return `${data?.catalog.name}`;
+        }
     }
 
     const cardInfoContent = (): JSX.Element => {
@@ -239,7 +245,7 @@ const CallInfo = () => {
                 placeholder={Strings.callDetail}
             />
             <div className="flex mt-6 w-full justify-end items-end">
-                <Button loading={isLoadingAction}  type="dashed" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
+                <Button loading={isLoadingAction} type="dashed" onClick={() => handleUpdateCall()}>{Strings.save}</Button>
             </div>
 
             <div className="flex flex-row items-center justify-evenly mt-6 w-full">
@@ -260,7 +266,7 @@ const CallInfo = () => {
             await updateCall(new UpdateCallRequest(data?.call.id ?? 0, comment)).unwrap();
             handleSucccessNotification(NotificationSuccess.UPDATE);
             setIsLoadingAction(false);
-           // navigate(-1);
+            // navigate(-1);
         } catch (error) {
             setIsLoadingAction(false);
             handleErrorNotification(error);
