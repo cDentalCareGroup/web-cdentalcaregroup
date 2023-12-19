@@ -1,8 +1,7 @@
 {
   "projects": {
     "default": "cdentalcaregroup-fcdc9",
-    "development": "cdentalcaregroupdev",
-    "qa": "cdentalcaregroupqa"
+    "development": "cdentalcaregroupdev"
   },
   "targets": {},
   "etags": {}
