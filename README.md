@@ -39,10 +39,10 @@ $ git clone [https://github.com/amitmerchant1990/electron-markdownify](https://g
 $ cd web-cdentalcaregroup
 
 # Install dependencies
-$ npm install
+$ npm install --force
 
 # Run the app
-$ npm start
+$ npm run dev
 ```
 
 > **Note**
