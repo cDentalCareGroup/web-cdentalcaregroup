@@ -231,7 +231,15 @@ const formatNumberToPercent = (num: any): string => {
   return Number(num / 100).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 2 });
 }
 
+const getRandomKey = (): string => {
+  return parseInt(Number(Math.random() * 10000000).toString()).toString();
+}
+
+const DEFAULT_COLOR = "36006E"
+
 export {
+  DEFAULT_COLOR,
+  getRandomKey,
   getInitRoute,
   getUserRol,
   dayName,

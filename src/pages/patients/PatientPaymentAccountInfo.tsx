@@ -35,7 +35,6 @@ const PatientPaymentAccountInfo = (props: PatientPaymentAccountProps) => {
             const response = await getPatientPaymentAccount({
                 'patientId': props.patient.id
             }).unwrap();
-            console.log(response);
             setData(response);
         } catch (error) {
             handleErrorNotification(error);

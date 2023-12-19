@@ -8,19 +8,18 @@ import { handleErrorNotification } from "../../utils/Notifications";
 import LayoutCard from "../layouts/LayoutCard";
 import SingleFilters from '../components/SingleFilters';
 import { AppointmentDetail } from "../../data/appointment/appointment.detail";
-import { getPatientName } from "../../data/patient/patient.extensions";
+import { getDentist, getPatientName } from "../../data/patient/patient.extensions";
 import AppointmentCard from "./components/AppointmentCard";
 import Constants from "../../utils/Constants";
 import useSessionStorage from "../../core/sessionStorage";
 import Strings from "../../utils/Strings";
 import BackArrow from "../components/BackArrow";
 import NoData from "../components/NoData";
-import { formatAppointmentDate, UserRoles } from "../../utils/Extensions";
+import { dayName, DEFAULT_COLOR, formatAppointmentDate, monthName, UserRoles } from "../../utils/Extensions";
 import DataLoading from "../components/DataLoading";
 import { sortAppointments } from "../../data/appointment/appointment.extensions";
 import FormAppointment from "./FormAppointment";
 import { useLocation } from "react-router-dom";
-import { useGetEmployeesByTypeMutation } from "../../services/employeeService";
 import { Dayjs } from "dayjs";
 import { format, startOfToday } from "date-fns";
 
@@ -32,30 +31,31 @@ const Appointments = (props: AppointmentsProps) => {
     const [getAppointmentsByBranchOffice] = useGetAppointmentsByBranchOfficeMutation();
     const [isLoading, setIsLoading] = useState(false);
     const [defaultFilter, setDefaultFilter] = useState(DEFAULT_APPOINTMENTS_FILTERS[0]);
-    const [appointments, setAppointments] = useState<SectionDateAppointment[] | undefined>([]);
+    const [appointments, setAppointments] = useState<AppointmentDetail[] | undefined>([]);
     const [branchId, setBranchId] = useSessionStorage(Constants.BRANCH_ID, 0);
-    const [getEmployeesByType] = useGetEmployeesByTypeMutation();
-    const [dentistList, setDentistList] = useState<SelectItemOption[]>([]);
+
 
     const [isFiltering, setIsFiltering] = useState(false);
     const location = useLocation();
     const today = startOfToday();
     const [todayDate, setTodayDate] = useState<string>(format(today, "yyyy-MM-dd"));
     const [filterDate, setFilterDate] = useState<string>(format(today, "yyyy-MM-dd"));
+    const [displayedDate, setDisplayedDate] = useState<string>(format(today, "yyyy-MM-dd"));
 
     const [openCalendar, setOpenCalendar] = useState(false)
+    const [dentistList, setDentistList] = useState<SectionDentistAppointment[]>([]);
 
     useEffect(() => {
         handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE, todayDate);
     }, []);
 
-
-
     const handleGetAppointmentsByBranchOffice = async (status: string, inCommingDate: string) => {
         try {
             setIsLoading(true);
             const response = await getAppointmentsByBranchOffice({ id: Number(branchId), status: status, date: inCommingDate }).unwrap();
-            setAppointments(groupBy(sortAppointments(response, status), 'appointment'));
+            setAppointments(sortAppointments(response, status));
+            setDisplayedDate(inCommingDate);
+            setDentistList(groupByDentist(response));
             setIsLoading(false);
             setIsFiltering(false);
         } catch (error) {
@@ -65,17 +65,59 @@ const Appointments = (props: AppointmentsProps) => {
     }
 
 
-    var groupBy = function (xs: any, key: any) {
+    // var groupBy = function (xs: any, key: any) {
+    //     let array: any[] = []
+    //     const objectDates = xs.reduce(function (rv: any, x: any) {
+    //         (rv[x[key].appointment] = rv[x[key].appointment] || []).push(x);
+    //         return rv;
+    //     }, {});
+    //     for (const [key, value] of Object.entries(objectDates)) {
+    //         array.push(new SectionDateAppointment(key, value as AppointmentDetail[]))
+    //     }
+    //     return array;
+    // };
+
+    const groupByDentist = function (xs: any) {
         let array: any[] = []
         const objectDates = xs.reduce(function (rv: any, x: any) {
-            (rv[x[key].appointment] = rv[x[key].appointment] || []).push(x);
+            (rv[x['dentist']?.id] = rv[x['dentist']?.id] || []).push(x);
             return rv;
         }, {});
         for (const [key, value] of Object.entries(objectDates)) {
-            array.push(new SectionDateAppointment(key, value as AppointmentDetail[]))
+            const item = xs.find((value: any, _: any) => value.dentist?.id == key)
+            array.push(
+                new SectionDentistAppointment(
+                    getDentist(item),
+                    value as AppointmentDetail[],
+                    item?.dentist?.dentistColor ?? DEFAULT_COLOR,
+                    item?.dentist?.id ?? 0
+                )
+            )
         }
+        array.push(new SectionDentistAppointment(
+            Constants.ALL,
+            [],
+            '001628',
+            10000
+        ))
         return array;
     };
+
+
+    class SectionDentistAppointment {
+        name: string;
+        appointments: AppointmentDetail[];
+        color: string;
+        id: number;
+
+        constructor(name: string,
+            appointments: AppointmentDetail[], color: string, id: number) {
+            this.name = name;
+            this.appointments = appointments;
+            this.color = color;
+            this.id = id;
+        }
+    }
 
     class SectionDateAppointment {
         date: string;
@@ -88,7 +130,7 @@ const Appointments = (props: AppointmentsProps) => {
         }
     }
 
-    const handleOnSearch = async(query: string, shoudlSearch: Boolean) => {
+    const handleOnSearch = async (query: string, shoudlSearch: Boolean) => {
         if (query == '' || query == null) {
             handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE, todayDate);
         } else if (shoudlSearch) {
@@ -101,7 +143,7 @@ const Appointments = (props: AppointmentsProps) => {
                     .replace(/\s+/g, ' ')
                     .includes(query.toLowerCase())
             )
-            setAppointments(groupBy(result, 'appointment'));
+            setAppointments(result);
             setIsFiltering(false);
         }
     }
@@ -157,6 +199,23 @@ const Appointments = (props: AppointmentsProps) => {
         }
     }
 
+    const [selectedDentist, setSelectedDentist] = useState(10000);
+
+    const onFilterDentist = (value: SectionDentistAppointment) => {
+        setSelectedDentist(value.id);
+        if (value.name == Constants.ALL) {
+            handleGetAppointmentsByBranchOffice(Constants.STATUS_ACTIVE, todayDate);
+        } else {
+            setAppointments([]);
+            setIsFiltering(true);
+            setTimeout(() => {
+                setAppointments(value.appointments);
+                setIsFiltering(false);
+            }, 100)
+        }
+    }
+
+
     return (
         <LayoutCard title={buildCardTitle()} isLoading={isLoading} content={
             <div className="flex flex-col">
@@ -180,22 +239,40 @@ const Appointments = (props: AppointmentsProps) => {
                         placement="left"
                         onOpenChange={(_) => setOpenCalendar(!openCalendar)}
                     >
-                        <Button>Calendario</Button>
+                        <Button size="small">{Strings.calendar}</Button>
                     </Popover>
+                </div>
+
+                <div className="flex flex-row gap-2 mb-4">
+                    {dentistList.map((value, index) =>
+                        <div onClick={() => onFilterDentist(value)} className="flex flex-row justify-center items-center gap-2" key={index}>
+                            <div style={{
+                                width: 10,
+                                height: 10,
+                                backgroundColor: `#${value.color}`,
+                                borderRadius: '50%'
+                            }} />
+                            <span
+                            style={{
+                                color: selectedDentist == value.id ? `#${value.color}` : '#4B5563'
+                            }} className="text cursor-pointer  font-normal text-gray-600">
+                                {value.name}
+                            </span>
+                        </div>
+                    )}
                 </div>
 
 
                 {!isFiltering && <div className="flex flex-col">
-                    {appointments?.map((item, index) =>
-                        <div className="flex flex-col" key={index}>
-                            <Divider orientation="left">
-                                <span className="text-red-800">{formatAppointmentDate(item.date, item.appointments.length)}</span>
-                            </Divider>
-                            <Row>
-                                {item.appointments?.map((value, index) => <AppointmentCard rol={props.rol} onlyRead={props.rol == UserRoles.CALL_CENTER} hideContent={false} appointment={value} key={index} onStatusChange={onStatusChange} />)}
-                            </Row>
-                        </div>
-                    )}
+                    <div className="flex flex-col">
+                        <Divider orientation="left">
+                            <span className="text-red-800">{`${formatAppointmentDate(displayedDate, appointments?.length ?? 0)}`}</span>
+                        </Divider>
+                        <Row>
+                            {appointments?.map((value, index) => <AppointmentCard rol={props.rol} onlyRead={props.rol == UserRoles.CALL_CENTER} hideContent={false} appointment={value} key={index} onStatusChange={onStatusChange} />)}
+                        </Row>
+                    </div>
+
                 </div>}
                 {isFiltering && <DataLoading />}
                 {!isLoading && appointments?.length == 0 && <NoData />}

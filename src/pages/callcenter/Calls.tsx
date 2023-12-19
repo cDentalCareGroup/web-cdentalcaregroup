@@ -1,5 +1,5 @@
-import { Button, Card, Divider, List, Modal, Row, Tag } from "antd";
-import { differenceInDays } from "date-fns";
+import { Button, Calendar, Card, Divider, List, Modal, Popover, Row, Tag } from "antd";
+import { differenceInDays, format, startOfToday } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiMailLine, RiPhoneLine, RiUser3Line, } from "react-icons/ri";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -20,6 +20,7 @@ import FormCall from "./FormCall";
 import { UserRoles } from "../../utils/Extensions";
 import Search from "antd/es/input/Search";
 import { Patient } from "../../data/patient/patient";
+import { Dayjs } from "dayjs";
 
 const Calls = () => {
     const [getCalls, { isLoading }] = useGetCallsMutation();
@@ -27,20 +28,23 @@ const Calls = () => {
     const [data, setData] = useState<any[]>([]);
     const [calls, setCalls] = useState<any[]>([]);
     const navigate = useNavigate();
-
+    const today = startOfToday();
+    const [todayDate, setTodayDate] = useState<string>(format(today, "yyyy-MM-dd"));
+    const [filterDate, setFilterDate] = useState<string>(format(today, "yyyy-MM-dd"));
     const [call, setCall] = useSessionStorage(
         Constants.CALL,
         null
     );
+    const [openCalendar, setOpenCalendar] = useState(false)
 
     useEffect(() => {
-        handleGetCalls();
+        handleGetCalls(todayDate);
     }, []);
 
 
-    const handleGetCalls = async () => {
+    const handleGetCalls = async (date: string) => {
         try {
-            const response = await getCalls({}).unwrap();
+            const response = await getCalls({ 'date': date }).unwrap();
             const res = groupBy(response, 'call')
             setData(res);
             setCalls(res);
@@ -158,6 +162,19 @@ const Calls = () => {
         }
     }
 
+    const onDateChange = (value: Dayjs) => {
+        setFilterDate(value.format('YYYY-MM-DD'));
+    };
+
+    const onApplyFilter = (clear: boolean) => {
+        setOpenCalendar(false);
+        if (clear) {
+            handleGetCalls(todayDate)
+        } else {
+            handleGetCalls(filterDate)
+        }
+    }
+
     return (
         <LayoutCard
             isLoading={isLoading}
@@ -165,10 +182,33 @@ const Calls = () => {
             content={
                 <div className="flex flex-col">
                     <Search onChange={(event) => handleOnSearch(event.target.value, false)} size="large" placeholder={Strings.searchAppointmentsByPatientName} onSearch={(event) => handleOnSearch(event, true)} enterButton />
-                    <br />
-                    <FormAppointment rol={UserRoles.CALL_CENTER} />
-                    <br />
-                    <FormCall showPatients={true} onFinish={() => handleGetCalls()} />
+                    <div className="flex flex-row gap-2 mt-4">
+                        <div className="flex flex-1">
+                            <Popover
+                                className="cursor-pointer"
+                                content={
+                                    <div className="flex w-80 flex-col gap-4">
+                                        <Calendar fullscreen={false} onChange={(date) => onDateChange(date)} />
+                                        <Button onClick={() => onApplyFilter(false)} size="small" type="primary">Aplicar</Button>
+                                        <Button onClick={() => onApplyFilter(true)} size="small" type="link">Hoy</Button>
+                                    </div>
+                                }
+                                title="Calendario"
+                                trigger="click"
+                                open={openCalendar}
+                                placement="right"
+                                onOpenChange={(_) => setOpenCalendar(!openCalendar)}
+                            >
+                                <Button size="small">{Strings.calendar}</Button>
+                            </Popover>
+                        </div>
+                        <div className="flex flex-1">
+                            <FormAppointment rol={UserRoles.CALL_CENTER} />
+                        </div>
+                        <div className="flex">
+                            <FormCall showPatients={true} onFinish={() => handleGetCalls(todayDate)} />
+                        </div>
+                    </div>
 
 
                     {data.map((item, index) =>

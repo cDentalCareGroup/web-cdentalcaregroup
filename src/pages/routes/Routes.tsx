@@ -94,7 +94,7 @@ const adminOrganization = new Route('Organizaciones', 'organizations', '/admin/o
 const test = new Route('Test', 'test', '/admin/test/', <FormAvailableTimes />, <RiUserHeartLine />);
 
 
-const logout = new Route('Cerrar sesion', 'logout', '/logout', <Logout />, <RiLogoutBoxLine />);
+const logout = new Route('Cerrar sesión', 'logout', '/logout', <Logout />, <RiLogoutBoxLine />);
 
 const receptionistAppointments = new Route('Citas', 'citasreceptionis', '/receptionist/appointments', <Appointments rol={UserRoles.RECEPTIONIST} />, <RiCalendar2Line />);
 const receptionistDetails = new Route('Citas', 'appointmentinforeceptionis', '/receptionist/appointments/detail/:folio', <AppointmentInfo rol={UserRoles.RECEPTIONIST} />, <RiCalendar2Line />);

@@ -5,9 +5,10 @@ import { apiSlice } from "./apiSlice";
 export const callService = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getCalls: builder.mutation<GetCalls[], any>({
-            query: (_) => ({
+            query: (data) => ({
                 url: '/calls',
-                method: "GET",
+                method: "POST",
+                body: { ...data }
             }),
             transformResponse: (response: { data: GetCalls[] }, _, __) => response.data,
         }),
@@ -22,7 +23,7 @@ export const callService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: '/calls/update',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: any }, _, __) => response.data,
         }),
@@ -30,7 +31,7 @@ export const callService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: '/calls/notattended',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: any }, _, __) => response.data,
         }),
@@ -38,7 +39,7 @@ export const callService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: '/calls/update/catalog',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: any }, _, __) => response.data,
         }),
@@ -46,7 +47,7 @@ export const callService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: '/calls/register/catalog',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: any }, _, __) => response.data,
         }),
@@ -54,7 +55,7 @@ export const callService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: '/calls/register',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: any }, _, __) => response.data,
         }),
@@ -62,7 +63,7 @@ export const callService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: '/calls/detail',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: GetCallDetail }, _, __) => response.data,
         }),
@@ -70,7 +71,7 @@ export const callService = apiSlice.injectEndpoints({
             query: (data) => ({
                 url: '/calls/log',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
             transformResponse: (response: { data: any }, _, __) => response.data,
         }),
@@ -78,13 +79,13 @@ export const callService = apiSlice.injectEndpoints({
 });
 
 export const {
-   useGetCallsMutation,
-   useGetCatalogsMutation,
-   useUpdateCallMutation,
-   useUpdateCatalogMutation,
-   useRegisterCatalogMutation,
-   useRegisterCallMutation,
-   useGetCallDetailMutation,
-   useNotAttendedCallMutation,
-   useRegisterCallLogMutation
+    useGetCallsMutation,
+    useGetCatalogsMutation,
+    useUpdateCallMutation,
+    useUpdateCatalogMutation,
+    useRegisterCatalogMutation,
+    useRegisterCallMutation,
+    useGetCallDetailMutation,
+    useNotAttendedCallMutation,
+    useRegisterCallLogMutation
 } = callService;

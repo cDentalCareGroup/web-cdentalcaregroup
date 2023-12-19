@@ -19,7 +19,7 @@ import { AppointmentAvailbilityByDentistRequest, ExtendAppointmentRequest, GetAp
 import { useAppSelector } from "../../../core/store";
 import { selectCurrentUser } from "../../../core/authReducer";
 import { handleErrorNotification, handleSucccessNotification, handleWarningNotification, NotificationSuccess } from "../../../utils/Notifications";
-import { dayName, formatPrice, stringToDate } from "../../../utils/Extensions";
+import { DEFAULT_COLOR, dayName, formatPrice, stringToDate } from "../../../utils/Extensions";
 import Calendar from "../../components/Calendar";
 import { AvailableTime } from "../../../data/appointment/available.time";
 import { availableTimesToTimes } from "../../../data/appointment/available.times.extensions";
@@ -50,7 +50,10 @@ import { Payment } from "../../../data/payment/payment";
 import PaymentPatientCard from "../../components/PaymentPatientCard";
 import FormPayment, { FormPaymentSource } from "../../payments/FormPayment";
 import { ServiceCategory } from "../../../data/service/service.category";
-
+import {
+    WhatsAppOutlined,
+} from '@ant-design/icons';
+import CustomFormInput from "../../components/CustomFormInput";
 interface AppointmentCardProps {
     appointment: AppointmentDetail,
     onStatusChange: (status: string) => void;
@@ -144,7 +147,9 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const [showPaymentInfo, setShowPaymentInfo] = useState(false);
 
     const [modalNotes, setModalNotes] = useState(false);
-
+    const [notify, setNotify] = useState(true);
+    const [blockCalendar, setBlockCalendar] = useState(true);
+    const [comments, setComments] = useState('');
 
     useEffect(() => {
         handleGetPatientPayments();
@@ -215,6 +220,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             resetSetDentistParams();
             handleSucccessNotification(NotificationSuccess.UPDATE);
             onAppointmentChange?.(response);
+            onStatusChange(Constants.STATUS_ACTIVE);
         } catch (error) {
             resetSetDentistParams();
             handleErrorNotification(error);
@@ -244,7 +250,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
 
     const filterDentist = (data: Employee[]): SelectItemOption[] => {
         const specialist = data.filter((value, _) => value.typeName == Constants.EMPLOYEE_SPECIALIST);
-        const dentist = data.filter((value, _) => value.typeName == Constants.EMPLOYEE_MEDICAL && value.branchOfficeId == Number(branchId));
+        const dentist = data.filter((value, _) => value.typeName == Constants.EMPLOYEE_MEDICAL);
         return employeesToSelectItemOptions(specialist.concat(dentist), true);
     }
 
@@ -289,6 +295,11 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             if (debtsInfo.length > 0) {
                 debts = debtsInfo.map((value, _) => value.debt);
             }
+            let shouldAddAmount = addAmountToAccount;
+
+            if (getDebtsAmount() > 0) {
+                shouldAddAmount = false;
+            }
             setIsActionLoading(true);
             const response = await updateAppointmentStatus(
                 new UpdateAppointmentStatusRequest(
@@ -298,7 +309,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     getTotalFromPaymentMethod().toString(),
                     dataTable,
                     paymentDataTable,
-                    addAmountToAccount,
+                    shouldAddAmount,
                     patientPatId,
                     deposits.map((value, _) => value.deposit).filter((value, _) => value.isAplicable == true),
                     debts
@@ -388,7 +399,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     data?.appointment.id,
                     date,
                     dateTime,
-                    branchOffice?.label
+                    branchOffice?.label,
+                    notify,
+                    comments,
+                    blockCalendar
                 )
             ).unwrap();
             setData(response);
@@ -530,6 +544,9 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     appointment.appointment.id ?? 0,
                     date,
                     dateTime,
+                    notify,
+                    comments,
+                    blockCalendar
                 )
             ).unwrap();
             setData(response);
@@ -633,7 +650,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             {/* <SectionElement label={Strings.branchOffice} value={data.branchOffice.name} icon={<RiMentalHealthLine />} /> */}
             {/* {getPatientEmail(data) != DEFAULT_FIELD_VALUE && <SectionElement label={Strings.email} value={getPatientEmail(data)} icon={<RiMailLine />} />} */}
             {/* <SectionElement label={Strings.phoneNumber} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} /> */}
-            <SectionElement size="sm" label={Strings.dentist} value={getDentist(data)} icon={<RiMentalHealthLine />} />
+            <SectionElement size="sm" label={Strings.dentist} value={[<span style={{ color: `#${appointment.dentist?.dentistColor ?? DEFAULT_COLOR}` }}>{getDentist(data)}</span>]} icon={<RiMentalHealthLine />} />
             <SectionElement size="sm" label={Strings.services} value={buildServices()} icon={<RiServiceLine />} />
             {validateReferral() && <SectionElement size="sm" label={Strings.origin} value={buildReferralName()} icon={<RiUser3Line />} />}
             {validateNotes() && <SectionElement size="sm" label="Notas" value={[<Button type="link" onClick={() => setModalNotes(true)}>Ver notas</Button>]} icon={<RiStickyNoteLine />} />}
@@ -1139,7 +1156,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                     <SectionElement size="sm" label={Strings.phone} value={getPatientPrimaryContact(data)} icon={<RiPhoneLine />} />
                     <SectionElement size="sm" label={Strings.time} value={`${data.appointment.time}`} icon={<RiCalendar2Line />} />
                 </div>
-
             </div>
             {hasPaymentInfo() && <Popover
                 className="cursor-pointer"
@@ -1155,7 +1171,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                 placement="top"
                 onOpenChange={(event) => setShowPaymentInfo(event)}
             >
-                <RiCoinsLine size={22} />
+                <RiCoinsLine size={20} />
             </Popover>}
         </div> : ''
     }
@@ -1191,10 +1207,38 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
         }
     }
 
+
+    const buildWhatsappAndCalendarNotify = (): JSX.Element => {
+        if (time != null && time != '' && time != undefined) {
+            return <div className="flex flex-col w-full mt-2 gap-4">
+                <div className="flex flex-row">
+                    <Tag className="cursor-pointer" icon={<WhatsAppOutlined />} color="#25D366">
+                        Notificar por whastapp
+                    </Tag>
+                    <Checkbox value={notify} checked={notify} onChange={(event) => setNotify(event.target.checked)} />
+                </div>
+
+                <div className="flex flex-row">
+                    <Tag className="cursor-pointer" icon={<RiCalendar2Line />} color="#5EA9FF">
+                        Bloquear calendario
+                    </Tag>
+                    <Checkbox value={blockCalendar} checked={blockCalendar} onChange={(event) => setBlockCalendar(event.target.checked)} />
+                </div>
+                <div className="flex w-full flex-col mt-4 mb-6">
+                    <CustomFormInput isArea={true} label={'Comentarios'} value={comments} onChange={(value) => setComments(value)} />
+                </div>
+            </div>
+        }
+        return <></>
+    }
+
     return (
         <div className="m-2">
-            <Card className="max-w-md" title={buildCardTitle()} bordered={!hideContent} actions={
-                (hideContent|| onlyRead == true) ? [] : getActions()}>
+            <Card headStyle={{
+                borderColor: `#${appointment.dentist?.dentistColor ?? DEFAULT_COLOR}`,
+                borderWidth: 2
+            }} className="max-w-md" title={buildCardTitle()} bordered={!hideContent} actions={
+                (hideContent || onlyRead == true) ? [] : getActions()}>
                 {!hideContent && CardContent()}
                 {(onlyRead == false) && <Row className="mt-4 gap-2 max-w-md">
                     {canSetDentist() && <Button type='dashed' onClick={() => handleOnSetDentist()} >
@@ -1347,7 +1391,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                         date={date}
                         time={time}
                         branchOfficeName={branchOffice?.label} />}
-
+                {buildWhatsappAndCalendarNotify()}
             </Modal>
 
 
@@ -1414,6 +1458,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
                         time={time}
                         branchOfficeName={branchOffice?.label} />}
 
+                {buildWhatsappAndCalendarNotify()}
                 <br ref={scrollRef} />
             </Modal>
 

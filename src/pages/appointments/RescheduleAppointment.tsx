@@ -80,7 +80,10 @@ const RescheduleAppointment = () => {
                     data?.appointment.id ?? 0,
                     date,
                     dateTime,
-                    branchOffice?.label.split("-")[0]
+                    branchOffice?.label.split("-")[0],
+                    true,
+                    "",
+                    true
                 )
             ).unwrap();
             handleSucccessNotification(NotificationSuccess.RESCHEDULE_APPOINTMENT);

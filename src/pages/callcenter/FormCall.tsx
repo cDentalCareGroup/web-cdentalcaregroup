@@ -159,7 +159,7 @@ const FormCall = (props: FormCallProps) => {
             content={
                 <div>
                     <div className="flex w-full items-end justify-end">
-                        <Button onClick={() => setIsOpen(true)} type="dashed">{Strings.registerCall}</Button>
+                        <Button size="small" onClick={() => setIsOpen(true)} type="dashed">{Strings.registerCall}</Button>
                     </div>
 
                     <Modal confirmLoading={isActionLoading} okText={Strings.save} open={isOpen} onCancel={() => setIsOpen(false)} title={Strings.registerNewCall} onOk={() => handleRegisterCall()}>
