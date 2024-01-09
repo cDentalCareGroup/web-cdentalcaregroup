@@ -110,7 +110,7 @@ const FormPatient = (props: FormPatientProps) => {
         form.setFieldValue('birthday', dayjs(props.patient?.birthDay, 'YYYY-MM-DD'));
         //setLatitudes(new Latitudes(Number(props.patient?.lat), Number(props.patient?.lng)));
         if (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) {
-            setBranchId(Number(props.patient?.originBranchOfficeId));
+            setBranchoOfficeId(Number(props.patient?.originBranchOfficeId));
         }
         if (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) {
             handleGetBranchOffices(Number(props.patient?.originBranchOfficeId));
@@ -263,7 +263,7 @@ const FormPatient = (props: FormPatientProps) => {
 
         try {
             await updatePatient(new UpdatePatientRequest(
-                values, props.patient?.originBranchOfficeId,
+                values, branchOfficeId,
                 col, city, state, latlng, props.patient?.id ?? 0, props.patient?.birthDay.toString() ?? ''
             )).unwrap();
             setIsLoading(false);
