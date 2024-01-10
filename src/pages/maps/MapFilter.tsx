@@ -1,4 +1,4 @@
-import { Button, Input, Modal, QRCode } from "antd";
+import { Button, Input, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { BranchOffice } from "../../data/branchoffice/branchoffice";
 import { DEFAULT_FILTERS } from "../../data/filter/filters";

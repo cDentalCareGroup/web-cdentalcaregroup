@@ -1,6 +1,6 @@
 import { Button, Checkbox, Modal, Tag } from "antd";
 import { useEffect, useState } from "react";
-import { RiCalendar2Line, RiHospitalLine, RiMentalHealthLine, RiUser2Fill, RiUser3Line } from "react-icons/ri";
+import { RiCalendar2Line, RiHospitalLine, RiMentalHealthLine, RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { GetAppointmentAvailabilityRequest, RegisterCallCenterAppointmentRequest } from "../../data/appointment/appointment.request";
 import { AvailableTime } from "../../data/appointment/available.time";

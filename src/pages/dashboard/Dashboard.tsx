@@ -1,7 +1,7 @@
 import { Collapse } from "antd";
 import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiArrowRightSLine } from "react-icons/ri";
-import { GetCallsReports, GetStatisticsCalls } from "../../data/statistics/statistic.calls";
+import { GetCallsReports } from "../../data/statistics/statistic.calls";
 import { useGetCallsReportMutation } from "../../services/statisticService";
 import { handleErrorNotification } from "../../utils/Notifications";
 import LayoutCard from "../layouts/LayoutCard";

@@ -1,4 +1,4 @@
-import { Button, DatePicker, DatePickerProps, Modal, Popover, RowProps, Table } from "antd";
+import { Button, DatePicker, DatePickerProps, Modal, Popover, Table } from "antd";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiCouponLine, RiDeleteBin7Line, RiMentalHealthLine } from "react-icons/ri";
@@ -13,7 +13,7 @@ import User from "../../data/user/user";
 import { useGetPadCatalogsMutation, useRegisterPadMutation } from "../../services/padService";
 import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { isAdmin, UserRoles } from "../../utils/Extensions";
+import { isAdmin } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import CustomFormInput from "../components/CustomFormInput";
@@ -23,7 +23,6 @@ import { DndContext } from '@dnd-kit/core';
 import {
     arrayMove,
     SortableContext,
-    useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 

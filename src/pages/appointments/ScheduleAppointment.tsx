@@ -1,4 +1,4 @@
-import { Button, Divider, Form, InputNumber } from "antd";
+import { Button, Divider, Form } from "antd";
 import Checkbox from "antd/es/checkbox/Checkbox";
 import Input from "antd/es/input/Input";
 import { useEffect, useRef, useState } from "react";
