@@ -9,7 +9,14 @@ import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormOrigins, { FormOriginsType } from "./FormOrigins";
 
+const cardStyles = {
+    width: '380px',
+    height: '150',
+  };
 
+const contentStyles = {
+    height: '120px', // Ajusta esto a la altura que desees
+};
 const Origins = () => {
     const [getOrigins, { isLoading }] = useGetOriginsMutation();
 
@@ -60,13 +67,17 @@ const Origins = () => {
                 <FormOrigins type={FormOriginsType.REGISTER} onFinish={() => handleGetOrigins()} />
                 <Row>
                     {origins.map((value, index) =>
-                        <Card
+                        <Card style={cardStyles}
                             title={value.name}
                             actions={[
                                 <FormOrigins type={FormOriginsType.UPDATE} origin={value} onFinish={() => handleGetOrigins()} />
-                            ]} style={{ minWidth: 350, maxWidth: 350 }} key={index} className="m-2">
+                            ]} 
+                            //style={{ minWidth: 350, maxWidth: 350 }} 
+                            key={index} className="m-2">
+                            <div style={contentStyles}>
                             <SectionElement label={Strings.nameLabel} value={value.name} icon={<></>} />
                             <SectionElement label={Strings.description} value={value.description ?? '-'} icon={<></>} />
+                            </div>
                             {buildReferralLinkCode(value)}
                         </Card>
                     )}
