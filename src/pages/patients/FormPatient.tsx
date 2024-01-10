@@ -296,7 +296,7 @@ const FormPatient = (props: FormPatientProps) => {
                     name="branchOfficeId"
                     label={Strings.branchOfficeOrigin}
                     style={{ minWidth: 300, padding: 10 }}
-                    rules={[{ required: !branchOfficeId, message: Strings.requiredField }]}>
+                    rules={[{  required: !branchOfficeId, message: Strings.requiredField }]}>
                     <SelectSearch
                         placeholder={Strings.branchOfficeOrigin}
                         items={branchOfficeList}
