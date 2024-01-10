@@ -10,6 +10,9 @@ import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormOrganization, { FormOrganizationType } from "./FormOrganization";
 
+const contentStyles = {
+    minHeight: '200px', 
+};
 const Organizations = () => {
     const [getOrganizations, { isLoading }] = useGetOrganizationsMutation();
     const [data, setData] = useState<Organization[]>([])
@@ -53,12 +56,17 @@ const Organizations = () => {
                     <Row>
                         {organizations.map((value, index) =>
                             <Card
+                                //style = {cardStyles}
                                 title={value.name}
                                 actions={[
                                     <FormOrganization type={FormOrganizationType.UPDATE} organization={value} onFinish={() => handleGetOrganizations()} />
-                                ]} style={{ minWidth: 350, maxWidth: 350 }} key={index} className="m-2">
+                                ]} 
+                                style={{ minWidth: 350, maxWidth: 350 }} 
+                                key={index} className="m-2">
+                                <div style={contentStyles}>
                                 <SectionElement label={Strings.nameLabel} value={value.name} icon={<></>} />
                                 <SectionElement label={Strings.description} value={value.description ?? '-'} icon={<></>} />
+                                </div>
                             </Card>
                         )}
                     </Row>
