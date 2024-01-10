@@ -15,7 +15,7 @@ const cardStyles = {
   };
 
 const contentStyles = {
-    height: '120px', // Ajusta esto a la altura que desees
+    height: '120px', 
 };
 const Origins = () => {
     const [getOrigins, { isLoading }] = useGetOriginsMutation();
@@ -72,7 +72,6 @@ const Origins = () => {
                             actions={[
                                 <FormOrigins type={FormOriginsType.UPDATE} origin={value} onFinish={() => handleGetOrigins()} />
                             ]} 
-                            //style={{ minWidth: 350, maxWidth: 350 }} 
                             key={index} className="m-2">
                             <div style={contentStyles}>
                             <SectionElement label={Strings.nameLabel} value={value.name} icon={<></>} />
