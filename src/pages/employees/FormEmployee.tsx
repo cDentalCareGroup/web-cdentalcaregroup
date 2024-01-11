@@ -16,7 +16,7 @@ import { capitalizeAllCharacters } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import LayoutCard from "../layouts/LayoutCard";
-
+import {LOAD_DATA_DELAY} from "../../utils/Constants";
 
 interface FormEmployeeProps {
     type: FormEmployeeType;
@@ -25,7 +25,6 @@ interface FormEmployeeProps {
 export enum FormEmployeeType {
     REGISTER, UPDATE
 }
-
 
 const FormEmployee = (props: FormEmployeeProps) => {
 
@@ -44,13 +43,25 @@ const FormEmployee = (props: FormEmployeeProps) => {
     const [branchOfficeList, setBranchOfficeList] = useState<BranchOffice[]>([]);
     const [getEmployeeRoles] = useGetEmployeeRolesMutation();
     const [roleList, setRoleList] = useState<Role[]>([]);
+
     useEffect(() => {
-        handleGetEmployeeTypes();
-        handleGetBranchOffices();
-        handleGetRoles();
-        if (props.type == FormEmployeeType.UPDATE) {
-            handleSetupValues();
-        }
+        const fetchData = async () => {
+            try {
+                setTimeout(async () => {
+                    await handleGetEmployeeTypes();
+                    await handleGetBranchOffices();
+                    await handleGetRoles();
+                    if (props.type === FormEmployeeType.UPDATE) {
+                        handleSetupValues();
+                    }
+                    setIsLoading(false); 
+                }, LOAD_DATA_DELAY);
+            } catch (error) {
+                setIsLoading(false); 
+                handleErrorNotification(error);
+            }
+        };
+        fetchData();
     }, []);
 
     const handleGetRoles = async () => {
