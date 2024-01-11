@@ -44,13 +44,27 @@ const FormEmployee = (props: FormEmployeeProps) => {
     const [branchOfficeList, setBranchOfficeList] = useState<BranchOffice[]>([]);
     const [getEmployeeRoles] = useGetEmployeeRolesMutation();
     const [roleList, setRoleList] = useState<Role[]>([]);
+
+
     useEffect(() => {
-        handleGetEmployeeTypes();
-        handleGetBranchOffices();
-        handleGetRoles();
-        if (props.type == FormEmployeeType.UPDATE) {
-            handleSetupValues();
-        }
+        const fetchData = async () => {
+            try {
+                setTimeout(async () => {
+                    await handleGetEmployeeTypes();
+                    await handleGetBranchOffices();
+                    await handleGetRoles();
+                    if (props.type === FormEmployeeType.UPDATE) {
+                        handleSetupValues();
+                    }
+                    setIsLoading(false); 
+                }, 2000);
+            } catch (error) {
+                setIsLoading(false); 
+                handleErrorNotification(error);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const handleGetRoles = async () => {
