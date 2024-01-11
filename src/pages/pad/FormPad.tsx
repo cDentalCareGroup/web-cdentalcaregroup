@@ -16,7 +16,6 @@ import Constants from "../../utils/Constants";
 import { isAdmin, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
-import CustomFormInput from "../components/CustomFormInput";
 import SelectSearch from "../components/SelectSearch";
 import LayoutCard from "../layouts/LayoutCard";
 import { DndContext } from '@dnd-kit/core';

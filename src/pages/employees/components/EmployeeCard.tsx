@@ -1,5 +1,4 @@
 import { Card, Tag, Typography } from "antd";
-import Paragraph from "antd/es/skeleton/Paragraph";
 import { RiHospitalLine, RiMailLine, RiPhoneLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { buildEmployeeEmail, buildEmployeeName, buildEmployeeNumber } from "../../../data/employee/employee.extentions";

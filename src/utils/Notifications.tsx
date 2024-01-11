@@ -1,6 +1,4 @@
-import React from "react";
 import { Button, notification } from 'antd';
-import { NotificationPlacement } from "antd/es/notification/interface";
 import Constants from "./Constants";
 
 

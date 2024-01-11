@@ -9,7 +9,6 @@ import { useGetPatientMutation } from "../../services/patientService";
 import { formatNumberToPercent, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
-import NoData from "../components/NoData";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormPatient, { FormPatientType, FormPatientSource } from "./FormPatient";

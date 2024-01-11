@@ -1,7 +1,6 @@
 import { Pad } from "../pad/pad";
 import { PadCatalogue } from "../pad/pad.catalogue";
 import { PadComponent } from "../pad/pad.component";
-import { PadComponentUsed } from "../pad/pad.component.used";
 import { Service } from "../service/service";
 
 export interface Patient {

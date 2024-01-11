@@ -1,7 +1,6 @@
 import { Card, Row } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
-import { render } from "react-dom"
 import { Organization } from "../../data/organization/organization";
 import { useGetOrganizationsMutation } from "../../services/organizationService";
 import { handleErrorNotification } from "../../utils/Notifications";
