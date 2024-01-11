@@ -1,5 +1,3 @@
-import { GetCallsReports, GetStatisticsCalls } from "../data/statistics/statistic.calls";
-import { PaymentType } from "../data/payment/payment.types";
 import { GetCallsReports } from "../data/statistics/statistic.calls";
 import { apiSlice } from "./apiSlice";
 

@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { GetCallsReports, GetStatisticsCalls } from "../../data/statistics/statistic.calls";
-import { RiArrowDownSLine, RiArrowRightSLine } from "react-icons/ri";
 import { GetCallsReports } from "../../data/statistics/statistic.calls";
 import { useGetCallsReportMutation } from "../../services/statisticService";
 import { handleErrorNotification } from "../../utils/Notifications";
