@@ -3,7 +3,7 @@
 import { configureStore, Store } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import type { TypedUseSelectorHook } from 'react-redux'
-import { setupListeners } from "@reduxjs/toolkit/dist/query";
+import { setupListeners } from "@reduxjs/toolkit/query";
 import { apiSlice } from "../services/apiSlice";
 import authReducer from "./authReducer";
 
@@ -15,7 +15,7 @@ export const store = configureStore({
     },
     middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware),
     //change for production to false
-    devTools: true,
+    devTools: false,
 });
 
 setupListeners(store.dispatch);
