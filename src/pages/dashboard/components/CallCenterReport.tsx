@@ -1,7 +1,7 @@
 // tabla de llamadas desde el callcenter
 
-import { Table, Collapse } from 'antd';
-import { differenceInDays, differenceInMinutes, differenceInSeconds, format } from 'date-fns';
+import { Table } from 'antd';
+import { differenceInSeconds } from 'date-fns';
 import { buildPatientName } from '../../../data/patient/patient.extensions';
 import { GetCallsReports } from '../../../data/statistics/statistic.calls';
 

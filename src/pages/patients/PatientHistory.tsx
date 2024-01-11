@@ -6,6 +6,8 @@ import { Patient } from "../../data/patient/patient";
 import { Appointment } from "../../data/appointment/appointment";
 import { Timeline } from "antd";
 import { getAppointmentStatus, getAppointmentStatusFromAppointment } from "../../data/appointment/appointment.extensions";
+import Constants from "../../utils/Constants";
+import { getAppointmentStatusFromAppointment } from "../../data/appointment/appointment.extensions";
 import NoData from "../components/NoData";
 
 

@@ -1,7 +1,7 @@
 import { Divider, Table, Tabs, Tag } from "antd";
 import { differenceInDays } from "date-fns";
 import { useEffect, useState } from "react";
-import { RiCalendar2Line, RiFileList3Line, RiFunctionLine, RiHeartPulseLine, RiMailLine, RiPhoneLine, RiUser3Line, RiUserHeartLine, RiVipDiamondLine } from "react-icons/ri";
+import { RiCalendar2Line, RiFileList3Line, RiHeartPulseLine, RiUserHeartLine, RiVipDiamondLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import { PadData, Patient } from "../../data/patient/patient";
 import {  DEFAULT_FIELD_VALUE, padComponentsToDataTable } from "../../data/patient/patient.extensions";

@@ -1,4 +1,6 @@
 import { Button, Divider, Input, Modal, Select } from "antd";
+import { Button, Input, Modal, Select } from "antd";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import useSessionStorage from "../../core/sessionStorage";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../data/filter/filters";
@@ -14,7 +16,7 @@ import { useGetPaymentMethodsMutation } from "../../services/appointmentService"
 import { useGetPatientsMutation } from "../../services/patientService";
 import { useGetPatientPaymentsMutation, useGetPaymentTypesMutation, useRegisterPatientMovementMutation } from "../../services/paymentService";
 import Constants from "../../utils/Constants";
-import { formatPrice, formatServiceDate } from "../../utils/Extensions";
+import { formatPrice } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";

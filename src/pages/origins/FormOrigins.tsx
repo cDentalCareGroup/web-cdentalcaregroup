@@ -1,5 +1,5 @@
 import { Button, Checkbox, Modal } from "antd";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Origin } from "../../data/origins/origin";
 import { RegisterOriginRequest, UpdateOriginRequest } from "../../data/origins/origin.request";
 import { useRegisterOriginMutation, useUpdateOriginMutation } from "../../services/originService";

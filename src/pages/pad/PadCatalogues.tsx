@@ -1,7 +1,7 @@
 import { Button, Card, List, Tag } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
-import { RiCouponLine, RiHospitalLine, RiMoneyDollarCircleLine, RiTodoLine } from "react-icons/ri";
+import { RiCouponLine, RiMoneyDollarCircleLine, RiTodoLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { PadCatalogueDetail } from "../../data/pad/pad.catalogue.detail";
 import { useGetPadCatalogsMutation } from "../../services/padService";
