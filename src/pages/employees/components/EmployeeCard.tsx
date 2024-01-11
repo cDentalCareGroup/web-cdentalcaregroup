@@ -1,3 +1,4 @@
+import { Card, Tag, Typography } from "antd";
 import { Card, Tag } from "antd";
 import Paragraph from "antd/es/skeleton/Paragraph";
 import { RiHospitalLine, RiMailLine, RiPhoneLine } from "react-icons/ri";

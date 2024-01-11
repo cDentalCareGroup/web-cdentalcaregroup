@@ -1,4 +1,3 @@
-import { AvailableTime } from "../data/appointment/available.time";
 import { BranchOfficeSchedule } from "../data/branchoffice/branch.office.schedule";
 import { ScheduleEmployees } from "../data/branchoffice/branch.office.schedule.employees";
 import { BranchOffice } from "../data/branchoffice/branchoffice";

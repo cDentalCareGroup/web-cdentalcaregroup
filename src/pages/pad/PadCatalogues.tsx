@@ -3,7 +3,6 @@ import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
 import { RiCouponLine, RiMoneyDollarCircleLine, RiTodoLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
-import { PadCatalogue } from "../../data/pad/pad.catalogue";
 import { PadCatalogueDetail } from "../../data/pad/pad.catalogue.detail";
 import { useGetPadCatalogsMutation } from "../../services/padService";
 import Constants from "../../utils/Constants";

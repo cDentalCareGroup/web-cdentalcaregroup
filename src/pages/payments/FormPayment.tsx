@@ -1,13 +1,12 @@
+import { Button, Divider, Input, Modal, Select } from "antd";
 import { Button, Input, Modal, Select } from "antd";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { RiUser3Line } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../data/filter/filters";
 import { FilterEmployeesRequest } from "../../data/filter/filters.request";
 import { Patient } from "../../data/patient/patient";
 import { buildPatientName } from "../../data/patient/patient.extensions";
-import { Payment } from "../../data/payment/payment";
 import { PaymentInfo, DebtInfo } from "../../data/payment/payment.info";
 import { PaymentMethod } from "../../data/payment/payment.method";
 import { PaymentType } from "../../data/payment/payment.types";

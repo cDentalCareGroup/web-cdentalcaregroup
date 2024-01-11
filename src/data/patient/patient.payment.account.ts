@@ -1,4 +1,3 @@
-import { Appointment } from "../appointment/appointment";
 import { AppointmentDetail } from "../appointment/appointment.detail";
 import { Payment } from "../payment/payment";
 import { PaymentDetail } from "../payment/payment.detail";
