@@ -1,7 +1,7 @@
-import { Button, Card, Divider, List, Modal, Tag } from "antd";
+import { Button, Divider, List, Modal} from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
-import { RiDeleteBin7Line, RiMentalHealthLine, RiUserHeartLine } from "react-icons/ri";
+import { RiMentalHealthLine, RiUserHeartLine } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { DEFAULT_FILTERS } from "../../data/filter/filters";
 import { FilterEmployeesRequest } from "../../data/filter/filters.request";

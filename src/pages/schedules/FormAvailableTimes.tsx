@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import useSessionStorage from "../../core/sessionStorage";
 import { GetSchedulesByBranchOfficeRequest } from "../../data/branchoffice/branch.office.request";
 import { BranchOfficeSchedule } from "../../data/branchoffice/branch.office.schedule";
-import { useGetAvailableTimesByBranchOfficeMutation, useGetBranchOfficesMutation } from "../../services/branchOfficeService";
+import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import Constants from "../../utils/Constants";
 import { handleErrorNotification,} from "../../utils/Notifications";
 import LayoutCard from "../layouts/LayoutCard";

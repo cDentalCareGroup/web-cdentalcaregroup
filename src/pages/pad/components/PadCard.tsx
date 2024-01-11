@@ -1,4 +1,4 @@
-import { Card, Modal, Table, Tag } from "antd";
+import { Card, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { RiDeleteBin7Line, RiMentalHealthLine } from "react-icons/ri";
 import { PadDetail } from "../../../data/pad/pad.detail";

@@ -1,4 +1,4 @@
-import { Button, DatePicker, Form, Input, Row, Select } from "antd";
+import { Button, DatePicker, Form, Input, Select } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { RiHashtag, RiHospitalLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
@@ -14,7 +14,7 @@ import { branchOfficesToSelectOptionItem } from "../../data/select/select.item.o
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetColoniesFromZipCodeMutation, useGetPatientOrganizationsMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { capitalizeAllCharacters, isAdmin, UserRoles } from "../../utils/Extensions";
+import { capitalizeAllCharacters, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SelectSearch from "../components/SelectSearch";

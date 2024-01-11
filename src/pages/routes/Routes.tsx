@@ -1,15 +1,12 @@
 import { MenuProps } from "antd";
 import { getItem } from "../components/Sidebar";
 import {
-    RiMenu3Fill,
+    
     RiUser3Line,
     RiCalendarCheckLine,
     RiLogoutBoxLine,
-    RiMessage2Line,
     RiMap2Line,
-    RiDashboardLine,
     RiCalendar2Line,
-    RiMentalHealthLine,
     RiPhoneLine,
     RiUserHeartLine,
     RiServiceLine,
@@ -23,7 +20,7 @@ import MapFilter from "../maps/MapFilter";
 import BranchOffices, { BranchOfficeType } from "../branchoffice/BranchOffices";
 import Appointments from "../appointments/Appointments";
 import AppointmentInfo from "../appointments/AppointmentInfo";
-import RegisterPatientCard, { FormPatientType, FormPatientSource } from "../patients/FormPatient";
+import { FormPatientType, FormPatientSource } from "../patients/FormPatient";
 import Patients from "../patients/Patients";
 import PatientInfo from "../patients/PatientInfo";
 import FormPatient from "../patients/FormPatient";

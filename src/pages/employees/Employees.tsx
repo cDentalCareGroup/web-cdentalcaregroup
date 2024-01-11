@@ -1,4 +1,4 @@
-import { Button, Card, List, Tag } from "antd";
+import { Button, List } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
