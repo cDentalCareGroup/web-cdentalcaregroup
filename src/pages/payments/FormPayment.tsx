@@ -1,6 +1,4 @@
-import { Button, Divider, Input, Modal, Select } from "antd";
 import { Button, Input, Modal, Select } from "antd";
-import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import useSessionStorage from "../../core/sessionStorage";
 import { DEFAULT_PATIENTS_ACTIVE } from "../../data/filter/filters";
