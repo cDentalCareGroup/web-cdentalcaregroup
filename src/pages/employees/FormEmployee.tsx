@@ -16,6 +16,7 @@ import { capitalizeAllCharacters } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import LayoutCard from "../layouts/LayoutCard";
+import {LOAD_DATA_DELAY} from "../../utils/Constants";
 
 
 interface FormEmployeeProps {
@@ -45,7 +46,6 @@ const FormEmployee = (props: FormEmployeeProps) => {
     const [getEmployeeRoles] = useGetEmployeeRolesMutation();
     const [roleList, setRoleList] = useState<Role[]>([]);
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -57,13 +57,12 @@ const FormEmployee = (props: FormEmployeeProps) => {
                         handleSetupValues();
                     }
                     setIsLoading(false); 
-                }, 2000);
+                }, LOAD_DATA_DELAY);
             } catch (error) {
                 setIsLoading(false); 
                 handleErrorNotification(error);
             }
         };
-
         fetchData();
     }, []);
 
