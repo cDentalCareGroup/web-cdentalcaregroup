@@ -17,6 +17,7 @@ import { handleErrorNotification, handleSucccessNotification, NotificationSucces
 import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
+import Checkbox from "antd/es/checkbox/Checkbox";
 
 interface PatientsProps {
     rol: UserRoles;
@@ -38,6 +39,11 @@ const Patients = (props: PatientsProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [status, setStatus] = useState('');
+    const [filterStatus, setFilterStatus] = useState({
+        active: true,
+        inactive: false,
+        disabled: false,
+    });
 
 
     useEffect(() => {
@@ -47,6 +53,10 @@ const Patients = (props: PatientsProps) => {
             handleGetPatients();
         }
     }, []);
+
+    useEffect(() => {
+        applyStatusFilter(data);
+    }, [filterStatus, data]);
 
     const handleGetPatients = async () => {
         try {
@@ -76,16 +86,31 @@ const Patients = (props: PatientsProps) => {
         }
     }
 
+    const applyStatusFilter = (patients: Patient[]) => {
+        const filteredPatients = patients.filter((patient) => {
+          if (
+            (filterStatus.active && patient.status === Strings.statusValueActive) ||
+            (filterStatus.inactive && patient.status === Strings.statusValueInactive) ||
+            (filterStatus.disabled && patient.status === Strings.statusValueDisabled)
+          ) {
+            return true;
+          }
+          return false;
+        });
+      
+        setPatientList(filteredPatients);
+    };
+
     const handleOnSearch = (query: string) => {
         if (query.length == 0 || query == "") {
-            setPatientList(data);
+            applyStatusFilter(data);
         }
         const res = data?.filter((value) =>
             buildPatientName(value)
                 .toLowerCase()
                 .replace(/\s+/g, '')
                 .includes(query.toLowerCase().replace(/\s+/g, '')));
-        setPatientList(res);
+            applyStatusFilter(res);
     }
 
 
@@ -123,6 +148,38 @@ const Patients = (props: PatientsProps) => {
             content={
                 <div className="flex flex-col">
                     <Search onChange={(event) => handleOnSearch(event.target.value)} size="large" placeholder={Strings.searchPatient} onSearch={handleOnSearch} enterButton />
+                    <div className="flex w-full items-end justify-end mt-4 mb-4">
+                        <Checkbox
+                        checked={filterStatus.active}
+                        onChange={(e) =>
+                            setFilterStatus({ ...filterStatus, active: e.target.checked })
+                        }
+                        >
+                        Activo
+                        </Checkbox>
+                        <Checkbox
+                        checked={filterStatus.inactive}
+                        onChange={(e) =>
+                            setFilterStatus({
+                            ...filterStatus,
+                            inactive: e.target.checked,
+                            })
+                        }
+                        >
+                        Inactivo
+                        </Checkbox>
+                        <Checkbox
+                        checked={filterStatus.disabled}
+                        onChange={(e) =>
+                            setFilterStatus({
+                            ...filterStatus,
+                            disabled: e.target.checked,
+                            })
+                        }
+                        >
+                        Deshabilitado
+                        </Checkbox>
+                    </div>
                     {props.rol != UserRoles.RECEPTIONIST && <div className="flex w-full items-end justify-end mt-4 mb-12">
                         <Button type="primary" onClick={() => {
                             if (props.rol == UserRoles.ADMIN) {
