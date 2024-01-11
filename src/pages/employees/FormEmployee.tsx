@@ -18,7 +18,6 @@ import Strings from "../../utils/Strings";
 import LayoutCard from "../layouts/LayoutCard";
 import {LOAD_DATA_DELAY} from "../../utils/Constants";
 
-
 interface FormEmployeeProps {
     type: FormEmployeeType;
     employee?: Employee;
@@ -26,7 +25,6 @@ interface FormEmployeeProps {
 export enum FormEmployeeType {
     REGISTER, UPDATE
 }
-
 
 const FormEmployee = (props: FormEmployeeProps) => {
 
