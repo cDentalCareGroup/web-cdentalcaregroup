@@ -56,7 +56,6 @@ const Organizations = () => {
                     <Row>
                         {organizations.map((value, index) =>
                             <Card
-                                //style = {cardStyles}
                                 title={value.name}
                                 actions={[
                                     <FormOrganization type={FormOrganizationType.UPDATE} organization={value} onFinish={() => handleGetOrganizations()} />
