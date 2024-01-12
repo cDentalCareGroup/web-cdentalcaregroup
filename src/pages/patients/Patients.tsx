@@ -155,7 +155,7 @@ const Patients = (props: PatientsProps) => {
                             setFilterStatus({ ...filterStatus, active: e.target.checked })
                         }
                         >
-                        Activo
+                        {Strings.statusActive}
                         </Checkbox>
                         <Checkbox
                         checked={filterStatus.inactive}
@@ -166,7 +166,7 @@ const Patients = (props: PatientsProps) => {
                             })
                         }
                         >
-                        Inactivo
+                        {Strings.statusInactive}
                         </Checkbox>
                         <Checkbox
                         checked={filterStatus.disabled}
@@ -177,7 +177,7 @@ const Patients = (props: PatientsProps) => {
                             })
                         }
                         >
-                        Deshabilitado
+                        {Strings.statusDisabled}
                         </Checkbox>
                     </div>
                     {props.rol != UserRoles.RECEPTIONIST && <div className="flex w-full items-end justify-end mt-4 mb-12">
