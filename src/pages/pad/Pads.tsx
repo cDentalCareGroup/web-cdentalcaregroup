@@ -64,8 +64,6 @@ const Pads = (props: PadsProps) => {
 	const [isListLoading, setIsListLoading] = useState(false);
 	const [isActionLoading, setIsActionLoading] = useState(false);
 
-    
-
 	useEffect(() => {
 		handleGetPads();
 		if (props.rol == UserRoles.ADMIN) {

@@ -1,5 +1,5 @@
-import { Button, Checkbox, Modal } from "antd";
-import { useEffect, useState } from "react";
+import { Button, Modal } from "antd";
+import { useState } from "react";
 import { Organization } from "../../data/organization/organization";
 import { RegisterOrganizationRequest, UpdateOrganizationRequest } from "../../data/organization/organization.request";
 import { useRegisterOrganizationMutation, useUpdateOrganizationMutation } from "../../services/organizationService";

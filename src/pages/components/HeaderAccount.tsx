@@ -1,6 +1,6 @@
 import { Button, Divider, Dropdown, Form, Input, Modal, Result } from "antd";
 import { useState } from "react";
-import { RiArrowDownSLine, RiFootballLine, RiLogoutBoxLine, RiSettings3Line, RiUser3Line, RiUserLine } from 'react-icons/ri';
+import { RiArrowDownSLine, RiFootballLine, RiLogoutBoxLine, RiUser3Line, RiUserLine } from 'react-icons/ri';
 import { useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
 import User from "../../data/user/user";

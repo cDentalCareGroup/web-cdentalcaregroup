@@ -1,15 +1,12 @@
 import { MenuProps } from "antd";
 import { getItem } from "../components/Sidebar";
 import {
-    RiMenu3Fill,
+    
     RiUser3Line,
     RiCalendarCheckLine,
     RiLogoutBoxLine,
-    RiMessage2Line,
     RiMap2Line,
-    RiDashboardLine,
     RiCalendar2Line,
-    RiMentalHealthLine,
     RiPhoneLine,
     RiUserHeartLine,
     RiServiceLine,
@@ -23,14 +20,13 @@ import MapFilter from "../maps/MapFilter";
 import BranchOffices, { BranchOfficeType } from "../branchoffice/BranchOffices";
 import Appointments from "../appointments/Appointments";
 import AppointmentInfo from "../appointments/AppointmentInfo";
-import RegisterPatientCard, { FormPatientType, FormPatientSource } from "../patients/FormPatient";
+import { FormPatientType, FormPatientSource } from "../patients/FormPatient";
 import Patients from "../patients/Patients";
 import PatientInfo from "../patients/PatientInfo";
 import FormPatient from "../patients/FormPatient";
 import SchedulesBranchOffice from "../branchoffice/schedules/SchedulesBranchOffice";
 import Employees from "../employees/Employees";
 import FormEmployee, { FormEmployeeType } from "../employees/FormEmployee";
-import EmployeeInfo from "../employees/EmployeeInfo";
 import EmployeeInfoCard from "../employees/EmployeeInfo";
 import Calls from "../callcenter/Calls";
 import CallInfo from "../callcenter/CallInfo";
@@ -38,13 +34,9 @@ import CallsType from "../callcenter/CallsType";
 import PadCatalogues from "../pad/PadCatalogues";
 import FormPadCatalogue, { FormPadCatalogueType } from "../pad/FormPadCatalogue";
 import Pads from "../pad/Pads";
-import FormPad from "../pad/FormPad";
 import Services from "../service/Services";
 import Prospects from "../prospect/Prospects";
-import Test from "../components/Test";
 import Dashboard from "../dashboard/Dashboard";
-import { AvailableTime } from "../../data/appointment/available.time";
-import AvailableTimes from "../schedules/FormAvailableTimes";
 import Origins from "../origins/Origins";
 import FormAvailableTimes from "../schedules/FormAvailableTimes";
 import Organizations from "../organization/Organizations";

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import type { InputRef } from 'antd';
-import { notification, Form, Input, Popconfirm, Table } from 'antd';
+import { notification, Form, Input, Table } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import { RiDeleteBin7Line } from 'react-icons/ri';
 import { formatNumberToPercent, formatPrice } from '../../../utils/Extensions';

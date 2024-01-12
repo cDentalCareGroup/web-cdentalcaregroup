@@ -1,6 +1,6 @@
 import { Tabs } from "antd";
 import { useEffect, useState } from "react";
-import { RiCalendar2Line, RiFileList3Line, RiFunctionLine, RiHeartPulseLine, RiMailLine, RiPhoneLine, RiUser3Line, RiUserHeartLine, RiVipDiamondLine } from "react-icons/ri";
+import { RiFileList3Line } from "react-icons/ri";
 import { useParams } from "react-router-dom";
 import { EmployeeInfo } from "../../data/employee/employee.info";
 import { useGetEmployeeMutation } from "../../services/employeeService";

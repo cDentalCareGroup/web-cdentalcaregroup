@@ -1,5 +1,4 @@
 import { Pie } from "@ant-design/charts";
-import { Card } from "antd";
 import { Event } from "@antv/g2";
 import { PieData } from "../../../data/statistics/statistic.extensions";
 

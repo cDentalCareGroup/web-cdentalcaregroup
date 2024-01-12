@@ -1,7 +1,7 @@
-import { Button, DatePicker, Divider, Form, Input, Row, Select } from "antd";
+import { Button, DatePicker, Divider, Form, Input, Select } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { RiHashtag, RiHospitalLine, RiLockLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiProfileLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
+import { RiHashtag, RiLockLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiProfileLine, RiUser3Line } from "react-icons/ri";
 import { Colony } from "../../data/address/colonies";
 import { BranchOffice } from "../../data/branchoffice/branchoffice";
 import { Employee } from "../../data/employee/employee";
@@ -11,13 +11,12 @@ import { Latitudes } from "../../data/maps/latitudes";
 import { Role } from "../../data/user/role";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetEmployeeRolesMutation, useGetEmployeeTypesMutation, useRegisterEmployeeMutation, useUpdateEmployeeMutation } from "../../services/employeeService";
-import { useGetColoniesFromZipCodeMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
+import { useGetColoniesFromZipCodeMutation } from "../../services/patientService";
 import { capitalizeAllCharacters } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import LayoutCard from "../layouts/LayoutCard";
 import {LOAD_DATA_DELAY} from "../../utils/Constants";
-
 
 interface FormEmployeeProps {
     type: FormEmployeeType;
@@ -26,7 +25,6 @@ interface FormEmployeeProps {
 export enum FormEmployeeType {
     REGISTER, UPDATE
 }
-
 
 const FormEmployee = (props: FormEmployeeProps) => {
 
