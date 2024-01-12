@@ -85,7 +85,6 @@ const Pads = (props: PadsProps) => {
 		try {
 			const response = await getPads({}).unwrap();
 			if (props.rol == UserRoles.RECEPTIONIST) {
-				console.log(`Process rep pads`);
 				const processResponse = processPadsInBranchOffice(branchId, response);
 				setData(processResponse);
 				setPadList(processResponse);
@@ -200,7 +199,6 @@ const Pads = (props: PadsProps) => {
 	};
 
 	const handleOnAddAditionalMember = async () => {
-		//console.log(aditionalMembers)
 		try {
 			setIsActionLoading(true);
 			const branch = selectedPad?.members[0].padAcquisitionBranch ?? branchId;
