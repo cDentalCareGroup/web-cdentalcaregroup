@@ -36,12 +36,15 @@ import SelectSearch from '../components/SelectSearch';
 import LayoutCard from '../layouts/LayoutCard';
 import PadCard from './components/PadCard';
 import FormPad from './FormPad';
+import React, { useRef } from 'react';
 
 interface PadsProps {
 	rol: UserRoles;
 }
 
 const Pads = (props: PadsProps) => {
+    const cardContainerRef = useRef<HTMLDivElement>(null);
+    const firstCardRef = useRef<HTMLDivElement>(null);
 	const [getPads, { isLoading }] = useGetPadsMutation();
 	const [data, setData] = useState<PadDetail[]>([]);
 	const [padList, setPadList] = useState<PadDetail[]>([]);
@@ -61,6 +64,8 @@ const Pads = (props: PadsProps) => {
 	const [isListLoading, setIsListLoading] = useState(false);
 	const [isActionLoading, setIsActionLoading] = useState(false);
 
+    
+
 	useEffect(() => {
 		handleGetPads();
 		if (props.rol == UserRoles.ADMIN) {
@@ -71,21 +76,21 @@ const Pads = (props: PadsProps) => {
 	}, []);
 
 	const [currentPage, setCurrentPage] = useState(1);
-	const cardsPerPage = 20; 
+	const cardsPerPage = 20;
 
 	const indexOfLastCard = currentPage * cardsPerPage;
 	const indexOfFirstCard = indexOfLastCard - cardsPerPage;
 	const currentPads = padList.slice(indexOfFirstCard, indexOfLastCard);
 
-	const handlePageChange = (page: number) => {
-		setCurrentPage(page);
-	};
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        cardContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
 	const handleGetPads = async () => {
 		try {
 			const response = await getPads({}).unwrap();
 			if (props.rol == UserRoles.RECEPTIONIST) {
-				console.log(`Process rep pads`);
 				const processResponse = processPadsInBranchOffice(branchId, response);
 				setData(processResponse);
 				setPadList(processResponse);
@@ -200,7 +205,6 @@ const Pads = (props: PadsProps) => {
 	};
 
 	const handleOnAddAditionalMember = async () => {
-		//console.log(aditionalMembers)
 		try {
 			setIsActionLoading(true);
 			const branch = selectedPad?.members[0].padAcquisitionBranch ?? branchId;
@@ -250,7 +254,7 @@ const Pads = (props: PadsProps) => {
 						<FormPad onFinish={() => handleGetPads()} />
 					</div>
 
-					<div className="flex flex-row flex-wrap">
+					<div className="flex flex-row flex-wrap" ref={cardContainerRef}>
 						{currentPads.map((value, index) => (
 							<PadCard
 								onEditMembers={() => {
@@ -262,10 +266,9 @@ const Pads = (props: PadsProps) => {
 							/>
 						))}
 					</div>
-
 					<Pagination
 						current={currentPage}
-						onChange={setCurrentPage}
+						onChange={handlePageChange}
 						total={padList.length}
 						pageSize={cardsPerPage}
 						showSizeChanger={false}
