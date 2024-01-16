@@ -1,4 +1,4 @@
-import { Button, Card, Radio, Row, Space, Tag } from "antd";
+import { Button, Card, Radio, Row, Space, Tag, Pagination } from "antd";
 import Search from "antd/es/input/Search";
 import Modal from "antd/es/modal/Modal";
 import { useEffect, useState } from "react";
@@ -18,6 +18,7 @@ import Strings from "../../utils/Strings";
 import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import Checkbox from "antd/es/checkbox/Checkbox";
+import { useRef } from 'react';
 
 interface PatientsProps {
     rol: UserRoles;
@@ -25,10 +26,9 @@ interface PatientsProps {
 
 
 const Patients = (props: PatientsProps) => {
-
+    const cardContainerRef = useRef<HTMLDivElement>(null);
     const [getPatientsByBranchOffice] = useGetPatientsByBranchOfficeMutation();
     const [getPatients] = useGetPatientsMutation();
-
     const [updatePatientStatus] = useUpdatePatientStatusMutation();
     const [branchId, setBranchId] = useSessionStorage(Constants.BRANCH_ID, 0);
     const [session, setSession] = useSessionStorage(Constants.SESSION_AUTH, 0);
@@ -54,9 +54,22 @@ const Patients = (props: PatientsProps) => {
         }
     }, []);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
+
+    const indexOfLastCard = currentPage * itemsPerPage;
+    const indexOfFirstCard =  indexOfLastCard - itemsPerPage;
+    const currentPatientList = patientList.slice(indexOfFirstCard, indexOfLastCard);
+
     useEffect(() => {
         applyStatusFilter(data);
     }, [filterStatus, data]);
+
+    
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+        cardContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     const handleGetPatients = async () => {
         try {
@@ -70,8 +83,6 @@ const Patients = (props: PatientsProps) => {
             handleErrorNotification(error);
         }
     }
-
-
 
     const handleGetAllPatients = async () => {
         try {
@@ -88,31 +99,32 @@ const Patients = (props: PatientsProps) => {
 
     const applyStatusFilter = (patients: Patient[]) => {
         const filteredPatients = patients.filter((patient) => {
-          if (
-            (filterStatus.active && patient.status === Strings.statusValueActive) ||
-            (filterStatus.inactive && patient.status === Strings.statusValueInactive) ||
-            (filterStatus.disabled && patient.status === Strings.statusValueDisabled)
-          ) {
-            return true;
-          }
-          return false;
+            if (
+                (filterStatus.active && patient.status === Strings.statusValueActive) ||
+                (filterStatus.inactive && patient.status === Strings.statusValueInactive) ||
+                (filterStatus.disabled && patient.status === Strings.statusValueDisabled)
+            ) {
+                return true;
+            }
+            return false;
         });
-      
+    
         setPatientList(filteredPatients);
     };
 
     const handleOnSearch = (query: string) => {
-        if (query.length == 0 || query == "") {
+        if (query.length === 0 || query === "") {
             applyStatusFilter(data);
-        }
-        const res = data?.filter((value) =>
-            buildPatientName(value)
-                .toLowerCase()
-                .replace(/\s+/g, '')
-                .includes(query.toLowerCase().replace(/\s+/g, '')));
+        } else {
+            const res = data?.filter((value) =>
+                buildPatientName(value)
+                    .toLowerCase()
+                    .replace(/\s+/g, '')
+                    .includes(query.toLowerCase().replace(/\s+/g, ''))
+            );
             applyStatusFilter(res);
+        }
     }
-
 
     const handleUpdatePatientStatus = async () => {
         try {
@@ -126,7 +138,6 @@ const Patients = (props: PatientsProps) => {
             handleErrorNotification(error);
         }
     }
-
 
     const getStautsTag = (data: Patient): JSX.Element => {
         if (data?.status == Strings.statusValueActive) {
@@ -191,32 +202,39 @@ const Patients = (props: PatientsProps) => {
                             }
                         }}>{Strings.registerPatient}</Button>
                     </div>}
-                    <Row>
-                        {patientList.map((value, index) =>
-                            <Card key={index} title={buildPatientName(value)} className="m-2 cursor-pointer" actions={[
-                                <Button type="dashed" onClick={() => {
-                                    setPatient(value);
-                                    setIsOpen(true);
-                                }} danger>{Strings.status}</Button>,
-                                <Button type="dashed" onClick={() => {
-                                    if (props.rol == UserRoles.ADMIN) {
-                                        navigate(`/admin/patients/detail/${value.id}`)
-                                    } else if(props.rol == UserRoles.CALL_CENTER) {
-                                        navigate(`/callcenter/patients/detail/${value.id}`)
-                                    }else {
-                                        navigate(`/receptionist/patients/detail/${value.id}`)
-                                    }
-                                }}>{Strings.seeInfo}</Button>
+                    <Row ref={cardContainerRef}>
+                    {currentPatientList.map((value, index) => (
+                        <Card key={index} title={buildPatientName(value)} className="m-2 cursor-pointer" actions={[
+                            <Button type="dashed" onClick={() => {
+                                setPatient(value);
+                                setIsOpen(true);
+                            }} danger>{Strings.status}</Button>,
+                            <Button type="dashed" onClick={() => {
+                                if (props.rol == UserRoles.ADMIN) {
+                                    navigate(`/admin/patients/detail/${value.id}`)
+                                } else if(props.rol == UserRoles.CALL_CENTER) {
+                                    navigate(`/callcenter/patients/detail/${value.id}`)
+                                }else {
+                                    navigate(`/receptionist/patients/detail/${value.id}`)
+                                }
+                            }}>{Strings.seeInfo}</Button>
 
-                            ]}>
-                                <SectionElement label={Strings.patientId} value={`${value.id}`} icon={<RiHashtag />} />
-                                <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(value)} icon={<RiPhoneLine />} />
-                                <SectionElement label={Strings.email} value={buildPatientEmail(value)} icon={<RiMailLine />} />
-                                {getStautsTag(value)}
-                            </Card>
-                        )}
+                        ]}>
+                            <SectionElement label={Strings.patientId} value={`${value.id}`} icon={<RiHashtag />} />
+                            <SectionElement label={Strings.phoneNumber} value={buildPatientPhone(value)} icon={<RiPhoneLine />} />
+                            <SectionElement label={Strings.email} value={buildPatientEmail(value)} icon={<RiMailLine />} />
+                            {getStautsTag(value)}
+                        </Card>
+                    ))}
                     </Row>
-
+                    <Pagination
+						current={currentPage}
+						onChange={handlePageChange}
+						total={patientList.length}
+						pageSize={itemsPerPage}
+						showSizeChanger={false}
+						style={{ marginTop: '16px', alignSelf: 'center' }}
+					/>
                     <Modal open={isOpen} onOk={() => handleUpdatePatientStatus()} onCancel={() => setIsOpen(false)} title={`${Strings.deletePatient} ${buildPatientName(patient)}`} okText={Strings.save}>
                         <Radio.Group onChange={(event) => setStatus(event.target.value)} value={status}>
                             <Space direction="vertical">
@@ -231,3 +249,4 @@ const Patients = (props: PatientsProps) => {
 }
 
 export default Patients;
+
