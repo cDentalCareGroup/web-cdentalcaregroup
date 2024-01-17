@@ -26,6 +26,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Create env file
+        run: |
+            touch .env
+            echo API_ENDPOINT=${{ secrets.API_ENDPOINT }} >> .env
+            echo API_KEY=${{ secrets.API_KEY }} >> .env
+            cat .env
       - name: Checkout Repo
         uses: actions/checkout@v2.3.2
       - name: Download Artifact
