@@ -176,6 +176,8 @@ class Strings {
 
     static deletePatient = "Eliminar paciente"
 
+    //Reports
+    static reports = "Reportes"
 
 
     static padName = "Nombre del PAD"
@@ -185,6 +187,7 @@ class Strings {
     static validDays = "Días válido"
     static daysDueDate = "Días para el vencimiento del PAD"
     static daysDue = "Días vencida"
+    static renewDatePad = "Modificar fecha de Vencimiento"
 
     static padBenefits = "Beneficios del PAD"
     static selectPadType = "Selecciona un tipo de pad"
