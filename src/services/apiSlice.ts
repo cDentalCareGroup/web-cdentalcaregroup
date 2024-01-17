@@ -3,7 +3,7 @@ const LOCAL_DEV = "http://localhost:3000"
 const DEV = "https://cdental-care-group-development.up.railway.app";
 
 const baseQuery = fetchBaseQuery({
-    baseUrl: LOCAL_DEV,
+    baseUrl: DEV,
     credentials: 'same-origin',
     prepareHeaders: (headers, { getState }) => {
         const { auth }: any = getState();
