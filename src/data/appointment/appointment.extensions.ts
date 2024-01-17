@@ -1,6 +1,5 @@
 import { addDays, addMinutes, format } from "date-fns";
 import Constants from "../../utils/Constants";
-import Strings from "../../utils/Strings";
 import { AppointmentDetail } from "./appointment.detail";
 import { AvailableTime } from "./available.time";
 import { Appointment } from "./appointment";

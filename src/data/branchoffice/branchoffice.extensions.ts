@@ -1,7 +1,5 @@
 import { AppointmentDetail } from "../appointment/appointment.detail"
-import { BranchOfficeSchedule } from "./branch.office.schedule";
 
-import React from "react";
 import { ScheduleEmployees } from "./branch.office.schedule.employees";
 import { RegisterScheduleeEmployeeRequest } from "../schedule/schedule.request";
 

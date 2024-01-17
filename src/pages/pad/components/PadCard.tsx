@@ -1,13 +1,9 @@
-import { Card, Modal, Table, Tag } from "antd";
-import { useEffect, useState } from "react";
-import { RiDeleteBin7Line, RiMentalHealthLine } from "react-icons/ri";
+import { Card, Tag } from "antd";
 import { PadDetail } from "../../../data/pad/pad.detail";
-import { Patient } from "../../../data/patient/patient";
 import { buildPatientName } from "../../../data/patient/patient.extensions";
-import SelectItemOption from "../../../data/select/select.item.option";
 import Strings from "../../../utils/Strings";
 import SectionElement from "../../components/SectionElement";
-import SelectSearch from "../../components/SelectSearch";
+
 
 interface PadCardProps {
     data: PadDetail;

@@ -51,6 +51,8 @@ const SET_DENTIST = "SET_DENTIST"
 
 const ALL = "Todos"
 
+export const LOAD_DATA_DELAY = 3000;
+
 export default {
     STATUS_DISBALED,
     STATUS_MANUAL,

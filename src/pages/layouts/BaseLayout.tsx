@@ -3,7 +3,7 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { Dropdown, Layout, theme } from 'antd';
+import { Layout, theme } from 'antd';
 import Sidebar from '../components/Sidebar';
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import {  getUserSidebar } from '../routes/Routes';

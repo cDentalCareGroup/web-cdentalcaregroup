@@ -2,7 +2,6 @@ import { Button, DatePicker, Modal, Select } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { RiMentalHealthLine } from "react-icons/ri";
 import useSessionStorage from "../../core/sessionStorage";
 import { CallCatalog } from "../../data/call/call.catalog";
 import { RegisterCallRequest } from "../../data/call/call.request";

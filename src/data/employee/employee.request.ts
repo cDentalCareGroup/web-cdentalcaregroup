@@ -1,5 +1,4 @@
 import { capitalizeAllCharacters } from "../../utils/Extensions";
-import { Colony } from "../address/colonies";
 import { Latitudes } from "../maps/latitudes";
 
 export class GetEmployeeByTypeRequest {

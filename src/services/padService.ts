@@ -1,6 +1,4 @@
-import { PadCatalogue } from "../data/pad/pad.catalogue";
 import { PadCatalogueDetail } from "../data/pad/pad.catalogue.detail";
-import { PadComponentUsed } from "../data/pad/pad.component.used";
 import { PadDetail } from "../data/pad/pad.detail";
 import { Service } from "../data/service/service";
 import { ServiceCategory } from "../data/service/service.category";

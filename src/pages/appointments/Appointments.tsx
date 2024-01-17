@@ -1,4 +1,4 @@
-import { Button, Calendar, DatePicker, Divider, Popover, Row, Tag } from "antd";
+import { Button, Calendar, Divider, Popover, Row} from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
 import { DEFAULT_APPOINTMENTS_FILTERS } from "../../data/filter/filters";
@@ -15,7 +15,7 @@ import useSessionStorage from "../../core/sessionStorage";
 import Strings from "../../utils/Strings";
 import BackArrow from "../components/BackArrow";
 import NoData from "../components/NoData";
-import { dayName, DEFAULT_COLOR, formatAppointmentDate, monthName, UserRoles } from "../../utils/Extensions";
+import { DEFAULT_COLOR, formatAppointmentDate, UserRoles } from "../../utils/Extensions";
 import DataLoading from "../components/DataLoading";
 import { sortAppointments } from "../../data/appointment/appointment.extensions";
 import FormAppointment from "./FormAppointment";
