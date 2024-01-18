@@ -6,6 +6,15 @@ import { apiSlice } from "./apiSlice";
 
 export const patientService = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
+      getPatientsByStatus: builder.mutation<Patient[], any>({
+        query: (data) => ({
+          url: '/patient/getPatient/filter-by-status',  // Ajusta la URL según tu implementación
+          method: "POST",
+          body: {...data},
+        }),
+        transformResponse: (response: { data: Patient[] }, meta, arg) => response.data,
+        invalidatesTags: ['Patient']
+      }),
       getPatientsByBranchOffice: builder.mutation<Patient[], any>({
         query: (data) => ({
           url: '/patient/byBranchOffice',
@@ -92,6 +101,7 @@ export const patientService = apiSlice.injectEndpoints({
   });
   
   export const { 
+    useGetPatientsByStatusMutation,
     useGetPatientsByBranchOfficeMutation, 
     useGetPatientsMutation, 
     useRegisterPatientMutation,
