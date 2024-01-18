@@ -1,11 +1,11 @@
 {
   "name": "web-cdentalcaregroup",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": " env-cmd -f .env.development vite",
-    "build:dev": "env-cmd -f .env.development tsc && vite build",
+    "build:dev": "env-cmd -f .env.development tsc && vite build -m development",
     "build:prod": "env-cmd -f .env.production tsc && vite build"
   },
   "dependencies": {

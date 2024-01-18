@@ -24,11 +24,6 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
-          - name: Create env file
-            run: |
-                touch .env
-                echo TEST_KEY=${{ secrets.TEST_KEY }} >> .env
-                cat .env
           - name: Checkout Repo
             uses: actions/checkout@v3
           - name: Download Artifact
@@ -42,50 +37,3 @@ jobs:
               args: deploy -P development
             env:
               FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-
-# name: Firebase Develop Deployment
-# on:
-#   push:
-#     branches:
-#       - develop
-# jobs:
-#   build:
-#     name: Build
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout Repo
-#         uses: actions/checkout@v3
-#       - name: Install Dependencies
-#         run: npm install
-#       - name: Build
-#         env:
-#           CI: false
-#         run: npm run build
-#       - name: Archive Production Artifact
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: build
-#           path: dist
-#   deploy:
-#     name: Deploy
-#     needs: build
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Create env file
-#         run: |
-#             touch .env
-#             echo TEST_KEY=${{ secrets.TEST_KEY }} >> .env
-#             cat .env
-#       - name: Checkout Repo
-#         uses: actions/checkout@v3
-#       - name: Download Artifact
-#         uses: actions/upload-artifact@v2
-#         with:
-#           name: build
-#           path: build
-#       - name: Deploy to Firebase
-#         uses: w9jds/firebase-action@master
-#         with:
-#           args: deploy -P development
-#         env:
-#           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
