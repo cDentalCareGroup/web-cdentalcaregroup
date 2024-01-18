@@ -10,7 +10,7 @@ import { FilterEmployeesRequest } from "../../data/filter/filters.request";
 import { Patient } from "../../data/patient/patient";
 import { buildPatientEmail, buildPatientName, buildPatientPhone } from "../../data/patient/patient.extensions";
 import { UpdatePatientStatusRequest } from "../../data/patient/patient.request";
-import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation, useUpdatePatientStatusMutation, useGetPatientsByStatusMutation } from "../../services/patientService";
+import { useGetPatientsByBranchOfficeMutation, useGetPatientsMutation, useUpdatePatientStatusMutation,useGetPatientsByStatusMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
 import { UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
@@ -19,7 +19,6 @@ import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import Checkbox from "antd/es/checkbox/Checkbox";
 import { useRef } from 'react';
-
 
 interface PatientsProps {
     rol: UserRoles;
@@ -46,24 +45,38 @@ const Patients = (props: PatientsProps) => {
         disabled: false,
     });
 
-    
+    useEffect(() => {
+        if (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) {
+            handleGetAllPatients();
+        } else {
+            handleGetPatients();
+        }
+        handleGetPatientsByStatus();
+    }, [branchId, filterStatus]);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
+
+    const indexOfLastCard = currentPage * itemsPerPage;
+    const indexOfFirstCard =  indexOfLastCard - itemsPerPage;
+    const currentPatientList = patientList.slice(indexOfFirstCard, indexOfLastCard);
+
     const [getPatientsByStatusMutation] = useGetPatientsByStatusMutation();
-    
+
     const handleGetPatientsByStatus = async () => {
         try {
             setIsLoading(true);
             const statusList = Object.entries(filterStatus)
                 .filter(([key, value]) => value)
                 .map(([key]) => key);
-    
+
             const data = await Promise.all(
                 statusList.map(async (status) => {
                     const result = await getPatientsByStatusMutation({ status });
-                    return result as { data: Patient[] };
-                })
+                    return result;
+            })
             );
-            const filterData = data.flatMap((result) => result.data);
-    
+            const filterData = data.flatMap((result) => 'data' in result ? result.data : []);
             if (filterData) {
                 if (Array.isArray(filterData)) {
                     setPatientList(filterData);
@@ -76,24 +89,7 @@ const Patients = (props: PatientsProps) => {
             handleErrorNotification(error);
         }
     };
-    
 
-    useEffect(() => {
-        if (props.rol === UserRoles.ADMIN || props.rol === UserRoles.CALL_CENTER) {
-            handleGetAllPatients();
-        } else {
-            handleGetPatients();
-        }
-
-        handleGetPatientsByStatus();
-    }, [branchId, filterStatus]);
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 20;
-
-    const indexOfLastCard = currentPage * itemsPerPage;
-    const indexOfFirstCard =  indexOfLastCard - itemsPerPage;
-    const currentPatientList = patientList.slice(indexOfFirstCard, indexOfLastCard);
 
     useEffect(() => {
         applyStatusFilter(data);
