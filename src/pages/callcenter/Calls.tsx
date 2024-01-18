@@ -1,8 +1,8 @@
-import { Button, Calendar, Card, Divider, List, Modal, Popover, Row, Tag } from "antd";
+import { Button, Calendar, Card, Divider, Popover, Row, Tag } from "antd";
 import { differenceInDays, format, startOfToday } from "date-fns";
 import { useEffect, useState } from "react";
 import { RiMailLine, RiPhoneLine, RiUser3Line, } from "react-icons/ri";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useSessionStorage from "../../core/sessionStorage";
 import { Call } from "../../data/call/call";
 import { GetCalls } from "../../data/call/call.response";

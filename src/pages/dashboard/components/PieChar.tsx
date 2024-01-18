@@ -1,6 +1,4 @@
 import { Pie } from "@ant-design/charts";
-import { Card } from "antd";
-import { Event } from "@antv/g2";
 import { PieData } from "../../../data/statistics/statistic.extensions";
 
 
@@ -30,21 +28,13 @@ const PieChar = (props: PieCharProps): JSX.Element => {
         ],
     };
 
-    const handleOnEvent = (event: Event) => {
-        if (event.type == 'plot:click') {
-            if (event.data != null) {
-                props.onClick(event.data.data)
-            }
-        }
-    }
-
     return (
         <div className="flex flex-col w-96">
              <Pie legend={{
                     layout: 'vertical',
                     position: 'right'
 
-                }} autoFit={true} data={props.data} {...config} onEvent={(_, event) => handleOnEvent(event)} />
+                }} autoFit={true} data={props.data} {...config} />
         </div>
     );
 }

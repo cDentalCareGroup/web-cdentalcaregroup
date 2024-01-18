@@ -1,7 +1,6 @@
 import { Card, Row } from "antd";
 import Search from "antd/es/input/Search";
 import { useEffect, useState } from "react";
-import { render } from "react-dom"
 import { Organization } from "../../data/organization/organization";
 import { useGetOrganizationsMutation } from "../../services/organizationService";
 import { handleErrorNotification } from "../../utils/Notifications";
@@ -10,6 +9,9 @@ import SectionElement from "../components/SectionElement";
 import LayoutCard from "../layouts/LayoutCard";
 import FormOrganization, { FormOrganizationType } from "./FormOrganization";
 
+const contentStyles = {
+    minHeight: '200px', 
+};
 const Organizations = () => {
     const [getOrganizations, { isLoading }] = useGetOrganizationsMutation();
     const [data, setData] = useState<Organization[]>([])
@@ -56,9 +58,13 @@ const Organizations = () => {
                                 title={value.name}
                                 actions={[
                                     <FormOrganization type={FormOrganizationType.UPDATE} organization={value} onFinish={() => handleGetOrganizations()} />
-                                ]} style={{ minWidth: 350, maxWidth: 350 }} key={index} className="m-2">
+                                ]} 
+                                style={{ minWidth: 350, maxWidth: 350 }} 
+                                key={index} className="m-2">
+                                <div style={contentStyles}>
                                 <SectionElement label={Strings.nameLabel} value={value.name} icon={<></>} />
                                 <SectionElement label={Strings.description} value={value.description ?? '-'} icon={<></>} />
+                                </div>
                             </Card>
                         )}
                     </Row>

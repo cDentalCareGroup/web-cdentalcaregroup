@@ -1,14 +1,14 @@
 import Card from "antd/es/card/Card";
 import SectionElement from "../../components/SectionElement";
-import { RiCalendar2Line, RiCoinsLine, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMailLine, RiMentalHealthLine, RiMoneyDollarCircleLine, RiPhoneLine, RiServiceLine, RiStickyNoteLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
-import { buildPatientName, buildPatientPad, DEFAULT_FIELD_VALUE, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
+import { RiCalendar2Line, RiCoinsLine, RiDeleteBin7Line, RiHashtag, RiHospitalLine, RiMentalHealthLine, RiPhoneLine, RiServiceLine, RiStickyNoteLine, RiUser3Line, RiUserHeartLine } from "react-icons/ri";
+import { buildPatientName, buildPatientPad, getDentist, getPatientEmail, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../../data/patient/patient.extensions";
 import { AppointmentDetail } from "../../../data/appointment/appointment.detail";
-import { Button, Checkbox, Form, Input, Modal, Popover, Radio, Row, Select, Table, Tag } from "antd";
+import { Button, Checkbox, Input, Modal, Popover, Radio, Row, Select, Table, Tag } from "antd";
 import { useGetEmployeesByTypeMutation } from "../../../services/employeeService";
 import { GetEmployeeByTypeRequest } from "../../../data/employee/employee.request";
 import { useEffect, useRef, useState } from "react";
 import SelectItemOption from "../../../data/select/select.item.option";
-import { employeesToSelectItemOptions, getDentistColorOfDefault } from "../../../data/employee/employee.extentions";
+import { employeesToSelectItemOptions } from "../../../data/employee/employee.extentions";
 import SelectSearch from "../../components/SelectSearch";
 import { useGetPatientsMutation } from "../../../services/patientService";
 import { FilterEmployeesRequest } from "../../../data/filter/filters.request";
@@ -30,7 +30,7 @@ import useSessionStorage from "../../../core/sessionStorage";
 import Constants from "../../../utils/Constants";
 import { useNavigate } from "react-router-dom";
 import Strings from "../../../utils/Strings";
-import { extendedTimesToShow, filterExtendedAvailableTimes, getAppointmentStatus } from "../../../data/appointment/appointment.extensions";
+import { filterExtendedAvailableTimes, getAppointmentStatus } from "../../../data/appointment/appointment.extensions";
 import { Employee } from "../../../data/employee/employee";
 import { PaymentMethod } from "../../../data/payment/payment.method";
 import { servicesToSelectItemOption } from "../../../data/service/service.extentions";
@@ -507,7 +507,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleOnCalendarDentistChange = (newDate: Date) => {
         setTime(null);
         setDate(newDate);
-        const previusDentist = dentistList.find((value, _) => value.id == dentist?.id ?? 0);
+        const previusDentist = dentistList.find((value, _) => value.id == dentist?.id);
         const isSpecialist = previusDentist?.description == Constants.EMPLOYEE_SPECIALIST;
         if (isSpecialist) {
             handleGetAppointmentAvailability(newDate, branchOffice?.label ?? '');

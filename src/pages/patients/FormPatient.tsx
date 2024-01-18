@@ -1,4 +1,4 @@
-import { Button, DatePicker, Form, Input, Row, Select } from "antd";
+import { Button, DatePicker, Form, Input, Select } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { RiHashtag, RiHospitalLine, RiMailLine, RiMap2Line, RiMapPin2Line, RiMapPin3Line, RiMapPin5Line, RiPhoneLine, RiSuitcaseLine, RiUser3Line } from "react-icons/ri";
@@ -14,7 +14,7 @@ import { branchOfficesToSelectOptionItem } from "../../data/select/select.item.o
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
 import { useGetColoniesFromZipCodeMutation, useGetPatientOrganizationsMutation, useGetPatientOriginsMutation, useRegisterPatientMutation, useUpdatePatientMutation } from "../../services/patientService";
 import Constants from "../../utils/Constants";
-import { capitalizeAllCharacters, isAdmin, UserRoles } from "../../utils/Extensions";
+import { capitalizeAllCharacters, UserRoles } from "../../utils/Extensions";
 import { handleErrorNotification, handleSucccessNotification, NotificationSuccess } from "../../utils/Notifications";
 import Strings from "../../utils/Strings";
 import SelectSearch from "../components/SelectSearch";
@@ -110,7 +110,7 @@ const FormPatient = (props: FormPatientProps) => {
         form.setFieldValue('birthday', dayjs(props.patient?.birthDay, 'YYYY-MM-DD'));
         //setLatitudes(new Latitudes(Number(props.patient?.lat), Number(props.patient?.lng)));
         if (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) {
-            setBranchId(Number(props.patient?.originBranchOfficeId));
+            setBranchoOfficeId(Number(props.patient?.originBranchOfficeId));
         }
         if (props.rol == UserRoles.ADMIN || props.rol == UserRoles.CALL_CENTER) {
             handleGetBranchOffices(Number(props.patient?.originBranchOfficeId));
@@ -263,7 +263,7 @@ const FormPatient = (props: FormPatientProps) => {
 
         try {
             await updatePatient(new UpdatePatientRequest(
-                values, props.patient?.originBranchOfficeId,
+                values, branchOfficeId,
                 col, city, state, latlng, props.patient?.id ?? 0, props.patient?.birthDay.toString() ?? ''
             )).unwrap();
             setIsLoading(false);
@@ -296,7 +296,7 @@ const FormPatient = (props: FormPatientProps) => {
                     name="branchOfficeId"
                     label={Strings.branchOfficeOrigin}
                     style={{ minWidth: 300, padding: 10 }}
-                    rules={[{ required: true, message: Strings.requiredField }]}>
+                    rules={[{  required: !branchOfficeId, message: Strings.requiredField }]}>
                     <SelectSearch
                         placeholder={Strings.branchOfficeOrigin}
                         items={branchOfficeList}

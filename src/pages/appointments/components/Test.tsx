@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Button, Checkbox, Col, Form, Input, Popconfirm, Row, Spin, Select, Table, Tooltip } from "antd";
+import { Input,Table } from "antd";
 
 
 class EditableTextCell extends React.Component<any, any> {

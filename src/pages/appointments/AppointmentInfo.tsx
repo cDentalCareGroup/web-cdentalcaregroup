@@ -14,7 +14,6 @@ import { handleErrorNotification } from "../../utils/Notifications";
 import { AppointmentDetail } from "../../data/appointment/appointment.detail";
 import { getHasCabinet, getHasLabs, getPatientAddress, getPatientBirthDay, getPatientEmail, getPatientGender, getPatientName, getPatientPad, getPatientPrimaryContact } from "../../data/patient/patient.extensions";
 import { getAppointmentDate, getAppointmentDentist, getAppointmentFolio, getAppointmentStatus } from "../../data/appointment/appointment.extensions";
-import AppointmentCard from "./components/AppointmentCard";
 import { formatNumberToPercent, formatPrice, UserRoles } from "../../utils/Extensions";
 import { AppointmentServiceInfo } from "../../data/appointment/appointment.request";
 

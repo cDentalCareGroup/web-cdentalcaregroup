@@ -1,4 +1,4 @@
-import { Colonies, Colony } from "../data/address/colonies";
+import { Colonies } from "../data/address/colonies";
 import { Patient, PatientInfo } from "../data/patient/patient";
 import { PatientOrganization } from "../data/patient/patient.organization";
 import { PatientOrigin } from "../data/patient/patient.origin";

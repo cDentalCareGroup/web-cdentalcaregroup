@@ -1,4 +1,4 @@
-import { Button, Card, Divider, Form, List, Row, Select, Table, Tag, TimePicker } from "antd";
+import { Button, Card, List, Tag } from "antd";
 import { useEffect, useState } from "react";
 import { BranchOffice } from "../../data/branchoffice/branchoffice";
 import { useGetBranchOfficesMutation } from "../../services/branchOfficeService";
@@ -13,7 +13,7 @@ import {
 import Constants from "../../utils/Constants";
 import useSessionStorage from "../../core/sessionStorage";
 import Strings from "../../utils/Strings";
-import { RESPONSIVE_LIST, RESPONSIVE_LIST_SMALL, UserRoles } from "../../utils/Extensions";
+import { RESPONSIVE_LIST_SMALL, UserRoles } from "../../utils/Extensions";
 
 
 interface BranchOfficesProps {

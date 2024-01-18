@@ -1,4 +1,3 @@
-import { Service } from "../service/service";
 import { PadComponent } from "./pad.component";
 
 export interface PadCatalogueDetail {
