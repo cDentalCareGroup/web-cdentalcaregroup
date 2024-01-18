@@ -63,7 +63,6 @@ const Patients = (props: PatientsProps) => {
                 })
             );
             const filterData = data.flatMap((result) => result.data);
-            console.log("Response:", filterData);
     
             if (filterData) {
                 if (Array.isArray(filterData)) {
@@ -74,7 +73,6 @@ const Patients = (props: PatientsProps) => {
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);
-            console.error("Error:", error);
             handleErrorNotification(error);
         }
     };
