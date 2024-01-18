@@ -1,8 +1,8 @@
-name: Firebase Deployment - Production
+name: Firebase Deployment - Develop
 on:
   push:
     branches:
-      - main
+      - develop
 jobs:
   build:
         name: Build
@@ -13,7 +13,7 @@ jobs:
           - name: Install Dependencies
             run: npm install
           - name: Build
-            run: npm run build:prod
+            run: npm run build:dev
           - name: Archive Production Artifact
             uses: actions/upload-artifact@v3
             with:
@@ -31,9 +31,9 @@ jobs:
             with:
               name: dist
               path: dist
-          - name: Deploy to Firebase Production
+          - name: Deploy to Firebase Development
             uses: w9jds/firebase-action@master
             with:
-              args: deploy -P default
+              args: deploy -P development
             env:
               FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
