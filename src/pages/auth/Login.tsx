@@ -33,7 +33,7 @@ const Login = () => {
             dispatch(setCredentials({ ...data }));
             navigate(getInitRoute(data));
         }
-        console.log(`ENVS -> ${JSON.stringify(process.env)}`);
+        console.log(`ENVS -> ${JSON.stringify(import.meta.env)}`);
     }, []);
 
 
