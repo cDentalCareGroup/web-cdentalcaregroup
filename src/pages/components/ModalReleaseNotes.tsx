@@ -8,7 +8,7 @@ const ModalReleaseNotes = () => {
 
   const buildAppVersion = (): string => {
     return `${import.meta.env.VITE_APP_VERSION} - ${
-      import.meta.env.VITE_APP_VERSION.VITE_ENV_NAME
+      import.meta.env.VITE_ENV_NAME
     }`;
   };
 
