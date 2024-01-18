@@ -33,8 +33,6 @@ const Login = () => {
             dispatch(setCredentials({ ...data }));
             navigate(getInitRoute(data));
         }
-        console.log(`ENVS -> ${JSON.stringify(import.meta.env.VITE_TEST_APP)}`);
-        console.log(`ENVS 2-> ${JSON.stringify(import.meta.env['VITE_TEST_APP'])}`);
     }, []);
 
 
