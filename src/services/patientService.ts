@@ -8,7 +8,7 @@ export const patientService = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
       getPatientsByStatus: builder.mutation<Patient[], any>({
         query: (data) => ({
-          url: '/patient/getPatient/filter-by-status',  // Ajusta la URL según tu implementación
+          url: '/patient/getPatient/filter-by-status',
           method: "POST",
           body: {...data},
         }),
