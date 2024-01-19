@@ -74,15 +74,9 @@ const Patients = (props: PatientsProps) => {
                 statusList.map(async (status) => {
                     const result = await getPatientsByStatusMutation({ status });
                     return result;
-            })
+                })
             );
-            const filterData = data.flatMap((result) => 'data' in result ? result.data : []);
-            if (filterData) {
-                if (Array.isArray(filterData)) {
-                    setPatientList(filterData);
-                    setData(filterData);
-                }
-            }
+           
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);
