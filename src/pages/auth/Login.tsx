@@ -13,6 +13,7 @@ import User from "../../data/user/user";
 import { useAppDispatch } from "../../core/store";
 import { setCredentials } from "../../core/authReducer";
 import { detect } from 'detect-browser';
+import { initFirebaseRemoteConfig } from "../../services/firebase";
 
 const Login = () => {
     const [login, { isLoading }] = useLoginMutation();
@@ -33,6 +34,7 @@ const Login = () => {
             dispatch(setCredentials({ ...data }));
             navigate(getInitRoute(data));
         }
+        initFirebaseRemoteConfig()
     }, []);
 
 
