@@ -17,6 +17,14 @@ jobs:
               echo VITE_URL_SERVICE=${{ secrets.PROD_URL_SERVICE }} >> .env.production
               echo VITE_APP_VERSION=${{ secrets.APP_VERSION }} >> .env.production
               echo VITE_ENV_NAME=${{ secrets.PROD_ENV_NAME }} >> .env.production
+              echo VITE_FIREBASE_API_KEY=${{ secrets.PROD_FIREBASE_API_KEY }} >> .env.development
+              echo VITE_FIREBASE_AUTH_KEY=${{ secrets.PROD_FIREBASE_AUTH_KEY }} >> .env.development
+              echo VITE_FIREBASE_PROJECT_KEY=${{ secrets.PROD_FIREBASE_PROJECT_KEY }} >> .env.development
+              echo VITE_FIREBASE_STORAGE_KEY=${{ secrets.PROD_FIREBASE_STORAGE_KEY }} >> .env.development
+              echo VITE_FIREBASE_MESSAGE_KEY=${{ secrets.PROD_FIREBASE_MESSAGE_KEY }} >> .env.development
+              echo VITE_FIREBASE_APP_KEY=${{ secrets.PROD_FIREBASE_APP_KEY }} >> .env.development
+              echo VITE_FIREBASE_MEASUREMENT_KEY=${{ secrets.PROD_FIREBASE_MEASUREMENT_KEY }} >> .env.development
+              echo VITE_VAPI_KEY=${{ secrets.DEV_VAPI_KEY }} >> .env.development
               cat .env.production
           - name: Build
             run: npm run build:prod

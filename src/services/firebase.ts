@@ -5,18 +5,15 @@ import { fetchAndActivate, getRemoteConfig, getValue } from "firebase/remote-con
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyDwOOby50KXLf68JCAMq_8YuI0sZaiA_KU",
-    authDomain: "cdentalcaregroup-fcdc9.firebaseapp.com",
-    projectId: "cdentalcaregroup-fcdc9",
-    storageBucket: "cdentalcaregroup-fcdc9.appspot.com",
-    messagingSenderId: "729725133747",
-    appId: "1:729725133747:web:a9a75b09bb8a5545b421c6",
-    measurementId: "G-J2NPXLD43Q"
-};
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_KEY,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_KEY,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_KEY,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGE_KEY,
+    appId: import.meta.env.VITE_FIREBASE_APP_KEY,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_KEY
+  };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -29,10 +26,10 @@ const remoteConfig = getRemoteConfig(app);
 export const initFirebaseRemoteConfig = async() => {
     fetchAndActivate(remoteConfig)
         .then(() => {
-            // ...
+            console.log(`Firebase inited successfully`);
         })
         .catch((err) => {
-            // ...
+            console.log(`Error initializing Firrebase ${JSON.stringify(err)}`);
         });
 }
 
@@ -44,10 +41,11 @@ export const getFirebaseValue = (key: string) => {
 // subsequent calls to getToken will return from cache.
 const getBrowserToken = async () => {
     try {
-        const token = await getToken(messaging, { vapidKey: 'BPuxUb53NYwGlRzLZE0SM27pN1kBlsk5xtlyeOn10RUcbVbTPWWbgQ_Tt5SVXRHc1zUTSanHWBET-CYK8lab3J8' })
+        const token = await getToken(messaging, { vapidKey: import.meta.env.VITE_VAPI_KEY })
+        console.log(`Firebase token successfully`);
         return token;
     } catch (error) {
-        console.log(`Error getting token ${error}`);
+        console.log(`Error getting firebase token ${JSON.stringify(error)}`);
         return '';
     }
 }
