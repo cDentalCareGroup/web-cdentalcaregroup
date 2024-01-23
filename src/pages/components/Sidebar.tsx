@@ -2,6 +2,7 @@ import { Menu, MenuProps } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { PRIMARY_COLOR } from '../../utils/ConstantsColors';
 
 export type MenuItem = Required<MenuProps>['items'][number];
 
@@ -41,7 +42,7 @@ const Sidebar = ({ items, collapsed }: SidebarProps) => {
     }
 
     const menuStyle = { 
-        backgroundColor: '#001529',
+        backgroundColor: PRIMARY_COLOR,
     };
 
     return (
