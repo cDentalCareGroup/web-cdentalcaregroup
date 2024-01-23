@@ -77,8 +77,8 @@ const SchedulesBranchOffice = () => {
                         {value.employees.length == 0 && <span className="text text-xs text-gray-600">{Strings.emptyDentist}</span>}
                         {value.employees.map((employee: Employee, index: number) =>
                             <div key={index} className="flex justify-between gap-6 m-2">
-                                <span  className="text cursor-pointer text-xs text-blue-800">{buildEmployeeName(employee)}</span>
-                                <span onClick={() => handleDeleteScheduleDentist(employee.id,value.key)} className="text text-xs text-red-500 cursor-pointer">Eliminar dentista</span>
+                                <span  className="text cursor-pointer text-xs text-list1">{buildEmployeeName(employee)}</span>
+                                <span onClick={() => handleDeleteScheduleDentist(employee.id,value.key)} className="text text-xs text-list2 cursor-pointer">Eliminar dentista</span>
                             </div>
                         )}
                     </div>

@@ -81,10 +81,10 @@ const Login = () => {
                     {/* Form */}
                     <div className="sm:w-1/2 px-8 flex flex-col">
                         <div className="text-left font-bold">
-                            <span className="text-action text-blue-800">{Strings.cDentalCare}</span> {Strings.group}
+                            <span className="text-action text-secondary">{Strings.cDentalCare}</span> {Strings.group}
                         </div>
                         <div className="flex flex-col items-center justify-center text-center mb-12 mt-4">
-                            <h2 className="text-2xl font-bold text-blue-800 mb-2 w-full mt-4">
+                            <h2 className="text-2xl font-bold text-secondary mb-2 w-full mt-4">
                                 {Strings.login}
                             </h2>
                             <div className="border-2 w-10 border-blue-800 inline-block mb-4"></div>

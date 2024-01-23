@@ -40,8 +40,12 @@ const Sidebar = ({ items, collapsed }: SidebarProps) => {
         navigate(data.key);
     }
 
+    const menuStyle = { 
+        backgroundColor: '#001529',
+    };
+
     return (
-        <Sider className="layout-content" breakpoint="lg"  trigger={null} collapsible collapsed={collapsed}>
+        <Sider className="layout-content" breakpoint="lg"  trigger={null} collapsible collapsed={collapsed} style={menuStyle}>
             <div className="flex w-full items-center justify-center flex-col mb-6 mt-4 flex-wrap" >
                 <img
                     className={`object-cover ${collapsed ? ' w-8' : ' w-20'} transition-all`}
@@ -55,6 +59,7 @@ const Sidebar = ({ items, collapsed }: SidebarProps) => {
                 onClick={handleOnClick}
                 selectedKeys={[selectedPath]}
                 items={items}
+                style={menuStyle}
             />
         </Sider>
     );
