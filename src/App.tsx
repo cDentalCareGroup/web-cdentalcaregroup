@@ -10,14 +10,14 @@ import RescheduleAppointment from './pages/appointments/RescheduleAppointment';
 import SummaryAppointment from './pages/appointments/SummaryAppointment';
 import UnAuthorized from './pages/errors/UnAuthorized';
 import NotFound from './pages/errors/NotFound';
-import { SECONDARY_COLOR } from './utils/ConstantsColors';
+import { PRIMARY_COLOR } from './utils/ConstantsColors';
 
 const App = () => {
   return (
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: SECONDARY_COLOR,
+          colorPrimary: PRIMARY_COLOR,
         }
       }}>
       <Routes>
