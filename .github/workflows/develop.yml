@@ -12,6 +12,12 @@ jobs:
             uses: actions/checkout@v3
           - name: Install Dependencies
             run: npm install
+          - name: 'Update env file for DEV'
+            run: |
+              echo VITE_URL_SERVICE=${{ secrets.DEV_URL_SERVICE }} >> .env.development
+              echo VITE_APP_VERSION=${{ secrets.APP_VERSION }} >> .env.development
+              echo VITE_ENV_NAME=${{ secrets.DEV_ENV_NAME }} >> .env.development
+              cat .env.development
           - name: Build
             run: npm run build:dev
           - name: Archive Production Artifact
