@@ -258,20 +258,25 @@ const FormPatient = (props: FormPatientProps) => {
             city = values.city;
             state = values.state;
         }
+        
         setIsLoading(true);
         const latlng = await googleApiFetchColony();
-
+    
         try {
+            const birthDayFormatted = values.birthday.format('YYYY-MM-DD');
+    
             await updatePatient(new UpdatePatientRequest(
                 values, branchOfficeId,
-                col, city, state, latlng, props.patient?.id ?? 0, props.patient?.birthDay.toString() ?? ''
+                col, city, state, latlng, props.patient?.id ?? 0, birthDayFormatted
             )).unwrap();
+            
             setIsLoading(false);
             handleSucccessNotification(NotificationSuccess.UPDATE);
         } catch (error) {
             handleErrorNotification(error);
         }
-    }
+        
+    };
 
     const shouldShowBack = (): boolean => {
         return props.type == FormPatientType.REGISTER && props.source == FormPatientSource.FORM;
