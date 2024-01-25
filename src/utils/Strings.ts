@@ -178,6 +178,7 @@ class Strings {
 
     //Reports
     static reports = "Reportes"
+    static ReportConsult = "Consultar Reportes"
 
 
     static padName = "Nombre del PAD"
@@ -316,6 +317,10 @@ class Strings {
 
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
+
+    //Reports
+    static started_at = "Fecha de Inicio"
+    static finished_at = "Fecha de Fin"
 
     static appVersion = 'v.1.0.41.10-PROD';
 }
