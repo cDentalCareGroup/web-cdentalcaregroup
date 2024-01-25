@@ -323,6 +323,8 @@ class Strings {
     static finished_at = "Fecha de Fin"
 
     static appVersion = 'v.1.0.41.10-PROD';
+
+
 }
 
 export default Strings;

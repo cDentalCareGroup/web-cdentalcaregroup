@@ -1,0 +1,39 @@
+name: Firebase Deployment - Production
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build:
+        name: Build
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Repo
+            uses: actions/checkout@v3
+          - name: Install Dependencies
+            run: npm install
+          - name: Build
+            run: npm run build:prod
+          - name: Archive Production Artifact
+            uses: actions/upload-artifact@v3
+            with:
+              name: dist
+              path: dist
+  deploy:
+        name: Deploy
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Repo
+            uses: actions/checkout@v3
+          - name: Download Artifact
+            uses: actions/download-artifact@v3
+            with:
+              name: dist
+              path: dist
+          - name: Deploy to Firebase Production
+            uses: w9jds/firebase-action@master
+            with:
+              args: deploy -P default
+            env:
+              FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
