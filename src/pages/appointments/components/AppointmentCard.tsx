@@ -220,7 +220,6 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
             resetSetDentistParams();
             handleSucccessNotification(NotificationSuccess.UPDATE);
             onAppointmentChange?.(response);
-            onStatusChange(Constants.STATUS_ACTIVE);
         } catch (error) {
             resetSetDentistParams();
             handleErrorNotification(error);
@@ -791,7 +790,10 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     }
 
     const canSetDentist = (): boolean => {
-        return data.appointment.status == Constants.STATUS_ACTIVE
+        return (
+            data.appointment.status === Constants.STATUS_ACTIVE ||
+            data.appointment.status === Constants.STATUS_PROCESS
+        );
     }
 
     const handleOnExtendAppointment = async () => {
