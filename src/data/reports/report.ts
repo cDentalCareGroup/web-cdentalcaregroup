@@ -1,9 +1,6 @@
-import { ReportPatient } from "./patientReport";
-
-export interface Reports{
-	data: Reports[];
+export interface Reports {
+    name: string;
+    lastname: string;
+    primaryContact: string;
     appointment: string;
-    patient: ReportPatient;
 }
-
-

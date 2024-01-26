@@ -3,16 +3,18 @@ import { apiSlice } from "./apiSlice";
 
 export const reportService = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        postReports: builder.mutation<Reports, any>({
+        postReports: builder.mutation<Reports[], any>({
             query: (data) => ({
                 url: '/reports/patientsDates',
                 method: "POST",
-                body:{...data}
+                body: { ...data }
             }),
-            transformResponse: (response: { data: Reports}, meta, arg) => response.data,
+            transformResponse: (response: { data: Reports[] }, meta, arg) => response.data,
+
         })
     })
 });
+
 
 export const {
     usePostReportsMutation,

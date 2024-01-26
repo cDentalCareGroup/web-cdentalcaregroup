@@ -319,10 +319,13 @@ class Strings {
     static enableSegment = "Habilitar horario"
 
     //Reports
-    static started_at = "Fecha de Inicio"
-    static finished_at = "Fecha de Fin"
+    static startedAt = "Fecha de Inicio"
+    static finishedAt = "Fecha de Fin"
+    static namePatienReport = "Nombre del paciente"
+    static lastNamePatientReport = "Apellido"
+    static phonePatientReport = "Numero de Celular"
+    static datePatientReport = "Fecha de la cita"
 
-    static appVersion = 'v.1.0.41.10-PROD';
 }
 
 export default Strings;

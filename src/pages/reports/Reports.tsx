@@ -5,7 +5,8 @@ import SectionElement from '../components/SectionElement';
 import Strings from '../../utils/Strings';
 import { usePostReportsMutation } from '../../services/reportsService';
 import { handleErrorNotification } from '../../utils/Notifications';
-import { Reports } from '../../data/reports/report';
+import moment from 'moment';
+
 const { Panel } = Collapse;
 
 interface Report {
@@ -16,29 +17,26 @@ interface Report {
 }
 
 const ReportsComponent: React.FC = () => {
-	const [started_at, setStarted_at] = useState<string | null>(null);
-	const [finished_at, setFinished_at] = useState<string | null>(null);
+	const [startedAt, setStartedAt] = useState<string | null>(null);
+	const [finishedAt, setFinishedAt] = useState<string | null>(null);
 	const [tableData, setTableData] = useState<Report[]>([]);
 	const [postReports] = usePostReportsMutation();
 
 	const handleConsultClick = async () => {
 		try {
-			const result = await postReports({ started_at, finished_at }).unwrap();
+			const startDate = startedAt ? moment(startedAt, 'YYYY-MM-DD') : null;
+			const endDate = finishedAt ? moment(finishedAt, 'YYYY-MM-DD') : null;
+	
+			const result = await postReports({ startedAt: startDate, finishedAt: endDate }).unwrap();
+	
 			if (Array.isArray(result)) {
-				const mappedData: Report[] = result.map((item: Reports) => ({
-					name: item.patient.name,
-					lastname: item.patient.lastname,
-					primaryContact: item.patient.primaryContact,
-					appointment: item.appointment,
-				}));
-
-				setTableData(mappedData);
+				setTableData(result);
 			}
 		} catch (error) {
 			handleErrorNotification(error);
+			console.log(error);
 		}
 	};
-
 	
 	return (
 		<LayoutCard
@@ -51,7 +49,7 @@ const ReportsComponent: React.FC = () => {
 				  <div className="flex">
 					<div>
 					  <SectionElement
-						label={Strings.started_at}
+						label={Strings.startedAt}
 						icon={<></>}
 						value={``}
 					  />
@@ -61,14 +59,14 @@ const ReportsComponent: React.FC = () => {
 						<DatePicker
 						  size="large"
 						  style={{ minWidth: 200 }}
-						  onChange={(date, dateString) => setStarted_at(dateString)}
+						  onChange={(date, dateString) => setStartedAt(dateString)}
 						/>
 					  </Form.Item>
 					</div>
 	  
 					<div style={{ marginLeft: '20px' }}>
 					  <SectionElement
-						label={Strings.finished_at}
+						label={Strings.finishedAt}
 						icon={<></>}
 						value={``}
 					  />
@@ -78,7 +76,7 @@ const ReportsComponent: React.FC = () => {
 						<DatePicker
 						  size="large"
 						  style={{ minWidth: 200 }}
-						  onChange={(date, dateString) => setFinished_at(dateString)}
+						  onChange={(date, dateString) => setFinishedAt(dateString)}
 						/>
 					  </Form.Item>
 					</div>
@@ -92,10 +90,10 @@ const ReportsComponent: React.FC = () => {
 				</div>
 	  
 				<Table dataSource={tableData}>
-				  <Table.Column title="Nombre" dataIndex="name" key="name" />
-				  <Table.Column title="Apellido" dataIndex="lastname" key="lastname" />
-				  <Table.Column title="Teléfono" dataIndex="primaryContact" key="primaryContact" />
-				  <Table.Column title="Fecha de la Última Cita" dataIndex="appointment" key="appointment" />
+				  <Table.Column title={Strings.namePatienReport} dataIndex="name" key="name" />
+				  <Table.Column title={Strings.lastNamePatientReport} dataIndex="lastname" key="lastname" />
+				  <Table.Column title={Strings.phonePatientReport} dataIndex="primaryContact" key="primaryContact" />
+				  <Table.Column title={Strings.datePatientReport} dataIndex="appointment" key="appointment" />
 				</Table>
 			  </Panel>
 			</Collapse>
