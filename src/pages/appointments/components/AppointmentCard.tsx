@@ -507,7 +507,7 @@ const AppointmentCard = ({ appointment, onStatusChange, hideContent, onAppointme
     const handleOnCalendarDentistChange = (newDate: Date) => {
         setTime(null);
         setDate(newDate);
-        const previusDentist = dentistList.find((value, _) => value.id == dentist?.id ?? 0);
+        const previusDentist = dentistList.find((value, _) => value.id == dentist?.id);
         const isSpecialist = previusDentist?.description == Constants.EMPLOYEE_SPECIALIST;
         if (isSpecialist) {
             handleGetAppointmentAvailability(newDate, branchOffice?.label ?? '');
