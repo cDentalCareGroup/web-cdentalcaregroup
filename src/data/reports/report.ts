@@ -1,6 +1,6 @@
+import { Patient } from "../patient/patient";
+
 export interface Reports {
-	name: string;
-	lastname: string;
-	primaryContact: string;
-	appointment: string;
+    patient: Patient;
+    appointment: String;
 }

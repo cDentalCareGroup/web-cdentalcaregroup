@@ -5,20 +5,14 @@ import SectionElement from '../components/SectionElement';
 import Strings from '../../utils/Strings';
 import { usePostReportsMutation } from '../../services/reportsService';
 import { handleErrorNotification } from '../../utils/Notifications';
+import { Reports } from '../../data/reports/report';
 
 const { Panel } = Collapse;
-
-interface Report {
-	name: string;
-	lastname: string;
-	primaryContact: string;
-	appointment: string;
-}
 
 const ReportsComponent: React.FC = () => {
 	const [startedAt, setStartedAt] = useState<string | null>(null);
 	const [finishedAt, setFinishedAt] = useState<string | null>(null);
-	const [tableData, setTableData] = useState<Report[]>([]);
+	const [tableData, setTableData] = useState<Reports[]>([]);
 	const [postReports] = usePostReportsMutation();
 
 	const handleConsultClick = async () => {
@@ -40,7 +34,7 @@ const ReportsComponent: React.FC = () => {
 		  isLoading={false}
 		  content={
 			<Collapse >
-			  <Panel header="Visualización de reportes" key="1">
+			  <Panel header={Strings.headerReport} key="1">
 				<div className="flex justify-between items-center">
 				  <div className="flex">
 					<div>

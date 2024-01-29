@@ -321,6 +321,7 @@ class Strings {
     //Reports
     static startedAt = "Fecha de Inicio"
     static finishedAt = "Fecha de Fin"
+    static headerReport = "Visualización de Reportes"
     static namePatienReport = "Nombre del paciente"
     static lastNamePatientReport = "Apellido"
     static phonePatientReport = "Numero de Celular"
