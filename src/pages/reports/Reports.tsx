@@ -5,7 +5,6 @@ import SectionElement from '../components/SectionElement';
 import Strings from '../../utils/Strings';
 import { usePostReportsMutation } from '../../services/reportsService';
 import { handleErrorNotification } from '../../utils/Notifications';
-import moment from 'moment';
 
 const { Panel } = Collapse;
 
@@ -24,10 +23,7 @@ const ReportsComponent: React.FC = () => {
 
 	const handleConsultClick = async () => {
 		try {
-			const startDate = startedAt ? moment(startedAt, 'YYYY-MM-DD') : null;
-			const endDate = finishedAt ? moment(finishedAt, 'YYYY-MM-DD') : null;
-	
-			const result = await postReports({ startedAt: startDate, finishedAt: endDate }).unwrap();
+			const result = await postReports({ startedAt , finishedAt}).unwrap();
 	
 			if (Array.isArray(result)) {
 				setTableData(result);
@@ -43,7 +39,7 @@ const ReportsComponent: React.FC = () => {
 		  title={Strings.reports}
 		  isLoading={false}
 		  content={
-			<Collapse>
+			<Collapse >
 			  <Panel header="Visualización de reportes" key="1">
 				<div className="flex justify-between items-center">
 				  <div className="flex">
