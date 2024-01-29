@@ -178,6 +178,7 @@ class Strings {
 
     //Reports
     static reports = "Reportes"
+    static ReportConsult = "Consultar Reportes"
 
 
     static padName = "Nombre del PAD"
@@ -316,6 +317,16 @@ class Strings {
 
     static disabledSegment = "Deshabilitar horario"
     static enableSegment = "Habilitar horario"
+
+    //Reports
+    static startedAt = "Fecha de Inicio"
+    static finishedAt = "Fecha de Fin"
+    static headerReport = "Visualización de Reportes"
+    static namePatienReport = "Nombre del paciente"
+    static lastNamePatientReport = "Apellido"
+    static phonePatientReport = "Numero de Celular"
+    static datePatientReport = "Fecha de la cita"
+
 }
 
 export default Strings;
