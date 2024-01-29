@@ -70,6 +70,7 @@ class Strings {
     static status = "Estatus"
     static appointment = "Cita"
     static appointments = "Citas"
+    static appointmentsTest ="Citas Test";
     static service = "Servicio";
     static services = "Servicios";
     static patientId = "Folio de paciente"

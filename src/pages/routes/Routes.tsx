@@ -42,6 +42,7 @@ import Origins from '../origins/Origins';
 import FormAvailableTimes from '../schedules/FormAvailableTimes';
 import Organizations from '../organization/Organizations';
 import Reports from '../reports/Reports';
+import AppointmentsTest from '../appointmentsTest/AppointmentsTest';
 
 export class Route {
 	label: string;
@@ -263,6 +264,13 @@ const receptionistDetails = new Route(
 	<AppointmentInfo rol={UserRoles.RECEPTIONIST} />,
 	<RiCalendar2Line />
 );
+const receptionistAppointmentTest = new Route(
+	'Citas Test',
+	'appointmentTest',
+	'/receptionist/appointmentsTest/',
+	<AppointmentsTest rol={UserRoles.RECEPTIONIST} />,
+	<RiCalendar2Line />
+);
 const receptionistRegisterPatients = new Route(
 	'RegistroPacientes',
 	'patientsRegister',
@@ -400,6 +408,7 @@ const adminRoutes: Route[] = [
 const receptionistRoutes: Route[] = [
 	receptionistAppointments,
 	receptionistDetails,
+	receptionistAppointmentTest,
 	receptionistPatients,
 	receptionistRegisterPatients,
 	receptionistPatientsInfo,
@@ -570,6 +579,11 @@ const receptionistRoutesToMenuOptions = (): ItemType[] => {
 					receptionistAppointments.label,
 					receptionistAppointments.fullPath,
 					receptionistAppointments.icon
+				),
+				getItem(
+					receptionistAppointmentTest.label,
+					receptionistAppointmentTest.fullPath,
+					receptionistAppointmentTest.icon
 				),
 				getItem(
 					receptionistPatients.label,
