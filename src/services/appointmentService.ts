@@ -1,5 +1,6 @@
 import { Appointment } from "../data/appointment/appointment";
 import { AppointmentDetail } from "../data/appointment/appointment.detail";
+import { AppointmentDetailCalendar } from "../data/appointment/appointment.detailCalendar";
 import { GetAppointmentDetail } from "../data/appointment/appointment.request";
 import { AvailableTime } from "../data/appointment/available.time";
 import { PaymentMethod } from "../data/payment/payment.method";
@@ -59,6 +60,14 @@ export const appointmentService = apiSlice.injectEndpoints({
         body: { ...data },
       }),
       transformResponse: (response: { data: AppointmentDetail[] }, meta, arg) => response.data,
+    }),
+    getAppointmentsByBranchOfficeCalendar: builder.mutation<AppointmentDetailCalendar[], any>({
+      query: (data) => ({
+        url: '/appointment/branchoffice/calendar',
+        method: "POST",
+        body: { ...data },
+      }),
+      transformResponse: (response: { data: AppointmentDetailCalendar[] }, meta, arg) => response.data,
     }),
     // getAppointmentsByBranchOfficeReceptionist: builder.mutation<AppointmentDetail[], any>({
     //   query: (data) => ({
@@ -187,6 +196,7 @@ export const appointmentService = apiSlice.injectEndpoints({
 
 export const {
   useGetAppointmentsByBranchOfficeMutation,
+  useGetAppointmentsByBranchOfficeCalendarMutation,
   useRegisterDentistToAppointmentMutation,
   useUpdateAppointmentStatusMutation,
   useGetAppointmentAvailabilityMutation,
