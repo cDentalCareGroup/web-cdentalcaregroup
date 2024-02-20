@@ -227,33 +227,17 @@ const stringToDate = (data: string): Date => {
   return date;
 }
 
-// const stringToDateAndTime = (data: string, time: string): Date => {
-//   const arrayDate = data.split('-');
-//   const arrayDate2 = time.split(':');
-//   const date = new Date();
-//   date.setFullYear(Number(arrayDate[0]));
-//   date.setMonth(Number(arrayDate[1]) - 1);
-//   date.setDate(Number(arrayDate[2]))
-//   date.setHours(Number(arrayDate2[0]));
-//   date.setMinutes(Number(arrayDate2[1]));
-//   date.setSeconds(Number(arrayDate2[2]));
-//   return date;
-// }
-
-const stringToDateAndTime = (date: string, time: string): Date => {
-  const [year, month, day] = date.split('-').map(Number);
-  const [hour, minute, second] = time.split(':').map(Number);
-
-  // La función Date toma el mes de 0 a 11, por lo que restamos 1 al mes.
-  return new Date(year, month - 1, day, hour, minute, second);
-}
-
-const formatNumberToPercent = (num: any): string => {
-  return Number(num / 100).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 2 });
-}
-
-const getRandomKey = (): string => {
-  return parseInt(Number(Math.random() * 10000000).toString()).toString();
+const stringToDateAndTime = (data: string, time: string): Date => {
+  const arrayDate = data.split('-');
+  const arrayDate2 = time.split(':');
+  const date = new Date();
+  date.setFullYear(Number(arrayDate[0]));
+  date.setMonth(Number(arrayDate[1]) - 1);
+  date.setDate(Number(arrayDate[2]))
+  date.setHours(Number(arrayDate2[0]));
+  date.setMinutes(Number(arrayDate2[1]));
+  date.setSeconds(Number(arrayDate2[2]));
+  return date;
 }
 
 const DEFAULT_COLOR = "36006E"
@@ -262,7 +246,7 @@ const NOT_DENTIST = 'FFFFFF'
 export {
   DEFAULT_COLOR,
   NOT_DENTIST,
-  getRandomKey,
+  
   getInitRoute,
   getUserRol,
   dayName,
@@ -274,6 +258,6 @@ export {
   RESPONSIVE_LIST_LARGE,
   formatPrice,
   stringToDate,
-  formatNumberToPercent, formatAppointmentDate, formatServiceDate,
+   formatAppointmentDate, formatServiceDate,
   stringToDateAndTime
 }
