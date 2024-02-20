@@ -212,19 +212,19 @@ const AppointmentsTest = (props: AppointmentsProps) => {
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex mt-2 ml-2">
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-l-full border-none focus:outline-none"
+                      className="bg-secondary hover:bg-calendar text-white px-4 py-2 rounded-l-full border-none focus:outline-none"
                       onClick={() => props.onNavigate("TODAY")}
                     >
                       Hoy
                     </button>
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 border-none focus:outline-none"
+                      className="bg-secondary hover:bg-calendar text-white px-4 py-2 border-none focus:outline-none"
                       onClick={() => props.onNavigate("PREV")}
                     >
                       Anterior
                     </button>
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-full border-none focus:outline-none"
+                      className="bg-secondary hover:bg-calendar text-white px-4 py-2 rounded-r-full border-none focus:outline-none"
                       onClick={() => props.onNavigate("NEXT")}
                     >
                       Siguiente
@@ -242,25 +242,25 @@ const AppointmentsTest = (props: AppointmentsProps) => {
                   </div>
                   <div className="flex mt-2 mr-2">
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-l-full border-none focus:outline-none"
+                      className="bg-secondary hover:bg-calendar text-white px-4 py-2 rounded-l-full border-none focus:outline-none"
                       onClick={() => props.onView("month")}
                     >
                       Mes
                     </button>
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 border-none focus:outline-none"
+                      className="bg-secondary hover:bg-calendar text-white px-4 py-2 border-none focus:outline-none"
                       onClick={() => props.onView("week")}
                     >
                       Semana
                     </button>
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 border-none focus:outline-none"
+                      className="bg-secondary hover:bg-calendar text-white px-4 py-2 border-none focus:outline-none"
                       onClick={() => props.onView("day")}
                     >
                       Día
                     </button>
                     <button
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-full border-none focus:outline-none"
+                      className="bg-secondary hover:bg-calendar text-white px-4 py-2 rounded-r-full border-none focus:outline-none"
                       onClick={() => props.onView("agenda")}
                     >
                       Agenda

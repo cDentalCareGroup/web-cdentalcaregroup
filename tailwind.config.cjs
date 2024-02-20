@@ -10,7 +10,8 @@ module.exports = {
         secondary: '#1e40af',
         list1: '#0047cc',
         list2: '#e3342f',
-        textAside: '#ffffff'
+        textAside: '#ffffff',
+        calendar: '#1E88E5'
       },
     },
   },
