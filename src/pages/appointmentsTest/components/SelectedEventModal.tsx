@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal } from "antd";
+import Strings from "../../../utils/Strings";
 
 interface SelectedEventModalProps {
   isVisible: boolean;
@@ -13,8 +14,8 @@ const SelectedEventModal: React.FC<SelectedEventModalProps> = ({
   selectedEvent,
 }) => {
   return (
-    <Modal title="Detalles del Evento" open={isVisible} onCancel={onCancel}>
-      {selectedEvent && <p>Evento Seleccionado: {selectedEvent.title}</p>}
+    <Modal title={Strings.detailsEvent} open={isVisible} onCancel={onCancel}>
+      {selectedEvent && <p>{Strings.selectedEvent} {selectedEvent.title}</p>}
       
     </Modal>
   );

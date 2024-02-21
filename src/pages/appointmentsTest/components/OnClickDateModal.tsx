@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal } from "antd";
 import dayjs from "dayjs";
+import Strings from "../../../utils/Strings";
 
 interface OnClickDateModalProps {
   isVisible: boolean;
@@ -14,8 +15,8 @@ const OnClickDateModal: React.FC<OnClickDateModalProps> = ({
   clickedDate,
 }) => {
   return (
-    <Modal title="Fecha Seleccionada" open={isVisible} onCancel={onCancel}>
-      <p>Fecha Seleccionada: {clickedDate && dayjs(clickedDate).format("MMMM D, YYYY")}</p>
+    <Modal title={Strings.selectedDate} open={isVisible} onCancel={onCancel}>
+      <p> {Strings.selectedDate}{clickedDate && dayjs(clickedDate).format("MMMM D, YYYY")}</p>
     </Modal>
   );
 };

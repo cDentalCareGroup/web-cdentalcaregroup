@@ -45,7 +45,7 @@ const AppointmentsTest = (props: AppointmentsProps) => {
 
 
   const handleFilterChange = useCallback((value: string) => {
-    if (value === null || value === Constants.EMPTY_FILTER) {
+    if (value === null || value === Constants.EMPTY_VALUE) {
       setFilterStatus(undefined);
     } else {
       setFilterStatus(value);
@@ -165,11 +165,11 @@ const AppointmentsTest = (props: AppointmentsProps) => {
             value={filterStatus}
             onChange={handleFilterChange}
           >
-            <Option value={Constants.EMPTY_FILTER}>Reset</Option>
-            <Option value={Constants.STATUS_ACTIVE}>Activas</Option>
-            <Option value={Constants.STATUS_PROCESS}>En Proceso</Option>
-            <Option value={Constants.STATUS_FINISHED}>Finalizadas</Option>
-            <Option value={Constants.STATUS_NOT_ATTENDED}>No Atendidas</Option>
+            <Option value={Constants.EMPTY_VALUE}>{Strings.reset}</Option>
+            <Option value={Constants.STATUS_ACTIVE}>{Strings.active}</Option>
+            <Option value={Constants.STATUS_PROCESS}>{Strings.inProcess}</Option>
+            <Option value={Constants.STATUS_FINISHED}>{Strings.finsished}</Option>
+            <Option value={Constants.STATUS_NOT_ATTENDED}>{Strings.notAttended}</Option>
           </Select>
           <Calendar
             key={key}
