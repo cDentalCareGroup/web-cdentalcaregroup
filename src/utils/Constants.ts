@@ -21,6 +21,8 @@ const IS_INDIVIDUAL_PAD = "IS_INDIVIDUAL_PAD"
 const MAX_MEMBERS_PAD = "MAX_MEMBERS_PAD"
 const EXISTING_PAYMENT_METHOD = "EXISTING_PAYMENT_METHOD"
 const EMPTY_AMOUNT = "EMPTY_AMOUNT"
+const EMPTY_FILTER = "EMPTY_FILTER"
+const EMPTY_VALUE = ""
 
 
 const STATUS_ACTIVE = 'active'
@@ -50,6 +52,8 @@ const SET_TEXT = "SET_TEXT"
 const SET_DENTIST = "SET_DENTIST"
 
 const ALL = "Todos"
+const MIN = new Date(0, 0, 0, 8, 0, 0);
+const MAX = new Date(0, 0, 0, 20, 0, 0);
 
 export const LOAD_DATA_DELAY = 3000;
 
@@ -91,6 +95,9 @@ export default {
     SET_TEXT,
     BRANCH_NAME,
     SET_DENTIST,
-    ALL
-
+    ALL,
+    EMPTY_FILTER,
+    EMPTY_VALUE,
+    MIN,
+    MAX
 }

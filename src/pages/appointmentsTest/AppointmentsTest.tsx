@@ -15,8 +15,9 @@ import Constants from "../../utils/Constants";
 import { useGetAppointmentsByBranchOfficeCalendarMutation } from "../../services/appointmentService";
 import useSessionStorage from "../../core/sessionStorage";
 import { Select } from "antd";
-import ClickedDateModal from "./components/ClickedDateModal";
+import ClickedDateModal from "./components/OnClickDateModal";
 import SelectedEventModal from "./components/SelectedEventModal"; 
+import CalendarAppointmentEvent from "../../data/appointment/calendar.appointment.event ";
 
 const localizer = dayjsLocalizer(dayjs);
 
@@ -40,38 +41,18 @@ const AppointmentsTest = (props: AppointmentsProps) => {
   const [filterStatus, setFilterStatus] = useState<string | undefined>(undefined);
 
 
-  class CalendarAppointmentEvent {
-    title: string;
-    start: Date;
-    end: Date;
-    color: string;
-    status: string;
-  
-    constructor(
-      title: string,
-      start: Date,
-      end: Date,
-      color: string,
-      status: string
-    ) {
-      this.title = title;
-      this.start = start;
-      this.end = end;
-      this.color = color;
-      this.status = status;
-    }
-  }
+
 
 
   const handleFilterChange = useCallback((value: string) => {
-    if (value === null || value === "") {
+    if (value === null || value === Constants.EMPTY_FILTER) {
       setFilterStatus(undefined);
     } else {
       setFilterStatus(value);
     }
   }, []);
 
-  const fetchData2 = async () => {
+  const getCalendarAppointmets = async () => {
     try {
       setIsLoading(true);
   
@@ -88,18 +69,18 @@ const AppointmentsTest = (props: AppointmentsProps) => {
       const responseProcess = await getAppointmentsByBranchOffice(requestBody).unwrap();
   
       const events = responseProcess.map((event) => {
-        const dentist ="Dr@ " +(event.dentist?.name ? event.dentist?.name : "No asigando") +" " +(event.dentist?.lastname ? event.dentist?.lastname : " ");
-        const patient =". " +(event.patient?.name ? event.patient?.name : "No asignado") +" " +(event.patient?.lastname ? event.patient?.lastname : " ") +
+        const dentist ="Dr@ " +(event.dentist?.name ? event.dentist?.name : Strings.notAssigned) +" " +(event.dentist?.lastname ? event.dentist?.lastname : " ");
+        const patient =". " +(event.patient?.name ? event.patient?.name : Strings.notAssigned) +" " +(event.patient?.lastname ? event.patient?.lastname : " ") +
         " " +(event.patient?.secondLastname ? event.patient?.secondLastname: " ");
         const folioPatient =" Folio:" + (event.patient?.folio ? event.patient.folio : "NA");
         const phone =" Tel: " +(event.patient?.primaryContact || event.patient?.secondaryContact || "N/A ");
-        const prospect = event.appointment?.prospectId ? "Prospecto" : "";
+        const prospect = event.appointment?.prospectId ? "Prospecto" : Constants.EMPTY_VALUE;
         const information = dentist + patient + folioPatient + phone + prospect;        
         const startDate = stringToDateAndTime(event.appointment?.appointment, event.appointment?.time);
         const endDate = stringToDateAndTime(event.appointment?.appointment, event.appointment?.time);
   
         const color = event.dentist?.dentistColor || NOT_DENTIST;
-        const status = event.appointment?.status || "";
+        const status = event.appointment?.status || Constants.EMPTY_VALUE;
 
   
         return new CalendarAppointmentEvent(
@@ -119,7 +100,7 @@ const AppointmentsTest = (props: AppointmentsProps) => {
   };
   
   useEffect(() => {
-    fetchData2();
+    getCalendarAppointmets();
   }, [displayedDate, filterStatus]);
 
  
@@ -184,7 +165,7 @@ const AppointmentsTest = (props: AppointmentsProps) => {
             value={filterStatus}
             onChange={handleFilterChange}
           >
-            <Option value="">Reset</Option>
+            <Option value={Constants.EMPTY_FILTER}>Reset</Option>
             <Option value={Constants.STATUS_ACTIVE}>Activas</Option>
             <Option value={Constants.STATUS_PROCESS}>En Proceso</Option>
             <Option value={Constants.STATUS_FINISHED}>Finalizadas</Option>
@@ -202,8 +183,8 @@ const AppointmentsTest = (props: AppointmentsProps) => {
             eventPropGetter={eventStyleGetter}
             defaultView="day"
             defaultDate={displayedDate}
-            min={new Date(0, 0, 0, 8, 0, 0)} 
-            max={new Date(0, 0, 0, 20, 0, 0)}
+            min={Constants.MIN} 
+            max={Constants.MAX}
             onSelectSlot={handleSelectSlot} 
             onSelectEvent={handleSelectEvent}
             onSelecting={() => true}
@@ -215,19 +196,19 @@ const AppointmentsTest = (props: AppointmentsProps) => {
                       className="bg-secondary hover:bg-calendar text-white px-4 py-2 rounded-l-full border-none focus:outline-none"
                       onClick={() => props.onNavigate("TODAY")}
                     >
-                      Hoy
+                      {Strings.today}
                     </button>
                     <button
                       className="bg-secondary hover:bg-calendar text-white px-4 py-2 border-none focus:outline-none"
                       onClick={() => props.onNavigate("PREV")}
                     >
-                      Anterior
+                      {Strings.prev}
                     </button>
                     <button
                       className="bg-secondary hover:bg-calendar text-white px-4 py-2 rounded-r-full border-none focus:outline-none"
                       onClick={() => props.onNavigate("NEXT")}
                     >
-                      Siguiente
+                      {Strings.next}
                     </button>
                   </div>
                   <div
@@ -245,25 +226,25 @@ const AppointmentsTest = (props: AppointmentsProps) => {
                       className="bg-secondary hover:bg-calendar text-white px-4 py-2 rounded-l-full border-none focus:outline-none"
                       onClick={() => props.onView("month")}
                     >
-                      Mes
+                      {Strings.month}
                     </button>
                     <button
                       className="bg-secondary hover:bg-calendar text-white px-4 py-2 border-none focus:outline-none"
                       onClick={() => props.onView("week")}
                     >
-                      Semana
+                      {Strings.week}
                     </button>
                     <button
                       className="bg-secondary hover:bg-calendar text-white px-4 py-2 border-none focus:outline-none"
                       onClick={() => props.onView("day")}
                     >
-                      Día
+                      {Strings.day}
                     </button>
                     <button
                       className="bg-secondary hover:bg-calendar text-white px-4 py-2 rounded-r-full border-none focus:outline-none"
                       onClick={() => props.onView("agenda")}
                     >
-                      Agenda
+                      {Strings.agenda}
                     </button>
                   </div>
                 </div>

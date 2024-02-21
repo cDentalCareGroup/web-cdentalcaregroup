@@ -2,13 +2,13 @@ import React from "react";
 import { Modal } from "antd";
 import dayjs from "dayjs";
 
-interface ClickedDateModalProps {
+interface OnClickDateModalProps {
   isVisible: boolean;
   onCancel: () => void;
   clickedDate: Date | null;
 }
 
-const ClickedDateModal: React.FC<ClickedDateModalProps> = ({
+const OnClickDateModal: React.FC<OnClickDateModalProps> = ({
   isVisible,
   onCancel,
   clickedDate,
@@ -20,4 +20,4 @@ const ClickedDateModal: React.FC<ClickedDateModalProps> = ({
   );
 };
 
-export default ClickedDateModal;
+export default OnClickDateModal;

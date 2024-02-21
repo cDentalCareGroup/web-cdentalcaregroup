@@ -328,6 +328,13 @@ class Strings {
     static phonePatientReport = "Numero de Celular"
     static datePatientReport = "Fecha de la cita"
 
+    static notAssigned = "No asignado"
+    static next = "Siguiente"
+    static prev = "Anterior"
+    static today = "Hoy"
+    static month = "Mes"
+    static week= "Semana"
+    static agenda = "Agenda"
 }
 
 export default Strings;
