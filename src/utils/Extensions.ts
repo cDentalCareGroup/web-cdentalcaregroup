@@ -227,18 +227,25 @@ const stringToDate = (data: string): Date => {
   return date;
 }
 
+
+const stringToDateAndTime = (date: string, time: string): Date => {
+  const [year, month, day] = date.split('-').map(Number);
+  const [hour, minute, second] = time.split(':').map(Number);
+  return new Date(year, month - 1, day, hour, minute, second);
+}
 const formatNumberToPercent = (num: any): string => {
   return Number(num / 100).toLocaleString(undefined, { style: 'percent', minimumFractionDigits: 2 });
 }
-
 const getRandomKey = (): string => {
   return parseInt(Number(Math.random() * 10000000).toString()).toString();
 }
 
 const DEFAULT_COLOR = "36006E"
+const NOT_DENTIST = 'FFFFFF'
 
 export {
   DEFAULT_COLOR,
+  NOT_DENTIST,
   getRandomKey,
   getInitRoute,
   getUserRol,
@@ -251,5 +258,6 @@ export {
   RESPONSIVE_LIST_LARGE,
   formatPrice,
   stringToDate,
-  formatNumberToPercent, formatAppointmentDate, formatServiceDate
+  formatNumberToPercent, formatAppointmentDate, formatServiceDate,
+  stringToDateAndTime
 }
